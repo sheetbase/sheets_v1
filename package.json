@@ -19,7 +19,7 @@
       "deploy": "sheetbase-app-scripts deploy",
       "lint": "tslint --project tslint.json && echo 'All files pass linting.'",
       "transpile-test": "tsc --project tests/tsconfig.test.json",
-      "patch-test": "replace-in-file /lodash-es/g lodash build/src/lib/sheets-nosql.js --isRegex",
+      "patch-test": "replace-in-file /lodash-es/g lodash build/src/lib/nosql.js --isRegex",
       "run-test": "nyc --cache false mocha --timeout 100000 -- build/tests/*.js",
       "test": "npm run transpile-test && npm run patch-test && npm run run-test",
       "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"
