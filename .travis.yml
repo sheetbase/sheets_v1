@@ -1,0 +1,16 @@
+dist: trusty
+sudo: false
+
+language: node_js
+node_js:
+  - '8'
+
+install:
+  - npm install
+  - npm install @sheetbase/core-server
+
+script:
+  - npm run lint
+  - npm run test
+
+after_success: npm run coverage

@@ -1,0 +1,2 @@
+**
+# This folder is deployed to NPM, always deploy as a library from "dist" folder.

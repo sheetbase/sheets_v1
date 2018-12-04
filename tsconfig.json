@@ -1,0 +1,11 @@
+{
+  "extends": "./node_modules/@sheetbase/app-scripts/config/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/esm3",
+    "declaration": true,
+    "declarationDir": "./dist"
+  },
+  "files": [
+    "./src/public_api.ts"
+  ]
+}

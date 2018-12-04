@@ -1,0 +1,66 @@
+{
+   "name": "@sheetbase/sheets-server",
+   "version": "0.0.9",
+   "description": "Using Google Sheets as a database.",
+   "author": "Sheetbase",
+   "homepage": "https://sheetbase.net",
+   "license": "MIT",
+   "main": "dist/bundles/sheetbase-sheets-server.umd.js",
+   "module": "dist/fesm3/sheetbase-sheets-server.js",
+   "typings": "dist/sheetbase-sheets-server.d.ts",
+   "files": [
+      "dist"
+   ],
+   "scripts": {
+      "module": "sheetbase-app-scripts build",
+      "readme": "sheetbase-app-scripts readme",
+      "docs": "sheetbase-app-scripts docs",
+      "build": "npm run module && npm run readme && npm run docs",
+      "deploy": "sheetbase-app-scripts deploy",
+      "lint": "tslint --project tslint.json && echo 'All files pass linting.'",
+      "transpile-test": "tsc --project tests/tsconfig.test.json",
+      "patch-test": "replace-in-file /lodash-es/g lodash build/src/lib/sheets-nosql.js --isRegex",
+      "run-test": "nyc --cache false mocha --timeout 100000 -- build/tests/*.js",
+      "test": "npm run transpile-test && npm run patch-test && npm run run-test",
+      "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"
+   },
+   "keywords": [
+      "google-apps-script",
+      "sheets",
+      "sheetbase",
+      "database",
+      "nosql"
+   ],
+   "repository": {
+      "type": "git",
+      "url": "https://github.com/sheetbase/sheets-server.git"
+   },
+   "bugs": {
+      "url": "https://github.com/sheetbase/sheets-server/issues"
+   },
+   "dependencies": {
+      "@sheetbase/tamotsux-server": "0.0.4",
+      "lodash-es": "^4.17.11"
+   },
+   "peerDependencies": {
+      "@sheetbase/core-server": "0.0.19"
+   },
+   "devDependencies": {
+      "@sheetbase/app-scripts": "^0.0.28",
+      "@types/chai": "^4.1.7",
+      "@types/google-apps-script": "^0.0.32",
+      "@types/lodash-es": "^4.17.1",
+      "@types/mocha": "^5.2.5",
+      "@types/node": "^10.12.8",
+      "@types/sinon": "^5.0.7",
+      "chai": "^4.2.0",
+      "coveralls": "^3.0.2",
+      "mocha": "^5.2.0",
+      "nyc": "^13.1.0",
+      "replace-in-file": "^3.4.2",
+      "rollup-plugin-node-resolve": "^3.4.0",
+      "sinon": "^7.1.1",
+      "tslint": "^5.11.0",
+      "typescript": "^3.1.6"
+   }
+}

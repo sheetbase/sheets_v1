@@ -1,0 +1,13 @@
+node_modules/
+
+# clasp
+.clasprc.json
+
+# build
+build/
+dist/
+deploy/
+
+# test
+.nyc_output/
+coverage/
