@@ -28,3 +28,10 @@ export function sheetsSQL(options?: Options): SQLService {
 export function sheetsNoSQL(options?: Options): NoSQLService {
     return new NoSQLService(options);
 }
+
+export {
+    sheets as database,
+    sheets as db,
+    sheetsSQL as sql,
+    sheetsNoSQL as noSQL,
+};

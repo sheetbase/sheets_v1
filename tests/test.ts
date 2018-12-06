@@ -10,6 +10,7 @@ import {
     sheetsSQL,
     sheetsNoSQL,
 
+    translateRangeValues,
     parseData,
     stringifyData,
 } from '../src/public_api';
@@ -55,6 +56,31 @@ describe('Module', () => {
 describe('Spreadsheet service', () => {
     const Spreadsheet = spreadsheet({ databaseId });
 
+    let getActiveStub: sinon.SinonStub;
+    let openByIdStub: sinon.SinonStub;
+    let spreadsheetStub: sinon.SinonStub;
+    let rangeStub: sinon.SinonStub;
+    let sheetsStub: sinon.SinonStub;
+    let sheetStub: sinon.SinonStub;
+
+    beforeEach(() => {
+        getActiveStub = sinon.stub(SpreadsheetApp, 'getActive');
+        openByIdStub = sinon.stub(SpreadsheetApp, 'openById');
+        spreadsheetStub = sinon.stub(Spreadsheet, 'spreadsheet');
+        rangeStub = sinon.stub(Spreadsheet, 'range');
+        sheetsStub = sinon.stub(Spreadsheet, 'sheets');
+        sheetStub = sinon.stub(Spreadsheet, 'sheet');
+    });
+
+    afterEach(() => {
+        getActiveStub.restore();
+        openByIdStub.restore();
+        spreadsheetStub.restore();
+        rangeStub.restore();
+        sheetsStub.restore();
+        sheetStub.restore();
+    });
+
     it('.options should have default values', () => {
         const Spreadsheet = spreadsheet();
         // @ts-ignore
@@ -69,70 +95,115 @@ describe('Spreadsheet service', () => {
         expect(options.databaseId).to.equal('xxx');
     });
 
-    it('SpreadsheetApp should use active spreadsheet is no databaseId', () => {
-        const getActiveStub = sinon.stub(SpreadsheetApp, 'getActive');
+    it('#spreadsheet SpreadsheetApp should use active spreadsheet is no databaseId', () => {
         getActiveStub.onFirstCall().returns('SpreadsheetApp.getActive()' as any);
 
         const Spreadsheet = spreadsheet();
         const result = Spreadsheet.spreadsheet();
         expect(result).to.equal('SpreadsheetApp.getActive()');
-
-        // restore
-        getActiveStub.restore();
     });
 
-    it('SpreadsheetApp should use databaseId', () => {
-        const openByIdStub = sinon.stub(SpreadsheetApp, 'openById');
+    it('#spreadsheet SpreadsheetApp should use databaseId', () => {
         openByIdStub.onFirstCall().returns('SpreadsheetApp.openById()' as any);
 
         const Spreadsheet = spreadsheet({ databaseId });
         const result = Spreadsheet.spreadsheet();
         expect(result).to.equal('SpreadsheetApp.openById()');
-
-        // restore
-        openByIdStub.restore();
-    });
-
-    it('#spreadsheet should work', () => {
-
     });
 
     it('#sheets should work', () => {
+        spreadsheetStub.callsFake(() => ({ getSheets: () => true }));
+        sheetsStub.restore();
 
+        const result = Spreadsheet.sheets();
+        expect(result).to.equal(true);
     });
 
     it('#sheet should work', () => {
+        spreadsheetStub.callsFake(() => ({
+            getActiveSheet: () => 'getActiveSheet()',
+            getSheetByName: (name) => 'getSheetByName("' + name + '")',
+        }));
+        sheetStub.restore();
 
+        const result1 = Spreadsheet.sheet();
+        const result2 = Spreadsheet.sheet('foo');
+        expect(result1).to.equal('getActiveSheet()');
+        expect(result2).to.equal('getSheetByName("foo")');
     });
 
     it('#range should work', () => {
+        spreadsheetStub.callsFake(() => ({
+            getActiveRange: () => 'getActiveRange()',
+            getRange: (notation) => 'getRange("' + notation + '")',
+        }));
+        rangeStub.restore();
 
+        const result1 = Spreadsheet.range();
+        const result2 = Spreadsheet.range('foo!A1');
+        expect(result1).to.equal('getActiveRange()');
+        expect(result2).to.equal('getRange("foo!A1")');
     });
 
     it('#getValues should work', () => {
+        rangeStub.onFirstCall().returns({ getValues: () => true });
 
+        const result = Spreadsheet.getValues();
+        expect(result).to.equal(true);
     });
 
     it('#setValues should work', () => {
+        rangeStub.onFirstCall().returns({ setValues: (values) => values });
 
+        const result = Spreadsheet.setValues([1,2,3]);
+        expect(result).to.eql([1,2,3]);
     });
 
     it('#sheetNames should work', () => {
+        sheetsStub.onFirstCall().returns([
+            { getName: () => 'foo' },
+            { getName: () => 'bar' },
+            { getName: () => '__taxonomies__' },
+        ]);
 
+        const result = Spreadsheet.sheetNames();
+        expect(result).to.eql({
+            all: ['foo', 'bar', '__taxonomies__'],
+            main: ['foo', 'bar'],
+            meta: ['__taxonomies__'],
+        });
     });
 
     it('#lastCol should work', () => {
-
+        sheetStub.onFirstCall().returns({ getLastColumn: () => 'G' });
+        const result = Spreadsheet.lastCol('foo');
+        expect(result).to.equal('G');
     });
 
     it('#lastRow should work', () => {
-
+        sheetStub.onFirstCall().returns({ getLastRow: () => 77 });
+        const result = Spreadsheet.lastRow('foo');
+        expect(result).to.equal(77);
     });
 
 });
 
 describe('SQL service', () => {
     const SheetsSQL = sheetsSQL({ databaseId });
+
+    let defineStub: sinon.SinonStub;
+    let sheetNamesStub: sinon.SinonStub;
+
+    beforeEach(() => {
+        defineStub = sinon.stub(TamotsuX.Table, 'define');
+        // @ts-ignore
+        sheetNamesStub = sinon.stub(SheetsSQL.spreadsheetService, 'sheetNames');
+    });
+
+    afterEach(() => {
+        defineStub.restore();
+        sheetNamesStub.restore();
+    });
 
     it('.options should have default values', () => {
         const SheetsSQL = sheetsSQL();
@@ -149,32 +220,21 @@ describe('SQL service', () => {
     });
 
     it('#model should works', () => {
-        const defineStub = sinon.stub(TamotsuX.Table, 'define');
         // @ts-ignore
         defineStub.callsFake(options => options);
 
         const result = SheetsSQL.model('foo');
         expect(result).to.eql({ sheetName: 'foo' });
-
-        // restore
-        defineStub.restore();
     });
 
     it('#models should works', () => {
-        const defineStub = sinon.stub(TamotsuX.Table, 'define');
         // @ts-ignore
         defineStub.callsFake(() => true);
 
-        // @ts-ignore
-        const sheetNamesStub = sinon.stub(SheetsSQL.spreadsheetService, 'sheetNames');
         sheetNamesStub.onFirstCall().returns({ main: ['foo', 'bar'] } as any);
 
         const result = SheetsSQL.models();
         expect(result).to.eql({ foo: true, bar: true });
-
-        // restore
-        defineStub.restore();
-        sheetNamesStub.restore();
     });
 
     it('#all should work', () => {
@@ -250,8 +310,35 @@ describe('NoSQL service', () => {
 
 describe('Utils', () => {
 
-    it('#translateRangeValues should work', () => {
+    it('#translateRangeValues should work (empty)', () => {
+        const result1 = translateRangeValues(null);
+        const result2 = translateRangeValues([]);
+        const result3 = translateRangeValues([[]]);
+        expect(result1).to.eql([]);
+        expect(result2).to.eql([]);
+        expect(result3).to.eql([]);
+    });
 
+    it('#translateRangeValues should work (no headers)', () => {
+        const result1 = translateRangeValues([[1, 2]], true);
+        const result2 = translateRangeValues([[1, 2], [3, 4]], true);
+        expect(result1).to.eql([{ value1: 1, value2: 2 }]);
+        expect(result2).to.eql([{ value1: 1, value2: 2 }, { value1: 3, value2: 4 }]);
+    });
+
+    it('#translateRangeValues should work', () => {
+        const result1 = translateRangeValues([['id', 'title'], [1, 2]]);
+        const result2 = translateRangeValues([['id', 'title'], [1, 2], [3, 4]]);
+        expect(result1).to.eql([{ id: 1, title: 2 }]);
+        expect(result2).to.eql([{ id: 1, title: 2 }, { id: 3, title: 4 }]);
+    });
+
+    it('#translateRangeValues should work (with modifier)', () => {
+        const result = translateRangeValues([['id', 'title'], [1, 2]], false, (item) => {
+            if (item.title === 2) item.title = '2';
+            return item;
+        });
+        expect(result).to.eql([{ id: 1, title: '2' }]);
     });
 
     it('#parseData should work', () => {

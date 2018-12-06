@@ -1,29 +1,27 @@
 // turn [[],[], ...] to [{},{}, ...]
 export function translateRangeValues(
-    values: any[],
+    values: any[][],
     noHeaders = false,
     modifier = (item) => item,
-): any[] {
-    const items: any[] = [];
-    let headers: string [] = ['value'];
-    let data: any[] = values || [];
-    if (!noHeaders) {
-        headers = values[0] || [];
-        data = values.slice(1, values.length) || [];
-    }
-    for (let i = 0; i < data.length; i++) {
-        const rows = data[i];
+) {
+    values = values || [];
+    // get header
+    const headers: string[] = !noHeaders ? values.shift() : [];
+    // build data
+    const result: Array<{}> = [];
+    for (let i = 0; i < values.length; i++) {
+        const rows = values[i] || [];
         const item = {};
         for (let j = 0; j < rows.length; j++) {
             if (rows[j]) {
-                item[headers[j] || (headers[0] + j)] = rows[j];
+                item[headers[j] || ('value' + (j + 1))] = rows[j];
             }
         }
         if (Object.keys(item).length > 0) {
-            items.push(modifier(item));
+            result.push(modifier(item));
         }
     }
-    return items;
+    return result;
 }
 
 // convert string of data load from spreadsheet to correct data type
