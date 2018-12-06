@@ -1,4 +1,4 @@
-import { Options, SpreadsheetOptions, SQLOptions, NoSQLOptions } from './types';
+import { Options } from './types';
 import { SpreadsheetService } from './spreadsheet';
 import { SQLService } from './sql';
 import { NoSQLService } from './nosql';
@@ -17,14 +17,14 @@ export function sheets(options?: Options) {
     return { Spreadsheet, SQL, NoSQL };
 }
 
-export function spreadsheet(options?: SpreadsheetOptions): SpreadsheetService {
+export function spreadsheet(options?: Options): SpreadsheetService {
     return new SpreadsheetService(options);
 }
 
-export function sheetsSQL(options?: SQLOptions): SQLService {
+export function sheetsSQL(options?: Options): SQLService {
     return new SQLService(options);
 }
 
-export function sheetsNoSQL(options?: NoSQLOptions): NoSQLService {
+export function sheetsNoSQL(options?: Options): NoSQLService {
     return new NoSQLService(options);
 }

@@ -1,22 +1,38 @@
 import { initialize, Table } from '@sheetbase/tamotsux-server';
 
-import { SQLOptions } from './types';
+import { Options } from './types';
+import { SpreadsheetService } from './spreadsheet';
 import { parseData } from './utils';
 
 export class SQLService {
-    private options: SQLOptions;
+    private options: Options;
+    private spreadsheetService: SpreadsheetService;
 
-    constructor(options: SQLOptions = {}) {
+    constructor(options: Options = {}) {
+        this.spreadsheetService = new SpreadsheetService(options);
         this.options = options;
         // init tamotsux
-        const { databaseId } = this.options;
-        initialize(!databaseId ? SpreadsheetApp.getActiveSpreadsheet() : SpreadsheetApp.openById(databaseId));
+        initialize(this.spreadsheetService.spreadsheet());
     }
 
     model(tableName: string) {
         return Table.define({sheetName: tableName});
     }
 
+    models() {
+        const models = {};
+        const { main: tables } = this.spreadsheetService.sheetNames();
+        for (let i = 0; i < tables.length; i++) {
+            const tableName = tables[i];
+            models[tableName] = Table.define({sheetName: tableName});
+        }
+        return models;
+    }
+
+    // .all()
+    // - [] (blank sheet, header only)
+    // - [{}, {}, ...]
+    // - throw (no sheet)
     all<Item>(tableName: string): Item[] {
         const items: Item[] = [];
         const rawItems = this.model(tableName).all();
@@ -27,6 +43,14 @@ export class SQLService {
         return items;
     }
 
+    // find()
+    // - {} (number and exists)
+    // - throw
+
+    // first()
+    // - null (array, valid condition not exists)
+    // - {} (null, valid condition)
+    // - throw
     item<Item>(
         tableName: string,
         idOrCondition: number | {[field: string]: string},
@@ -43,6 +67,12 @@ export class SQLService {
         return item;
     }
 
+    // createOrUpdate()
+    // - throw (undefined, null)
+    // - new (number, string, array, boolean)
+    // - new (object no # (null, undefined))
+    // - new (not exists # (string, number, boolean, array (first item as id), object)
+    // - update (exists #)
     update(
         tableName: string,
         data: {},
@@ -53,10 +83,19 @@ export class SQLService {
             id = null;
         } else if (typeof idOrCondition === 'number') { // update by id
             id = idOrCondition;
-        } else { // update by condition
+        } else { // update by condition or create new if no item
             const item = this.item(tableName, idOrCondition);
-            id = item['#'];
+            id = item ? item['#'] : null;
         }
+
+        // TODO:
+        // stringifyData first
+
+        // TODO: new
+        // check for unique id and key
+        // check for valid id (string/number/array(first item))
+        // check for mandatory fields for new item
+
         // execute
         this.model(tableName).createOrUpdate({ ... data, '#': id });
     }

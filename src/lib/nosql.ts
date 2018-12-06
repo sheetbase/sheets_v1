@@ -1,15 +1,15 @@
-import { o2a, a2o } from '@sheetbase/core-server';
+import { o2a, a2o, uniqueId } from '@sheetbase/core-server';
 import lodashGet from 'lodash-es/get';
 import lodashSet from 'lodash-es/set';
 
-import { NoSQLOptions } from './types';
+import { Options } from './types';
 import { SQLService } from './sql';
 
 export class NoSQLService {
-    private options: NoSQLOptions;
+    private options: Options;
     private sqlService: SQLService;
 
-    constructor(options: NoSQLOptions = {}) {
+    constructor(options: Options = {}) {
         this.sqlService = new SQLService(options);
         this.options = {
             keyFields: {},
@@ -17,11 +17,18 @@ export class NoSQLService {
         };
     }
 
+    keyField(collectionId: string): string {
+        return this.options.keyFields[collectionId] || 'slug';
+    }
+
+    key(): string {
+        return uniqueId(27);
+    }
+
     collection<Item>(collectionId: string, returnObject = false): {[key: string]: Item} | Item[] {
         let items: any = this.sqlService.all(collectionId);
         if (returnObject) {
-            const keyField = this.options.keyFields[collectionId] || 'slug';
-            items = a2o(items, keyField);
+            items = a2o(items, this.keyField(collectionId));
         }
         return items;
     }
@@ -29,6 +36,10 @@ export class NoSQLService {
     doc<Item>(collectionId: string, docId: string): Item {
         const items = this.collection(collectionId, true) as {[key: string]: Item};
         return items[docId];
+    }
+
+    list(path: string): any[] {
+        return o2a(this.object(path));
     }
 
     object(path: string) {
@@ -41,10 +52,6 @@ export class NoSQLService {
         }
     }
 
-    list(path: string): any[] {
-        return o2a(this.object(path));
-    }
-
     updateDoc(
         collectionId: string,
         data: {},
@@ -55,8 +62,7 @@ export class NoSQLService {
         if (!docIdOrCondition) { // new
             id = null;
         } else if (typeof docIdOrCondition === 'string') { // update by doc id
-            const keyField = this.options.keyFields[collectionId] || 'slug';
-            condition = {[keyField]: docIdOrCondition};
+            condition = { [this.keyField(collectionId)]: docIdOrCondition };
         } else { // update by condition
             condition = docIdOrCondition;
         }

@@ -27,8 +27,6 @@ const Sheets = SheetsModule.Sheets;
 
 ## Scopes
 
-`https://www.googleapis.com/auth/script.scriptapp`
-
 `https://www.googleapis.com/auth/spreadsheets`
 
 ## Usage
@@ -45,7 +43,7 @@ import * as Sheets from "./public_api";
 const databaseId = "1Zz5kvlTn2cXd41ZQZlFeCjvVR_XhpUnzKlDGB8QsXoI";
 
 function load_() {
-  return Sheets.sheetsNosql({ databaseId });
+  return Sheets.sheetsNoSQL({ databaseId });
 }
 
 export function example1(): void {
@@ -65,10 +63,10 @@ export function example2(): void {
 export function example3(): void {
   const DB = load_();
 
-  const update = DB.update({
+  DB.update({
     "/foo/foo-6/content": new Date().getTime()
   });
-  Logger.log(update);
+  Logger.log(true);
 }
 ```
 
