@@ -19,9 +19,8 @@
       "deploy": "sheetbase-app-scripts deploy",
       "lint": "tslint --project tslint.json && echo 'All files pass linting.'",
       "transpile-test": "tsc --project tests/tsconfig.test.json",
-      "patch-test": "replace-in-file /lodash-es/g lodash build/src/lib/nosql.js --isRegex",
       "run-test": "nyc --cache false mocha --timeout 100000 -- build/tests/*.js",
-      "test": "npm run transpile-test && npm run patch-test && npm run run-test",
+      "test": "npm run transpile-test && npm run run-test",
       "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"
    },
    "keywords": [
@@ -39,8 +38,7 @@
       "url": "https://github.com/sheetbase/sheets-server/issues"
    },
    "dependencies": {
-      "@sheetbase/tamotsux-server": "0.0.4",
-      "lodash-es": "^4.17.11"
+      "@sheetbase/tamotsux-server": "0.0.4"
    },
    "peerDependencies": {
       "@sheetbase/core-server": "0.0.19"
@@ -57,7 +55,6 @@
       "coveralls": "^3.0.2",
       "mocha": "^5.2.0",
       "nyc": "^13.1.0",
-      "replace-in-file": "^3.4.2",
       "rollup-plugin-node-resolve": "^3.4.0",
       "sinon": "^7.1.1",
       "tslint": "^5.11.0",

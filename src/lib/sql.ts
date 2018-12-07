@@ -80,7 +80,7 @@ export class SQLService {
             id = item ? item['#'] : null;
         }
         // execute
-        data = stringifyData(data);
+        data = data ? stringifyData(data) : {};
         this.model(tableName).createOrUpdate({ ... data, '#': id });
     }
 

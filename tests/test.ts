@@ -391,6 +391,33 @@ describe('SQL service', () => {
 describe('NoSQL service', () => {
     const SheetsNoSQL = sheetsNoSQL({ databaseId });
 
+    let allStub: sinon.SinonStub;
+    let updateStub: sinon.SinonStub;
+    let collectionStub: sinon.SinonStub;
+    let docStub: sinon.SinonStub;
+    let objectStub: sinon.SinonStub;
+    let updateDocStub: sinon.SinonStub;
+
+    beforeEach(() => {
+        // @ts-ignore
+        allStub = sinon.stub(SheetsNoSQL.sqlService, 'all');
+        // @ts-ignore
+        updateStub = sinon.stub(SheetsNoSQL.sqlService, 'update');
+        collectionStub = sinon.stub(SheetsNoSQL, 'collection');
+        docStub = sinon.stub(SheetsNoSQL, 'doc');
+        objectStub = sinon.stub(SheetsNoSQL, 'object');
+        updateDocStub = sinon.stub(SheetsNoSQL, 'updateDoc');
+    });
+
+    afterEach(() => {
+        allStub.restore();
+        updateStub.restore();
+        collectionStub.restore();
+        docStub.restore();
+        objectStub.restore();
+        updateDocStub.restore();
+    });
+
     it('.options should have default values', () => {
         const SheetsNoSQL = sheetsNoSQL();
         // @ts-ignore
@@ -412,35 +439,220 @@ describe('NoSQL service', () => {
     });
 
     it('#keyField should work', () => {
-
+        const SheetsNoSQL = sheetsNoSQL({
+            keyFields: {
+                foo: 'key',
+                bar: 'slug',
+            },
+        });
+        const result1 = SheetsNoSQL.keyField('foo');
+        const result2 = SheetsNoSQL.keyField('bar');
+        const result3 = SheetsNoSQL.keyField('baz');
+        expect(result1).to.equal('key');
+        expect(result2).to.equal('slug');
+        expect(result3).to.equal('#');
     });
 
     it('#key should work', () => {
+        const result = SheetsNoSQL.key();
+        expect(!!result).to.equal(true);
+        expect(typeof result).to.equal('string');
+    });
 
+    it('#collection should work (empty)', () => {
+        allStub.onFirstCall().returns([]);
+        collectionStub.restore();
+
+        const result = SheetsNoSQL.collection('foo');
+        expect(result).to.eql([]);
+    });
+
+    it('#collection should work (empty, object)', () => {
+        allStub.onFirstCall().returns([]);
+        collectionStub.restore();
+
+        const result = SheetsNoSQL.collection('foo', true);
+        expect(result).to.eql({});
     });
 
     it('#collection should work', () => {
+        allStub.onFirstCall().returns([
+            {'#': 1, title: 'Foo 1'},
+            {'#': 2, title: 'Foo 2'},
+        ]);
+        collectionStub.restore();
 
+        const result = SheetsNoSQL.collection('foo');
+        expect(result).to.eql([
+            {'#': 1, title: 'Foo 1'},
+            {'#': 2, title: 'Foo 2'},
+        ]);
+    });
+
+    it('#collection should work (object)', () => {
+        allStub.onFirstCall().returns([
+            {'#': 1, title: 'Foo 1'},
+            {'#': 2, title: 'Foo 2'},
+        ]);
+        collectionStub.restore();
+
+        const result = SheetsNoSQL.collection('foo', true);
+        expect(result).to.eql({
+            1: {'#': 1, title: 'Foo 1'},
+            2: {'#': 2, title: 'Foo 2'},
+        });
+    });
+
+    it('#doc should work (not exists)', () => {
+        collectionStub.onFirstCall().returns({});
+        docStub.restore();
+
+        const result = SheetsNoSQL.doc('foo', '1');
+        expect(result).to.equal(null);
     });
 
     it('#doc should work', () => {
+        collectionStub.onFirstCall().returns({
+            1: {'#': 1, title: 'Foo 1'},
+            2: {'#': 2, title: 'Foo 2'},
+        });
+        docStub.restore();
 
+        const result = SheetsNoSQL.doc('foo', '1');
+        expect(result).to.eql({'#': 1, title: 'Foo 1'});
+    });
+
+    it('#object should work (no docId)', () => {
+        collectionStub.onFirstCall().returns([]);
+        objectStub.restore();
+
+        const result = SheetsNoSQL.object('/foo');
+        expect(result).to.eql([]);
+    });
+
+    it('#object should work (has docId, not exists)', () => {
+        docStub.onFirstCall().returns(null);
+        objectStub.restore();
+
+        const result = SheetsNoSQL.object('/foo/foo-1');
+        expect(result).to.equal(null);
+    });
+
+    it('#object should work (has docId, exists)', () => {
+        docStub.onFirstCall().returns({ '#': 1, slug: 'foo-1', title: 'Foo 1' });
+        objectStub.restore();
+
+        const result = SheetsNoSQL.object('/foo/foo-1');
+        expect(result).to.eql({ '#': 1, slug: 'foo-1', title: 'Foo 1' });
+    });
+
+    it('#object should work (has docId, exists, deep)', () => {
+        docStub.onFirstCall().returns({ '#': 1, slug: 'foo-1', title: 'Foo 1' });
+        docStub.onSecondCall().returns({ '#': 2, slug: 'foo-2', content: {a: {a1: 1, a2: 2}, b: 2} });
+        docStub.onThirdCall().returns({ '#': 3 });
+        objectStub.restore();
+
+        const result1 = SheetsNoSQL.object('/foo/foo-1/title');
+        const result2 = SheetsNoSQL.object('/foo/foo-1/content/a');
+        const result3 = SheetsNoSQL.object('/foo/foo-1/title');
+        expect(result1).to.equal('Foo 1');
+        expect(result2).to.eql({a1: 1, a2: 2});
+        expect(result3).to.equal(null);
+    });
+
+    it('#list should work (null)', () => {
+        objectStub.onFirstCall().returns(null);
+
+        const result = SheetsNoSQL.list('/');
+        expect(result).to.eql([]);
+    });
+
+    it('#list should work (primitive value)', () => {
+        objectStub.onFirstCall().returns('a string');
+
+        const result = SheetsNoSQL.list('/');
+        expect(result).to.eql([{ $key: 'value', value: 'a string' }]);
+    });
+
+    it('#list should work (array value)', () => {
+        objectStub.onFirstCall().returns([1,2,3]);
+
+        const result = SheetsNoSQL.list('/');
+        expect(result).to.eql([
+            { $key: '0', value: 1 },
+            { $key: '1', value: 2 },
+            { $key: '2', value: 3 },
+        ]);
     });
 
     it('#list should work', () => {
+        objectStub.onFirstCall().returns({a: 1});
+        objectStub.onSecondCall().returns({b: {b1: 1, b2: 2}});
 
+        const result1 = SheetsNoSQL.list('/');
+        const result2 = SheetsNoSQL.list('/');
+        expect(result1).to.eql([{ $key: 'a', value: 1 }]);
+        expect(result2).to.eql([{ $key: 'b', b1: 1, b2: 2 }]);
     });
 
-    it('#object should work', () => {
+    it('#updateDoc should work (no docId)', () => {
+        let result;
+        updateStub.callsFake((collectionId, data, idOrCondition) => {
+            result = {collectionId, data, idOrCondition};
+        });
+        updateDocStub.restore();
 
+        SheetsNoSQL.updateDoc('foo', {});
+        expect(result).to.eql({
+            collectionId: 'foo',
+            data: {},
+            idOrCondition: null,
+        });
     });
 
-    it('#updateDoc should work', () => {
+    it('#updateDoc should work (key)', () => {
+        let result;
+        updateStub.callsFake((collectionId, data, idOrCondition) => {
+            result = {collectionId, data, idOrCondition};
+        });
+        updateDocStub.restore();
 
+        SheetsNoSQL.updateDoc('foo', {}, '1');
+        expect(result).to.eql({
+            collectionId: 'foo',
+            data: {},
+            idOrCondition: { '#': '1' },
+        });
+    });
+
+    it('#updateDoc should work (condition)', () => {
+        let result;
+        updateStub.callsFake((collectionId, data, idOrCondition) => {
+            result = {collectionId, data, idOrCondition};
+        });
+        updateDocStub.restore();
+
+        SheetsNoSQL.updateDoc('foo', {}, {slug: 'foo-1'});
+        expect(result).to.eql({
+            collectionId: 'foo',
+            data: {},
+            idOrCondition: { slug: 'foo-1' },
+        });
     });
 
     it('#update should work', () => {
-
+        const result = [];
+        updateDocStub.callsFake((collectionId, data, docId) => {
+            result.push({collectionId, data, docId});
+        });
+        SheetsNoSQL.update({
+            '/foo': {},
+            '/bar/bar-1': { title: 'Bar x1' },
+        });
+        expect(result).to.eql([
+            { collectionId: 'foo', data: {}, docId: null },
+            { collectionId: 'bar', data: { title: 'Bar x1' }, docId: 'bar-1' },
+        ]);
     });
 
 });
