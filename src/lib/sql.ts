@@ -2,7 +2,7 @@ import { initialize, Table } from '@sheetbase/tamotsux-server';
 
 import { Options } from './types';
 import { SpreadsheetService } from './spreadsheet';
-import { parseData } from './utils';
+import { parseData, stringifyData } from './utils';
 
 export class SQLService {
     private options: Options;
@@ -29,35 +29,27 @@ export class SQLService {
         return models;
     }
 
-    // .all()
-    // - [] (blank sheet, header only)
-    // - [{}, {}, ...]
-    // - throw (no sheet)
     all<Item>(tableName: string): Item[] {
-        const items: Item[] = [];
-        const rawItems = this.model(tableName).all();
-        for (let i = 0; i < rawItems.length; i++) {
-            const item = rawItems[i];
-            items.push(parseData(item) as Item);
+        const result: Item[] = [];
+        const items = this.model(tableName).all();
+        for (let i = 0; i < items.length; i++) {
+            result.push(parseData(items[i]) as Item);
         }
-        return items;
+        return result;
     }
 
-    // find()
-    // - {} (number and exists)
-    // - throw
-
-    // first()
-    // - null (array, valid condition not exists)
-    // - {} (null, valid condition)
-    // - throw
     item<Item>(
         tableName: string,
         idOrCondition: number | {[field: string]: string},
     ): Item {
         let item: Item;
         if (typeof idOrCondition === 'number') {
-            item = this.model(tableName).find(idOrCondition);
+            try {
+                item = this.model(tableName).find(idOrCondition);
+            } catch (error) {
+                // no item with the id
+                item = null;
+            }
         } else {
             item = this.model(tableName).where(idOrCondition).first();
         }
@@ -67,36 +59,28 @@ export class SQLService {
         return item;
     }
 
-    // createOrUpdate()
-    // - throw (undefined, null)
-    // - new (number, string, array, boolean)
-    // - new (object no # (null, undefined))
-    // - new (not exists # (string, number, boolean, array (first item as id), object)
-    // - update (exists #)
     update(
         tableName: string,
         data: {},
         idOrCondition?: number | {[field: string]: string},
     ): void {
+        // prepare the id
         let id: number;
-        if (!idOrCondition) { // new
+        if (!idOrCondition) {
+            // new
             id = null;
-        } else if (typeof idOrCondition === 'number') { // update by id
-            id = idOrCondition;
-        } else { // update by condition or create new if no item
+        } else if (typeof idOrCondition === 'number') {
+            // update by id
+            // or create new if no item
+            id = this.item(tableName, idOrCondition) ? idOrCondition : null;
+        } else {
+            // update by condition
+            // or create new if no item
             const item = this.item(tableName, idOrCondition);
             id = item ? item['#'] : null;
         }
-
-        // TODO:
-        // stringifyData first
-
-        // TODO: new
-        // check for unique id and key
-        // check for valid id (string/number/array(first item))
-        // check for mandatory fields for new item
-
         // execute
+        data = stringifyData(data);
         this.model(tableName).createOrUpdate({ ... data, '#': id });
     }
 

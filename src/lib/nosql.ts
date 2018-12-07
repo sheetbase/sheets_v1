@@ -18,7 +18,7 @@ export class NoSQLService {
     }
 
     keyField(collectionId: string): string {
-        return this.options.keyFields[collectionId] || 'slug';
+        return this.options.keyFields[collectionId] || '#';
     }
 
     key(): string {
