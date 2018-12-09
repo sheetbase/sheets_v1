@@ -5,19 +5,10 @@ import { Options } from './types';
 import { SQLService } from './sql';
 
 export class NoSQLService {
-    private options: Options;
     private sqlService: SQLService;
 
     constructor(options: Options = {}) {
         this.sqlService = new SQLService(options);
-        this.options = {
-            keyFields: {},
-            ... options,
-        };
-    }
-
-    keyField(collectionId: string): string {
-        return this.options.keyFields[collectionId] || '#';
     }
 
     key(): string {
@@ -27,7 +18,7 @@ export class NoSQLService {
     collection<Item>(collectionId: string, returnObject = false): {[key: string]: Item} | Item[] {
         let items: any = this.sqlService.all(collectionId);
         if (returnObject) {
-            items = a2o(items, this.keyField(collectionId));
+            items = a2o(items, this.sqlService.keyField(collectionId));
         }
         return items;
     }
@@ -68,7 +59,7 @@ export class NoSQLService {
         if (!docIdOrCondition) { // new
             idorCondition = null;
         } else if (typeof docIdOrCondition === 'string') { // update by doc id
-            idorCondition = { [this.keyField(collectionId)]: docIdOrCondition };
+            idorCondition = { [this.sqlService.keyField(collectionId)]: docIdOrCondition };
         } else { // update by condition
             idorCondition = docIdOrCondition;
         }
