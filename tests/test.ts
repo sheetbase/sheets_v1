@@ -53,6 +53,34 @@ describe('Module', () => {
 
 });
 
+describe('Options', () => {
+    it('.options should have default values', () => {
+        const Spreadsheet = spreadsheet();
+        const SheetsSQL = sheetsSQL();
+        // @ts-ignore
+        expect(Spreadsheet.options).to.eql({});
+        // @ts-ignore
+        expect(SheetsSQL.options).to.eql({ keyFields: {} });
+    });
+
+    it('.options should have values', () => {
+        const Spreadsheet = spreadsheet({ databaseId: 'xxx' });
+        const SheetsSQL = sheetsSQL({
+            databaseId: 'xxx',
+            keyFields: {
+                foo: 'key',
+            },
+        });
+        // @ts-ignore
+        expect(Spreadsheet.options.databaseId).to.equal('xxx');
+        // @ts-ignore
+        expect(SheetsSQL.options.databaseId).to.equal('xxx');
+        // @ts-ignore
+        expect(SheetsSQL.options.keyFields).to.eql({ foo: 'key' });
+    });
+
+});
+
 describe('Spreadsheet service', () => {
     const Spreadsheet = spreadsheet({ databaseId });
 
@@ -79,20 +107,6 @@ describe('Spreadsheet service', () => {
         rangeStub.restore();
         sheetsStub.restore();
         sheetStub.restore();
-    });
-
-    it('.options should have default values', () => {
-        const Spreadsheet = spreadsheet();
-        // @ts-ignore
-        const { options } = Spreadsheet;
-        expect(options).to.eql({});
-    });
-
-    it('.options should have values', () => {
-        const Spreadsheet = spreadsheet({ databaseId: 'xxx' });
-        // @ts-ignore
-        const { options } = Spreadsheet;
-        expect(options.databaseId).to.equal('xxx');
     });
 
     it('#spreadsheet SpreadsheetApp should use active spreadsheet is no databaseId', () => {
@@ -189,7 +203,10 @@ describe('Spreadsheet service', () => {
 });
 
 describe('SQL service', () => {
-    const SheetsSQL = sheetsSQL({ databaseId });
+    const SheetsSQL = sheetsSQL({
+        databaseId,
+        keyFields: { foo: 'slug' },
+    });
 
     let defineStub: sinon.SinonStub;
     let sheetNamesStub: sinon.SinonStub;
@@ -211,20 +228,6 @@ describe('SQL service', () => {
         itemStub.restore();
     });
 
-    it('.options should have default values', () => {
-        const SheetsSQL = sheetsSQL();
-        // @ts-ignore
-        const { options } = SheetsSQL;
-        expect(options).to.eql({});
-    });
-
-    it('.options should have values', () => {
-        const SheetsSQL = sheetsSQL({ databaseId: 'xxx' });
-        // @ts-ignore
-        const { options } = SheetsSQL;
-        expect(options.databaseId).to.equal('xxx');
-    });
-
     it('#model should works', () => {
         // @ts-ignore
         defineStub.callsFake(options => options);
@@ -241,6 +244,21 @@ describe('SQL service', () => {
 
         const result = SheetsSQL.models();
         expect(result).to.eql({ foo: true, bar: true });
+    });
+
+    it('#keyField should work', () => {
+        const SheetsSQL = sheetsSQL({
+            keyFields: {
+                foo: 'key',
+                bar: 'slug',
+            },
+        });
+        const result1 = SheetsSQL.keyField('foo');
+        const result2 = SheetsSQL.keyField('bar');
+        const result3 = SheetsSQL.keyField('baz');
+        expect(result1).to.equal('key');
+        expect(result2).to.equal('slug');
+        expect(result3).to.equal('#');
     });
 
     it('#all should work (no item)', () => {
@@ -342,6 +360,16 @@ describe('SQL service', () => {
         expect(result).to.eql({ title: 'Foo x', '#': null });
     });
 
+    it('#update should remove the key field', () => {
+        let result: any;
+        modelStub.onFirstCall().returns({
+            createOrUpdate: (data) => { result = data; },
+        });
+
+        SheetsSQL.update('foo', { slug: 'foo-1' });
+        expect(result.slug).to.equal(undefined);
+    });
+
     it('#update should work (update, by id and item exists)', () => {
         let result: any;
         modelStub.onFirstCall().returns({
@@ -416,41 +444,6 @@ describe('NoSQL service', () => {
         docStub.restore();
         objectStub.restore();
         updateDocStub.restore();
-    });
-
-    it('.options should have default values', () => {
-        const SheetsNoSQL = sheetsNoSQL();
-        // @ts-ignore
-        const { options } = SheetsNoSQL;
-        expect(options).to.eql({ keyFields: {} });
-    });
-
-    it('.options should have values', () => {
-        const SheetsNoSQL = sheetsNoSQL({
-            databaseId: 'xxx',
-            keyFields: {
-                foo: 'key',
-            },
-        });
-        // @ts-ignore
-        const { options } = SheetsNoSQL;
-        expect(options.databaseId).to.equal('xxx');
-        expect(options.keyFields).to.eql({ foo: 'key' });
-    });
-
-    it('#keyField should work', () => {
-        const SheetsNoSQL = sheetsNoSQL({
-            keyFields: {
-                foo: 'key',
-                bar: 'slug',
-            },
-        });
-        const result1 = SheetsNoSQL.keyField('foo');
-        const result2 = SheetsNoSQL.keyField('bar');
-        const result3 = SheetsNoSQL.keyField('baz');
-        expect(result1).to.equal('key');
-        expect(result2).to.equal('slug');
-        expect(result3).to.equal('#');
     });
 
     it('#key should work', () => {

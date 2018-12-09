@@ -10,7 +10,11 @@ export class SQLService {
 
     constructor(options: Options = {}) {
         this.spreadsheetService = new SpreadsheetService(options);
-        this.options = options;
+        this.options = {
+            keyFields: {},
+            ... options,
+        };
+
         // init tamotsux
         initialize(this.spreadsheetService.spreadsheet());
     }
@@ -27,6 +31,10 @@ export class SQLService {
             models[tableName] = Table.define({sheetName: tableName});
         }
         return models;
+    }
+
+    keyField(tableName: string): string {
+        return this.options.keyFields[tableName] || '#';
     }
 
     all<Item>(tableName: string): Item[] {
@@ -79,8 +87,10 @@ export class SQLService {
             const item = this.item(tableName, idOrCondition);
             id = item ? item['#'] : null;
         }
-        // execute
+        // prepare data
         data = data ? stringifyData(data) : {};
+        delete data[this.keyField(tableName)];
+        // execute
         this.model(tableName).createOrUpdate({ ... data, '#': id });
     }
 
