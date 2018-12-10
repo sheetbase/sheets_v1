@@ -268,6 +268,28 @@ describe('SQL service', () => {
         expect(result3).to.equal('#');
     });
 
+    it('#processItems should work (remove private rows)', () => {
+        const result = SheetsSQL.processItems('foo', [
+            { '#': 1, slug: '_foo-1', title: 'Foo 1' },
+            { '#': 2, slug: 'foo-2', title: 'Foo 2' },
+            { '#': 3, slug: '_foo-3', title: 'Foo 3' },
+        ]);
+        expect(result).to.eql([
+            { '#': 2, slug: 'foo-2', title: 'Foo 2' },
+        ]);
+    });
+
+    it('#processItems should work (remove private - columns)', () => {
+        const result = SheetsSQL.processItems('foo', [
+            { '#': 1, slug: 'foo-1', title: 'Foo 1' },
+            { '#': 2, slug: 'foo-2', _title: 'Foo 2' },
+            { '#': 3, slug: 'foo-3', _title: 'Foo 3' },
+        ]);
+        expect(result).to.eql([
+            { '#': 1, slug: 'foo-1', title: 'Foo 1' },
+        ]);
+    });
+
     it('#all should work (no item)', () => {
         modelStub.onFirstCall().returns({ all: () => [] });
 
@@ -287,36 +309,6 @@ describe('SQL service', () => {
         expect(result).to.eql([
             { '#': 1, title: 'Foo 1', content: 'xxx' },
             { '#': 2, title: 'Foo 2', content: { a: 1, b: 2, c: 3 } },
-        ]);
-    });
-
-    it('#all should work (remove private rows)', () => {
-        modelStub.onFirstCall().returns({
-            all: () => [
-                { '#': 1, slug: '_foo-1', title: 'Foo 1' },
-                { '#': 2, slug: 'foo-2', title: 'Foo 2' },
-                { '#': 3, slug: '_foo-3', title: 'Foo 3' },
-            ],
-        });
-
-        const result = SheetsSQL.all('foo');
-        expect(result).to.eql([
-            { '#': 2, slug: 'foo-2', title: 'Foo 2' },
-        ]);
-    });
-
-    it('#all should work (remove private - columns)', () => {
-        modelStub.onFirstCall().returns({
-            all: () => [
-                { '#': 1, slug: 'foo-1', title: 'Foo 1' },
-                { '#': 2, slug: 'foo-2', _title: 'Foo 2' },
-                { '#': 3, slug: 'foo-3', _title: 'Foo 3' },
-            ],
-        });
-
-        const result = SheetsSQL.all('foo');
-        expect(result).to.eql([
-            { '#': 1, slug: 'foo-1', title: 'Foo 1' },
         ]);
     });
 
@@ -499,6 +491,9 @@ describe('SQL service', () => {
 
         SheetsSQL.update('foo', {}, { slug: 'foo-x' });
         expect(result).to.eql({ '#': null });
+    });
+
+    it('#query should work', () => {
     });
 
 });
