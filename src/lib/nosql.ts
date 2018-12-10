@@ -1,14 +1,18 @@
 import { o2a, a2o, uniqueId } from '@sheetbase/core-server';
 import { get as lodashGet }  from '../lodash/get';
+import { set as lodashSet }  from '../lodash/set';
 
 import { Options } from './types';
 import { SQLService } from './sql';
+import { SecurityService } from './security';
 
 export class NoSQLService {
     private sqlService: SQLService;
+    private securityService: SecurityService;
 
     constructor(options: Options = {}) {
         this.sqlService = new SQLService(options);
+        this.securityService = new SecurityService(options);
     }
 
     key(): string {
@@ -37,6 +41,9 @@ export class NoSQLService {
             const item = this.doc(collectionId, docId);
             if (paths.length > 0) {
                 result = lodashGet(item, paths, null);
+                // security checkpoint
+                // if data comes from a private properties or not
+                this.securityService.check({ data: result, dataKey: paths[0] });
             } else {
                 result = item;
             }
@@ -69,11 +76,16 @@ export class NoSQLService {
 
     update(updates: {[key: string]: any}) {
         for (const path of Object.keys(updates)) {
-            const data = updates[path];
+            let data = updates[path];
             // process the path
             const [collectionId, docId = null, ... paths] = path.split('/').filter(Boolean);
+            // update the data using paths
+            if (paths.length > 0) {
+                const item = this.doc(collectionId, docId) || {}; // load the item
+                lodashSet(item, paths, data); // update the item
+                data = item; // patch it back to the data
+            }
             // save
-            // TODO: update the data using paths
             this.updateDoc(collectionId, data, docId);
         }
     }

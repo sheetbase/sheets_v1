@@ -14,6 +14,7 @@ import {
     parseData,
     stringifyData,
 } from '../src/public_api';
+import { SecurityService } from '../src/lib/security';
 
 import './polyfill'; // mocked global
 
@@ -237,6 +238,12 @@ describe('SQL service', () => {
         expect(result).to.eql({ sheetName: 'foo' });
     });
 
+    it('#model should show error (private table)', () => {
+        modelStub.restore();
+
+        expect(SheetsSQL.model.bind(SheetsSQL, '_foo')).to.throw('Private sheet.');
+    });
+
     it('#models should works', () => {
         // @ts-ignore
         defineStub.callsFake(() => true);
@@ -283,9 +290,39 @@ describe('SQL service', () => {
         ]);
     });
 
+    it('#all should work (remove private rows)', () => {
+        modelStub.onFirstCall().returns({
+            all: () => [
+                { '#': 1, slug: '_foo-1', title: 'Foo 1' },
+                { '#': 2, slug: 'foo-2', title: 'Foo 2' },
+                { '#': 3, slug: '_foo-3', title: 'Foo 3' },
+            ],
+        });
+
+        const result = SheetsSQL.all('foo');
+        expect(result).to.eql([
+            { '#': 2, slug: 'foo-2', title: 'Foo 2' },
+        ]);
+    });
+
+    it('#all should work (remove private - columns)', () => {
+        modelStub.onFirstCall().returns({
+            all: () => [
+                { '#': 1, slug: 'foo-1', title: 'Foo 1' },
+                { '#': 2, slug: 'foo-2', _title: 'Foo 2' },
+                { '#': 3, slug: 'foo-3', _title: 'Foo 3' },
+            ],
+        });
+
+        const result = SheetsSQL.all('foo');
+        expect(result).to.eql([
+            { '#': 1, slug: 'foo-1', title: 'Foo 1' },
+        ]);
+    });
+
     it('#item should use right values', () => {
         modelStub.onFirstCall().returns({
-            find: (id) => id,
+            find: (id) => ({ id }), // prevent private column error
         });
         modelStub.onSecondCall().returns({
             where: (condition) => ({ first: () => condition }),
@@ -294,7 +331,7 @@ describe('SQL service', () => {
 
         const result1 = SheetsSQL.item('foo', 1);
         const result2 = SheetsSQL.item('foo', { slug: 'foo-1' });
-        expect(result1).to.equal(1);
+        expect(result1).to.eql({ id: 1 });
         expect(result2).to.eql({ slug: 'foo-1' });
     });
 
@@ -340,6 +377,24 @@ describe('SQL service', () => {
         expect(result).to.eql({ '#': 1, title: 'Foo 1', content: 'xxx' });
     });
 
+    it('#item should throw error (private rows)', () => {
+        modelStub.onFirstCall().returns({
+            find: (id) => ({ '#': 1, slug: '_foo-1', title: 'Foo 1' }),
+        });
+        itemStub.restore();
+
+        expect(SheetsSQL.item.bind(SheetsSQL, 'foo', 1)).to.throw('Private row.');
+    });
+
+    it('#item should throw error (private column)', () => {
+        modelStub.onFirstCall().returns({
+            find: (id) => ({ '#': 1, _title: 'Foo 1' }),
+        });
+        itemStub.restore();
+
+        expect(SheetsSQL.item.bind(SheetsSQL, 'foo', 1)).to.throw('Data contain private properties.');
+    });
+
     it('#update should has right data', () => {
         let result: any;
         modelStub.onFirstCall().returns({
@@ -365,9 +420,41 @@ describe('SQL service', () => {
         modelStub.onFirstCall().returns({
             createOrUpdate: (data) => { result = data; },
         });
+        itemStub.onFirstCall().returns(true); // item exists
+
+        SheetsSQL.update('foo', { slug: 'foo-1' }, 1);
+        expect(result.slug).to.equal(undefined);
+    });
+
+    it('#update should keep the key field (new itm)', () => {
+        let result: any;
+        modelStub.onFirstCall().returns({
+            createOrUpdate: (data) => { result = data; },
+        });
 
         SheetsSQL.update('foo', { slug: 'foo-1' });
-        expect(result.slug).to.equal(undefined);
+        expect(result.slug).to.equal('foo-1');
+    });
+
+    it('#update should remove private fields', () => {
+        let result: any;
+        modelStub.onFirstCall().returns({
+            createOrUpdate: (data) => { result = data; },
+        });
+        itemStub.onFirstCall().returns(true); // item exists
+
+        SheetsSQL.update('foo', { _title: 'foo-1', a: 1, _b: 2 }, 1);
+        expect(result).to.eql({ a: 1, '#': 1 });
+    });
+
+    it('#update should keep private fields', () => {
+        let result: any;
+        modelStub.onFirstCall().returns({
+            createOrUpdate: (data) => { result = data; },
+        });
+
+        SheetsSQL.update('foo', { _title: 'foo-1', a: 1, _b: 2 });
+        expect(result).to.eql({ _title: 'foo-1', a: 1, _b: 2, '#': null });
     });
 
     it('#update should work (update, by id and item exists)', () => {
@@ -515,6 +602,13 @@ describe('NoSQL service', () => {
         expect(result).to.eql({'#': 1, title: 'Foo 1'});
     });
 
+    it('#object should show error (private properties)', () => {
+        docStub.onFirstCall().returns({ slug: 'foo-1', _title: 'Foo 1' });
+        objectStub.restore();
+
+        expect(SheetsNoSQL.object.bind(SheetsNoSQL, '/foo/foo-1/_title')).to.throw('Private column.');
+    });
+
     it('#object should work (no docId)', () => {
         collectionStub.onFirstCall().returns([]);
         objectStub.restore();
@@ -638,6 +732,7 @@ describe('NoSQL service', () => {
         updateDocStub.callsFake((collectionId, data, docId) => {
             result.push({collectionId, data, docId});
         });
+
         SheetsNoSQL.update({
             '/foo': {},
             '/bar/bar-1': { title: 'Bar x1' },
@@ -646,6 +741,133 @@ describe('NoSQL service', () => {
             { collectionId: 'foo', data: {}, docId: null },
             { collectionId: 'bar', data: { title: 'Bar x1' }, docId: 'bar-1' },
         ]);
+    });
+
+    it('#update should work (deep, no exist)', () => {
+        const result = [];
+        updateDocStub.callsFake((collectionId, data, docId) => {
+            result.push({collectionId, data, docId});
+        });
+        docStub.onFirstCall().returns(null);
+        docStub.onSecondCall().returns(null);
+
+        SheetsNoSQL.update({
+            '/foo/foo-1/title': 'Foo 1',
+            '/bar/bar-1/content': { a: 1, b: 2 },
+        });
+        expect(result).to.eql([
+            { collectionId: 'foo', docId: 'foo-1', data: { title: 'Foo 1' } },
+            { collectionId: 'bar', docId: 'bar-1', data: { content: { a: 1, b: 2 } } },
+        ]);
+    });
+
+    it('#update should work (deep, exist)', () => {
+        const result = [];
+        updateDocStub.callsFake((collectionId, data, docId) => {
+            result.push({collectionId, data, docId});
+        });
+        docStub.onFirstCall().returns({ x: 'xxx' });
+        docStub.onSecondCall().returns({ x2: 'xxx2' });
+
+        SheetsNoSQL.update({
+            '/foo/foo-1/title': 'Foo 1',
+            '/bar/bar-1/content': { a: 1, b: 2 },
+        });
+        expect(result).to.eql([
+            { collectionId: 'foo', docId: 'foo-1', data: { x: 'xxx', title: 'Foo 1' } },
+            { collectionId: 'bar', docId: 'bar-1', data: { x2: 'xxx2', content: { a: 1, b: 2 } } },
+        ]);
+    });
+
+});
+
+describe('Security', () => {
+    const Security = new SecurityService();
+
+    it('.options should have default values', () => {
+        const Security = new SecurityService();
+        // @ts-ignore
+        expect(Security.options).to.eql({ admin: false });
+    });
+
+    it('.options should have values', () => {
+        const Security = new SecurityService({ admin: true });
+        // @ts-ignore
+        expect(Security.options).to.eql({ admin: true });
+    });
+
+    it('#isPrivate should work', () => {
+        const result1 = Security.isPrivate('foo');
+        const result2 = Security.isPrivate('_foo');
+        const result3 = Security.isPrivate('__foo');
+        expect(result1).to.equal(false);
+        expect(result2).to.equal(true);
+        expect(result3).to.equal(true);
+    });
+
+    it('#isPrivate should work (admin)', () => {
+        const Security = new SecurityService({ admin: true });
+
+        const result1 = Security.isPrivate('foo');
+        const result2 = Security.isPrivate('_foo');
+        const result3 = Security.isPrivate('__foo');
+        expect(result1).to.equal(false);
+        expect(result2).to.equal(false);
+        expect(result3).to.equal(false);
+    });
+
+    it('#checkPrivate should do nothing (nothing to check)', () => {
+        const result = Security.checkPrivate();
+        expect(result).to.equal(undefined);
+    });
+
+    it('#checkPrivate should do nothing (admin)', () => {
+        const Security = new SecurityService({ admin: true });
+        const result1 = Security.checkPrivate({ sheetName: 'foo' });
+        const result2 = Security.checkPrivate({ sheetName: '_foo' });
+        expect(result1).to.equal(undefined);
+        expect(result2).to.equal(undefined);
+    });
+
+    it('#checkPrivate should pass', () => {
+        const result1 = Security.checkPrivate({ sheetName: 'foo' });
+        const result2 = Security.checkPrivate({ sheetName: 'foo', key: 'foo-1' });
+        const result3 = Security.checkPrivate({
+            sheetName: 'foo', key: 'foo-1', data: 'a value', dataKey: 'a_key',
+        });
+        const result4 = Security.checkPrivate({
+            sheetName: 'foo', key: 'foo-1', data: { a: 1, b: 2 },
+        });
+        expect(result1).to.equal(undefined);
+        expect(result2).to.equal(undefined);
+        expect(result3).to.equal(undefined);
+        expect(result4).to.equal(undefined);
+    });
+
+    it('#checkPrivate should not pass (private sheet)', () => {
+        expect(Security.checkPrivate.bind(Security, { sheetName: '_foo' })).to.throw('Private sheet.');
+    });
+
+    it('#checkPrivate should not pass (private row)', () => {
+        expect(Security.checkPrivate.bind(Security, { key: '_foo-1' })).to.throw('Private row.');
+    });
+
+    it('#checkPrivate should not pass (private properties)', () => {
+        expect(
+            Security.checkPrivate.bind(Security, { data: { a: 1, _b: 2 } }),
+        ).to.throw('Data contain private properties.');
+    });
+
+    it('#checkPrivate should not pass (private column, no dataKey)', () => {
+        expect(
+            Security.checkPrivate.bind(Security, { data: 'value' }),
+        ).to.throw('Private column.');
+    });
+
+    it('#checkPrivate should not pass (private column)', () => {
+        expect(
+            Security.checkPrivate.bind(Security, { data: 'value', dataKey: '_column' }),
+        ).to.throw('Private column.');
     });
 
 });

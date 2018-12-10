@@ -3,4 +3,7 @@ export interface Options {
     keyFields?: {
         [sheetName: string]: string;
     };
+
+    // security
+    admin?: boolean;
 }
