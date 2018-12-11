@@ -1,4 +1,6 @@
 import { initialize, Table } from '@sheetbase/tamotsux-server';
+import  '../lunr/lunr';
+declare const lunr: any;
 
 import { Options } from './types';
 import { SpreadsheetService } from './spreadsheet';
@@ -22,10 +24,10 @@ export class SQLService {
         initialize(this.spreadsheetService.spreadsheet());
     }
 
-    model(tableName: string) {
+    model(table: string) {
         // security checkpoint
-        this.securityService.check({ sheetName: tableName });
-        return Table.define({sheetName: tableName});
+        this.securityService.check({ sheetName: table });
+        return Table.define({sheetName: table});
     }
 
     models() {
@@ -38,19 +40,18 @@ export class SQLService {
         return models;
     }
 
-    keyField(tableName: string): string {
-        return this.options.keyFields[tableName] || '#';
+    keyField(table: string): string {
+        return this.options.keyFields[table] || '#';
     }
 
-    all<Item>(tableName: string): Item[] {
+    processItems<Item>(table: string, rawItems: any[]): Item[] {
         const result: Item[] = [];
-        const items = this.model(tableName).all();
-        for (let i = 0; i < items.length; i++) {
-            const item = parseData(items[i]) as Item;
+        for (let i = 0; i < rawItems.length; i++) {
+            const item = parseData(rawItems[i]) as Item;
             try {
                 // security checkpoint
                 this.securityService.check({
-                    key: item[this.keyField(tableName)],
+                    key: item[this.keyField(table)],
                     data: item,
                 });
                 result.push(item);
@@ -61,71 +62,155 @@ export class SQLService {
         return result;
     }
 
+    all<Item>(table: string): Item[] {
+        return this.processItems(table, this.model(table).all());
+    }
+
     item<Item>(
-        tableName: string,
+        table: string,
         idOrCondition: number | {[field: string]: string},
     ): Item {
         // get item
         let item: Item;
         if (typeof idOrCondition === 'number') {
             try {
-                item = this.model(tableName).find(idOrCondition);
+                item = this.model(table).find(idOrCondition);
             } catch (error) {
                 // no item with the id
                 item = null;
             }
         } else {
-            item = this.model(tableName).where(idOrCondition).first();
+            item = this.model(table).where(idOrCondition).first();
         }
         if (item) {
             item = parseData(item) as Item;
             // security checkpoint
             this.securityService.check({
-                key: item[this.keyField(tableName)],
+                key: item[this.keyField(table)],
                 data: item,
             });
         }
         return item;
     }
 
+    query<Item>(
+        table: string,
+        query: {
+            where?: {};
+            orderBy?: string;
+            order?: string;
+            limit?: number;
+            offset?: number;
+        } = {},
+    ): Item[] {
+        let result: Item[] = [];
+        const { where, orderBy, order, limit, offset = 0 } = query;
+        // retrieve items
+        let q: any = this.model(table);
+        if (where) { q = q.where(where); }
+        if (orderBy) { q = q.order(orderBy + (order ? ' ' + order : '')); }
+        const items: Item[] = this.processItems(table, q.all());
+        if (limit) {
+            result = items.slice(offset, limit + offset);
+        }
+        return result;
+    }
+
+    search<Item>(
+        table: string,
+        query: string,
+        options: {
+            ref?: string;
+            fields?: string[];
+        } = {},
+    ): Item[] {
+        const { ref = '#', fields = [] } = options;
+        // load items
+        const items = this.all(table);
+        const objItems = {};
+        // search
+        const engine = lunr(builder => {
+            builder.ref(ref);
+            builder.field('title');
+            for (let i = 0; i < fields.length; i++) {
+                builder.field(fields[i]);
+            }
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                objItems[item[ref]] = item; // add to temp
+                builder.add(item); // add to lunr
+            }
+        });
+        const searchResult = engine.search(query);
+        // extract result
+        const result: any = [];
+        for (let i = 0; i < searchResult.length; i++) {
+            const { ref } = searchResult[i];
+            result.push(objItems[ref]);
+        }
+        return result;
+    }
+
     update(
-        tableName: string,
+        table: string,
         data: {},
         idOrCondition?: number | {[field: string]: string},
     ): void {
-        // prepare the id
+        // prepare the id and item
         let id: number;
-        let item: any; // for security check
+        let item: any = {};
+        const keyField = this.keyField(table);
         if (!idOrCondition) {
             // new
             id = null;
         } else if (typeof idOrCondition === 'number') {
             // update by id
             // or create new if no item
-            item = this.item(tableName, idOrCondition);
+            item = this.item(table, idOrCondition);
             id = item ? idOrCondition : null;
         } else {
             // update by condition
             // or create new if no item
-            item = this.item(tableName, idOrCondition);
+            item = this.item(table, idOrCondition);
             id = item ? item['#'] : null;
         }
         // security checkpoint
-        if (id) {
+        if (!!id) {
             this.securityService.check({
-                key: item[this.keyField(tableName)],
+                key: item[keyField],
             });
         }
-        // prepare data
-        data = data ? stringifyData(data) : {};
-        if (id) {
-            delete data[this.keyField(tableName)]; // remove key field
-            for (const key of Object.keys(data)) { // remove private properties
-                if (this.securityService.isPrivate(key)) delete data[key];
+        // prepare the update data
+        data = { ... item, ... (data || {}) }; // merge data to current item
+        if (!!id) {
+            // for existing item
+            // unchangable fields: # and key field and private properties
+            const unchangableData = {
+                '#': id,
+                [keyField]: item[keyField],
+            };
+            for (const key of Object.keys(item)) {
+                if (this.securityService.isPrivate(key)) {
+                    unchangableData[key] = item[key];
+                }
+            }
+            data = { ... data, ... unchangableData }; // patch it back
+        } else {
+            // for new item
+            // must have an unique key field
+            const key = data[keyField];
+            if (!key) {
+                throw new Error('New item must have key field.');
+            }
+            const exists = !!this.item(table, { [keyField]: key });
+            if (exists) {
+                throw new Error('Item exist with ' + keyField + '=' + key);
             }
         }
+        data = stringifyData(data); // stringify before saving back
         // execute
-        this.model(tableName).createOrUpdate({ ... data, '#': id });
+        this.model(table).createOrUpdate(data);
     }
 
 }

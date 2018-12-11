@@ -1,6 +1,7 @@
 import { o2a, a2o, uniqueId } from '@sheetbase/core-server';
 import { get as lodashGet }  from '../lodash/get';
 import { set as lodashSet }  from '../lodash/set';
+import { orderBy }  from '../lodash/orderBy';
 
 import { Options } from './types';
 import { SQLService } from './sql';
@@ -55,6 +56,112 @@ export class NoSQLService {
         let value = this.object(path) || {};
         value = (value instanceof Object) ? value : { value };
         return o2a(value);
+    }
+
+    query<Item>(
+        collectionId: string,
+        query: {
+            limitToFirst?: number;
+            limitToLast?: number;
+            offset?: number;
+            orderByKey?: string;
+            equalTo?: any;
+            order?: string;
+        } = {},
+    ): Item[] {
+        let result: any = [];
+        const {
+            limitToFirst,
+            limitToLast,
+            orderByKey,
+            order,
+            equalTo,
+            offset,
+        } = query;
+
+        // retrieve all items
+        const items = this.collection(collectionId);
+
+        // filter
+        if (
+            orderByKey &&
+            (equalTo || (!equalTo && typeof equalTo === 'boolean'))
+        ) {
+            const [ keyFirst, ... keys ] = orderByKey.split('/');
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+
+                // get the value
+                let value = item[keyFirst] || {};
+                for (let j = 0; j < keys.length; j++) {
+                    const key = keys[j];
+                    if (value[key]) {
+                        value = value[key];
+                    } else {
+                        return value = null;
+                    }
+                }
+
+                if (
+
+                    // true === true
+                    (
+                        typeof equalTo === 'boolean' &&
+                        typeof value === 'boolean' &&
+                        value === equalTo
+                    ) ||
+
+                    // any (# false) === '!null'
+                    (
+                        equalTo === '!null' &&
+                        !!value
+                    ) ||
+
+                    // string, number === string, number
+                    (
+                        typeof equalTo !== 'boolean' &&
+                        typeof value !== 'boolean' &&
+                        value === equalTo
+                    )
+
+                ) {
+                    result.push(item);
+                }
+            }
+        } else {
+            result = items;
+        }
+
+        // sort result
+        result = orderBy(result, [(orderByKey || '#')], (order || 'asc'));
+
+        // limit
+        if (limitToFirst) {
+            result = result.slice(
+                offset || 0,
+                limitToFirst + (offset || 0),
+            );
+        }
+        if (limitToLast) {
+            result = result.slice(
+                result.length - limitToLast - (offset || 0),
+                (result.length - (offset || 0)),
+            );
+        }
+
+        return result;
+    }
+
+    search<Item>(
+        collectionId: string,
+        query: string,
+        options: {
+            ref?: string;
+            fields?: string[];
+        } = {},
+    ): Item[] {
+        return this.sqlService.search(collectionId, query);
     }
 
     updateDoc(

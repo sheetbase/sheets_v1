@@ -84,6 +84,7 @@
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="sqlservice.html#options" class="tsd-kind-icon">options</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="sqlservice.html#securityservice" class="tsd-kind-icon">security<wbr>Service</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="sqlservice.html#spreadsheetservice" class="tsd-kind-icon">spreadsheet<wbr>Service</a></li>
 							</ul>
 						</section>
@@ -92,8 +93,12 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="sqlservice.html#all" class="tsd-kind-icon">all</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="sqlservice.html#item" class="tsd-kind-icon">item</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sqlservice.html#keyfield" class="tsd-kind-icon">key<wbr>Field</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sqlservice.html#model" class="tsd-kind-icon">model</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sqlservice.html#models" class="tsd-kind-icon">models</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="sqlservice.html#processitems" class="tsd-kind-icon">process<wbr>Items</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="sqlservice.html#query" class="tsd-kind-icon">query</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter"><a href="sqlservice.html#search" class="tsd-kind-icon">search</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="sqlservice.html#update" class="tsd-kind-icon">update</a></li>
 							</ul>
 						</section>
@@ -112,7 +117,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/6e4ba7f/src/lib/sql.ts#L9">lib/sql.ts:9</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L13">lib/sql.ts:13</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -134,7 +139,17 @@
 					<div class="tsd-signature tsd-kind-icon">options<span class="tsd-signature-symbol">:</span> <a href="../interfaces/options.html" class="tsd-signature-type">Options</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/6e4ba7f/src/lib/sql.ts#L8">lib/sql.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L11">lib/sql.ts:11</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="securityservice" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> security<wbr>Service</h3>
+					<div class="tsd-signature tsd-kind-icon">security<wbr>Service<span class="tsd-signature-symbol">:</span> <a href="securityservice.html" class="tsd-signature-type">SecurityService</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L13">lib/sql.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -144,7 +159,7 @@
 					<div class="tsd-signature tsd-kind-icon">spreadsheet<wbr>Service<span class="tsd-signature-symbol">:</span> <a href="spreadsheetservice.html" class="tsd-signature-type">SpreadsheetService</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/6e4ba7f/src/lib/sql.ts#L9">lib/sql.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L12">lib/sql.ts:12</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -155,13 +170,13 @@
 					<a name="all" class="tsd-anchor"></a>
 					<h3>all</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">all&lt;Item&gt;<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">all&lt;Item&gt;<span class="tsd-signature-symbol">(</span>table<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/6e4ba7f/src/lib/sql.ts#L32">lib/sql.ts:32</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L65">lib/sql.ts:65</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -173,7 +188,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>tableName: <span class="tsd-signature-type">string</span></h5>
+									<h5>table: <span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -184,13 +199,13 @@
 					<a name="item" class="tsd-anchor"></a>
 					<h3>item</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">item&lt;Item&gt;<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, idOrCondition<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Item</span></li>
+						<li class="tsd-signature tsd-kind-icon">item&lt;Item&gt;<span class="tsd-signature-symbol">(</span>table<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, idOrCondition<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Item</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/6e4ba7f/src/lib/sql.ts#L41">lib/sql.ts:41</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L69">lib/sql.ts:69</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -202,7 +217,7 @@
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>tableName: <span class="tsd-signature-type">string</span></h5>
+									<h5>table: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
 									<h5>idOrCondition: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span></h5>
@@ -213,22 +228,45 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="model" class="tsd-anchor"></a>
-					<h3>model</h3>
+					<a name="keyfield" class="tsd-anchor"></a>
+					<h3>key<wbr>Field</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">model<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">key<wbr>Field<span class="tsd-signature-symbol">(</span>table<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/6e4ba7f/src/lib/sql.ts#L18">lib/sql.ts:18</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L43">lib/sql.ts:43</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>tableName: <span class="tsd-signature-type">string</span></h5>
+									<h5>table: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="model" class="tsd-anchor"></a>
+					<h3>model</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">model<span class="tsd-signature-symbol">(</span>table<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L27">lib/sql.ts:27</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>table: <span class="tsd-signature-type">string</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
@@ -245,7 +283,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/6e4ba7f/src/lib/sql.ts#L22">lib/sql.ts:22</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L33">lib/sql.ts:33</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
@@ -254,23 +292,126 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="update" class="tsd-anchor"></a>
-					<h3>update</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">update<span class="tsd-signature-symbol">(</span>tableName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">__type</span>, idOrCondition<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="processitems" class="tsd-anchor"></a>
+					<h3>process<wbr>Items</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">process<wbr>Items&lt;Item&gt;<span class="tsd-signature-symbol">(</span>table<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, rawItems<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/6e4ba7f/src/lib/sql.ts#L62">lib/sql.ts:62</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L47">lib/sql.ts:47</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>Item</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>table: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>rawItems: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="query" class="tsd-anchor"></a>
+					<h3>query</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">query&lt;Item&gt;<span class="tsd-signature-symbol">(</span>table<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, query<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L96">lib/sql.ts:96</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>Item</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>table: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> query: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									<ul class="tsd-parameters">
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+					<a name="search" class="tsd-anchor"></a>
+					<h3>search</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">search&lt;Item&gt;<span class="tsd-signature-symbol">(</span>table<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, query<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L119">lib/sql.ts:119</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>Item</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>table: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>query: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> options: <span class="tsd-signature-type">object</span><span class="tsd-signature-symbol"> =&nbsp;{}</span></h5>
+									<ul class="tsd-parameters">
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Item</span><span class="tsd-signature-symbol">[]</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="update" class="tsd-anchor"></a>
+					<h3>update</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">update<span class="tsd-signature-symbol">(</span>table<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">__type</span>, idOrCondition<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/696593c/src/lib/sql.ts#L155">lib/sql.ts:155</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>tableName: <span class="tsd-signature-type">string</span></h5>
+									<h5>table: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
 									<h5>data: <span class="tsd-signature-type">__type</span></h5>
@@ -310,6 +451,9 @@
 								<a href="sqlservice.html#options" class="tsd-kind-icon">options</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="sqlservice.html#securityservice" class="tsd-kind-icon">security<wbr>Service</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="sqlservice.html#spreadsheetservice" class="tsd-kind-icon">spreadsheet<wbr>Service</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
@@ -319,10 +463,22 @@
 								<a href="sqlservice.html#item" class="tsd-kind-icon">item</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="sqlservice.html#keyfield" class="tsd-kind-icon">key<wbr>Field</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="sqlservice.html#model" class="tsd-kind-icon">model</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="sqlservice.html#models" class="tsd-kind-icon">models</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="sqlservice.html#processitems" class="tsd-kind-icon">process<wbr>Items</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="sqlservice.html#query" class="tsd-kind-icon">query</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter">
+								<a href="sqlservice.html#search" class="tsd-kind-icon">search</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="sqlservice.html#update" class="tsd-kind-icon">update</a>
@@ -331,6 +487,9 @@
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-class">
+						<a href="securityservice.html" class="tsd-kind-icon">Security<wbr>Service</a>
+					</li>
 					<li class=" tsd-kind-class">
 						<a href="spreadsheetservice.html" class="tsd-kind-icon">Spreadsheet<wbr>Service</a>
 					</li>

@@ -212,6 +212,7 @@ describe('SQL service', () => {
     let defineStub: sinon.SinonStub;
     let sheetNamesStub: sinon.SinonStub;
     let modelStub: sinon.SinonStub;
+    let allStub: sinon.SinonStub;
     let itemStub: sinon.SinonStub;
 
     beforeEach(() => {
@@ -219,6 +220,7 @@ describe('SQL service', () => {
         // @ts-ignore
         sheetNamesStub = sinon.stub(SheetsSQL.spreadsheetService, 'sheetNames');
         modelStub = sinon.stub(SheetsSQL, 'model');
+        allStub = sinon.stub(SheetsSQL, 'all');
         itemStub = sinon.stub(SheetsSQL, 'item');
     });
 
@@ -226,6 +228,7 @@ describe('SQL service', () => {
         defineStub.restore();
         sheetNamesStub.restore();
         modelStub.restore();
+        allStub.restore();
         itemStub.restore();
     });
 
@@ -292,6 +295,7 @@ describe('SQL service', () => {
 
     it('#all should work (no item)', () => {
         modelStub.onFirstCall().returns({ all: () => [] });
+        allStub.restore();
 
         const result = SheetsSQL.all('foo');
         expect(result).to.eql([]);
@@ -304,6 +308,7 @@ describe('SQL service', () => {
                 { '#': 2, title: 'Foo 2', content: '{"a":1,"b":2,"c":3}' },
             ],
         });
+        allStub.restore();
 
         const result = SheetsSQL.all('foo');
         expect(result).to.eql([
@@ -393,8 +398,8 @@ describe('SQL service', () => {
             createOrUpdate: (data) => { result = data; },
         });
 
-        SheetsSQL.update('foo', { title: 'Foo x' });
-        expect(result).to.eql({ title: 'Foo x', '#': null });
+        SheetsSQL.update('foo', { slug: 'key-x', title: 'Foo x' });
+        expect(result).to.eql({ title: 'Foo x', slug: 'key-x' });
     });
 
     it('#update should not allow # in data', () => {
@@ -403,50 +408,8 @@ describe('SQL service', () => {
             createOrUpdate: (data) => { result = data; },
         });
 
-        SheetsSQL.update('foo', { '#': 1, title: 'Foo x' });
-        expect(result).to.eql({ title: 'Foo x', '#': null });
-    });
-
-    it('#update should remove the key field', () => {
-        let result: any;
-        modelStub.onFirstCall().returns({
-            createOrUpdate: (data) => { result = data; },
-        });
-        itemStub.onFirstCall().returns(true); // item exists
-
-        SheetsSQL.update('foo', { slug: 'foo-1' }, 1);
-        expect(result.slug).to.equal(undefined);
-    });
-
-    it('#update should keep the key field (new itm)', () => {
-        let result: any;
-        modelStub.onFirstCall().returns({
-            createOrUpdate: (data) => { result = data; },
-        });
-
-        SheetsSQL.update('foo', { slug: 'foo-1' });
-        expect(result.slug).to.equal('foo-1');
-    });
-
-    it('#update should remove private fields', () => {
-        let result: any;
-        modelStub.onFirstCall().returns({
-            createOrUpdate: (data) => { result = data; },
-        });
-        itemStub.onFirstCall().returns(true); // item exists
-
-        SheetsSQL.update('foo', { _title: 'foo-1', a: 1, _b: 2 }, 1);
-        expect(result).to.eql({ a: 1, '#': 1 });
-    });
-
-    it('#update should keep private fields', () => {
-        let result: any;
-        modelStub.onFirstCall().returns({
-            createOrUpdate: (data) => { result = data; },
-        });
-
-        SheetsSQL.update('foo', { _title: 'foo-1', a: 1, _b: 2 });
-        expect(result).to.eql({ _title: 'foo-1', a: 1, _b: 2, '#': null });
+        SheetsSQL.update('foo', { '#': 1, slug: 'key-x', title: 'Foo x' });
+        expect(result).to.eql({ title: 'Foo x', '#': 1, slug: 'key-x' });
     });
 
     it('#update should work (update, by id and item exists)', () => {
@@ -457,7 +420,7 @@ describe('SQL service', () => {
         itemStub.onFirstCall().returns(true); // item exists
 
         SheetsSQL.update('foo', {}, 1);
-        expect(result).to.eql({ '#': 1 });
+        expect(result['#']).to.equal(1);
     });
 
     it('#update should work (create new, by id but item not exists)', () => {
@@ -467,8 +430,8 @@ describe('SQL service', () => {
         });
         itemStub.onFirstCall().returns(false); // item not exists
 
-        SheetsSQL.update('foo', {}, 0);
-        expect(result).to.eql({ '#': null });
+        SheetsSQL.update('foo', { slug: 'foo-x', title: 'Foo x' }, 0);
+        expect(result.title).to.equal('Foo x');
     });
 
     it('#update should work (update, by condition and item exists)', () => {
@@ -479,7 +442,7 @@ describe('SQL service', () => {
         itemStub.onFirstCall().returns({ '#': 3 }); // item exists
 
         SheetsSQL.update('foo', {}, { slug: 'foo-3' });
-        expect(result).to.eql({ '#': 3 });
+        expect(result['#']).to.equal(3);
     });
 
     it('#update should work (update, by condition but item not exists)', () => {
@@ -489,11 +452,30 @@ describe('SQL service', () => {
         });
         itemStub.onFirstCall().returns(null); // item not exists
 
-        SheetsSQL.update('foo', {}, { slug: 'foo-x' });
-        expect(result).to.eql({ '#': null });
+        SheetsSQL.update('foo', { slug: 'foo-x' }, { slug: 'foo-x' });
+        expect(result['#']).to.equal(undefined);
     });
 
-    it('#query should work', () => {
+    it('#search should work (no items)', () => {
+        allStub.onFirstCall().returns([]);
+        const result = SheetsSQL.search('foo', 'xxx');
+        expect(result).to.eql([]);
+    });
+
+    it('#search should work (no items)', () => {
+        allStub.onFirstCall().returns([
+            { '#': 1, title: 'Lorem ipsum' },
+            { '#': 2, title: 'Dolat init' },
+            { '#': 3, title: 'Foo ipsum' },
+            { '#': 4, title: 'Blah blah blah' },
+            { '#': 5, title: 'Ipsum lorem' },
+        ]);
+        const result = SheetsSQL.search('foo', 'ipsum');
+        expect(result).to.eql([
+            { '#': 1, title: 'Lorem ipsum' },
+            { '#': 3, title: 'Foo ipsum' },
+            { '#': 5, title: 'Ipsum lorem' },
+        ]);
     });
 
 });
