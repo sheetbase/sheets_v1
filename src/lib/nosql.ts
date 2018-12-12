@@ -1,3 +1,4 @@
+import { AddonRoutesOptions, RoutingErrors } from '@sheetbase/core-server';
 import { o2a, a2o, uniqueId } from '@sheetbase/core-server';
 import { get as lodashGet }  from '../lodash/get';
 import { set as lodashSet }  from '../lodash/set';
@@ -10,10 +11,55 @@ import { SecurityService } from './security';
 export class NoSQLService {
     private sqlService: SQLService;
     private securityService: SecurityService;
+    private errors: RoutingErrors = {};
 
     constructor(options: Options = {}) {
         this.sqlService = new SQLService(options);
         this.securityService = new SecurityService(options);
+    }
+
+    registerRoutes(options?: AddonRoutesOptions): void {
+        const {
+            router,
+            endpoint = 'data',
+            disabledRoutes = [],
+            middlewares = [(req, res, next) => next()],
+        } = options;
+
+        // register errors & disabled routes
+        router.setDisabled(disabledRoutes);
+        router.setErrors(this.errors);
+
+        // get data
+        router.get('/' + endpoint, ... middlewares, (req, res) => {
+            const path: string = req.query.path;
+            const type: string = req.query.type;
+            let result: any[] | {[key: string]: any};
+            try {
+                if (type === 'list') {
+                    result = this.list(path);
+                } else {
+                    result = this.object(path);
+                }
+            } catch (code) {
+                return res.error(code);
+            }
+            return res.success(result);
+        });
+
+        // update
+        router.post('/' + endpoint, ... middlewares, (req, res) => {
+            const updates: {[key: string]: any} = req.body.updates;
+            try {
+                this.update(updates);
+            } catch (code) {
+                return res.error(code);
+            }
+            return res.success({
+                updated: true,
+                updates,
+            });
+        });
     }
 
     key(): string {

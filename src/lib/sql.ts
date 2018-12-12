@@ -1,3 +1,4 @@
+import { AddonRoutesOptions, RoutingErrors } from '@sheetbase/core-server';
 import { initialize, Table } from '@sheetbase/tamotsux-server';
 import  '../lunr/lunr';
 declare const lunr: any;
@@ -11,6 +12,7 @@ export class SQLService {
     private options: Options;
     private spreadsheetService: SpreadsheetService;
     private securityService: SecurityService;
+    private errors: RoutingErrors = {};
 
     constructor(options: Options = {}) {
         this.spreadsheetService = new SpreadsheetService(options);
@@ -22,6 +24,52 @@ export class SQLService {
 
         // init tamotsux
         initialize(this.spreadsheetService.spreadsheet());
+    }
+
+    registerRoutes(options?: AddonRoutesOptions): void {
+        const {
+            router,
+            endpoint = 'data',
+            disabledRoutes = [],
+            middlewares = [(req, res, next) => next()],
+        } = options;
+
+        // register errors & disabled routes
+        router.setDisabled(disabledRoutes);
+        router.setErrors(this.errors);
+
+        // get data
+        router.get('/' + endpoint, ... middlewares, (req, res) => {
+            const table: string = req.query.table;
+            const id: number = + req.query.id;
+            let result: any[] | {[key: string]: any};
+            try {
+                if (!!id) {
+                    result = this.item(table, id);
+                } else {
+                    result = this.all(table);
+                }
+            } catch (code) {
+                return res.error(code);
+            }
+            return res.success(result);
+        });
+
+        // update
+        router.post('/' + endpoint, ... middlewares, (req, res) => {
+            const table: string = req.query.table;
+            const id: number = + req.query.id;
+            const data: {[key: string]: any} = req.body.data;
+            try {
+                this.update(table, data, id);
+            } catch (code) {
+                return res.error(code);
+            }
+            return res.success({
+                updated: true,
+                updates: { table, id, data },
+            });
+        });
     }
 
     model(table: string) {
