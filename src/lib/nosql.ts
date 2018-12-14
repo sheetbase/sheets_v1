@@ -30,42 +30,118 @@ export class NoSQLService {
         router.setDisabled(disabledRoutes);
         router.setErrors(this.errors);
 
-        // get data
+        // regster request for security
+        middlewares.push((req, res, next) => {
+            this.securityService.setRequest(req);
+            return next();
+        });
+
+        // get data: #collection & #doc & #object & #list
         router.get('/' + endpoint, ... middlewares, (req, res) => {
+            const collection: string = req.query.collection;
+            const doc: string = req.query.doc;
             const path: string = req.query.path;
             const type: string = req.query.type;
-            let result: any[] | {[key: string]: any};
+
+            let result: any;
             try {
-                if (type === 'list') {
-                    result = this.list(path);
+                if (!!path) {
+                    if (type === 'list') {
+                        result = this.list(path);
+                    } else {
+                        result = this.object(path);
+                    }
+                } else if (!!doc) {
+                    result = this.doc(collection, doc);
                 } else {
-                    result = this.object(path);
+                    result = this.collection(collection);
                 }
-            } catch (code) {
-                return res.error(code);
+            } catch (error) {
+                return res.error(error);
             }
+
             return res.success(result);
         });
 
-        // update
+        // #query
+        router.get('/' + endpoint + '/query', ... middlewares, (req, res) => {
+            const collection: string = req.query.collection;
+            const { limitToFirst, limitToLast, orderByKey, order, equalTo, offset } = req.query;
+
+            let result: any;
+            try {
+                result = this.query(collection, {
+                    limitToFirst,
+                    limitToLast,
+                    orderByKey,
+                    order,
+                    equalTo,
+                    offset,
+                });
+            } catch (error) {
+                return res.error(error);
+            }
+
+            return res.success(result);
+        });
+
+        // #search
+        router.get('/' + endpoint + '/search', ... middlewares, (req, res) => {
+            const collection: string = req.query.collection;
+            const s: string = req.query.s;
+
+            let result: any;
+            try {
+                result = this.search(collection, s);
+            } catch (error) {
+                return res.error(error);
+            }
+
+            return res.success(result);
+        });
+
+        // #updateDoc
+        router.post('/' + endpoint + '/doc', ... middlewares, (req, res) => {
+            const collection: string = req.body.collection;
+            const data: {[key: string]: any} = req.body.data;
+            const doc: string = req.body.doc;
+            const { where, equal } = req.body;
+            try {
+                if (!!where && !!equal) {
+                    this.updateDoc(collection, data, { [where]: equal });
+                } else if (!!doc) {
+                    this.updateDoc(collection, data, doc);
+                } else {
+                    this.updateDoc(collection, data);
+                }
+            } catch (error) {
+                return res.error(error);
+            }
+            return res.success({ updated: true });
+        });
+
+        // #update
         router.post('/' + endpoint, ... middlewares, (req, res) => {
             const updates: {[key: string]: any} = req.body.updates;
             try {
                 this.update(updates);
-            } catch (code) {
-                return res.error(code);
+            } catch (error) {
+                return res.error(error);
             }
-            return res.success({
-                updated: true,
-                updates,
-            });
+            return res.success({ updated: true });
         });
     }
 
+    /**
+     * helper methods
+     */
     key(): string {
         return uniqueId(27);
     }
 
+    /**
+     * main methods
+     */
     collection<Item>(collectionId: string, returnObject = false): {[key: string]: Item} | Item[] {
         let items: any = this.sqlService.all(collectionId);
         if (returnObject) {
@@ -75,8 +151,8 @@ export class NoSQLService {
     }
 
     doc<Item>(collectionId: string, docId: string): Item {
-        const items = this.collection(collectionId, true) as {[key: string]: Item};
-        return items[docId] || null;
+        const {[docId]: item = null} = this.collection(collectionId, true) as {[key: string]: Item};
+        return item;
     }
 
     object(path: string) {
@@ -89,8 +165,7 @@ export class NoSQLService {
             if (paths.length > 0) {
                 result = lodashGet(item, paths, null);
                 // security checkpoint
-                // if data comes from a private properties or not
-                this.securityService.check({ data: result, dataKey: paths[0] });
+                this.securityService.checkpoint(path, result);
             } else {
                 result = item;
             }
@@ -201,24 +276,22 @@ export class NoSQLService {
 
     search<Item>(
         collectionId: string,
-        query: string,
-        options: {
-            ref?: string;
-            fields?: string[];
-        } = {},
+        s: string,
     ): Item[] {
-        return this.sqlService.search(collectionId, query);
+        return this.sqlService.search(collectionId, s);
     }
 
     updateDoc(
         collectionId: string,
         data: {},
-        docIdOrCondition?: string | {[field: string]: string},
+        docIdOrCondition?: number | string | {[field: string]: string},
     ): void {
         let idorCondition;
         if (!docIdOrCondition) { // new
             idorCondition = null;
-        } else if (typeof docIdOrCondition === 'string') { // update by doc id
+        } else if (typeof docIdOrCondition === 'number') { // update by id
+            idorCondition = docIdOrCondition;
+        } else if (typeof docIdOrCondition === 'string') { // update by condition (key field = docId/key)
             idorCondition = { [this.sqlService.keyField(collectionId)]: docIdOrCondition };
         } else { // update by condition
             idorCondition = docIdOrCondition;

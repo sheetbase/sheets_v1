@@ -19,6 +19,7 @@ export class SQLService {
         this.securityService = new SecurityService(options);
         this.options = {
             keyFields: {},
+            searchFields: {},
             ... options,
         };
 
@@ -38,58 +39,126 @@ export class SQLService {
         router.setDisabled(disabledRoutes);
         router.setErrors(this.errors);
 
-        // get data
+        // regster request for security
+        middlewares.push((req, res, next) => {
+            this.securityService.setRequest(req);
+            return next();
+        });
+
+        // get data: #all & #item
         router.get('/' + endpoint, ... middlewares, (req, res) => {
             const table: string = req.query.table;
-            const id: number = + req.query.id;
-            let result: any[] | {[key: string]: any};
+            const id: number = +req.query.id;
+            const { where, equal } = req.query;
+
+            let result: any;
             try {
-                if (!!id) {
+                if (!!where && !!equal) {
+                    result = this.item(table, { [where]: equal });
+                } else if (!!id) {
                     result = this.item(table, id);
                 } else {
                     result = this.all(table);
                 }
-            } catch (code) {
-                return res.error(code);
+            } catch (error) {
+                return res.error(error);
             }
             return res.success(result);
         });
 
-        // update
-        router.post('/' + endpoint, ... middlewares, (req, res) => {
+        // #query
+        router.get('/' + endpoint + '/query', ... middlewares, (req, res) => {
             const table: string = req.query.table;
-            const id: number = + req.query.id;
-            const data: {[key: string]: any} = req.body.data;
+            const { where, orderBy, order, limit, offset } = req.query;
+
+            let result: any;
             try {
-                this.update(table, data, id);
-            } catch (code) {
-                return res.error(code);
+                result = this.query(table, {
+                    where,
+                    orderBy,
+                    order,
+                    limit,
+                    offset,
+                });
+            } catch (error) {
+                return res.error(error);
             }
-            return res.success({
-                updated: true,
-                updates: { table, id, data },
-            });
+
+            return res.success(result);
+        });
+
+        // #search
+        router.get('/' + endpoint + '/search', ... middlewares, (req, res) => {
+            const table: string = req.query.table;
+            const s: string = req.query.s;
+
+            let result: any;
+            try {
+                result = this.search(table, s);
+            } catch (error) {
+                return res.error(error);
+            }
+
+            return res.success(result);
+        });
+
+        // #update
+        router.post('/' + endpoint, ... middlewares, (req, res) => {
+            const table: string = req.body.table;
+            const data: {[key: string]: any} = req.body.data;
+            const id: number = + req.body.id;
+            const { where, equal } = req.body;
+
+            try {
+                if (!!where && !!equal) {
+                    this.update(table, data, { [where]: equal });
+                } else if (!!id) {
+                    this.update(table, data, id);
+                } else {
+                    this.update(table, data);
+                }
+            } catch (error) {
+                return res.error(error);
+            }
+
+            return res.success({ updated: true });
         });
     }
 
-    model(table: string) {
-        // security checkpoint
-        this.securityService.check({ sheetName: table });
-        return Table.define({sheetName: table});
-    }
-
+    /**
+     * model
+     */
     models() {
         const models = {};
         const { main: tables } = this.spreadsheetService.sheetNames();
         for (let i = 0; i < tables.length; i++) {
-            const tableName = tables[i];
-            models[tableName] = Table.define({sheetName: tableName});
+            const table = tables[i];
+            try {
+                // security checkpoint
+                this.securityService.checkpoint('/' + table);
+                models[table] = Table.define({sheetName: table});
+            } catch (error) {
+                // not include the model
+            }
         }
         return models;
     }
 
+    model(table: string) {
+        // security checkpoint
+        this.securityService.checkpoint('/' + table);
+        return Table.define({sheetName: table});
+    }
+
+    /**
+     * helpers
+     */
     keyField(table: string): string {
         return this.options.keyFields[table] || '#';
+    }
+
+    searchField(table: string): string[] {
+        return this.options.searchFields[table] || [];
     }
 
     processItems<Item>(table: string, rawItems: any[]): Item[] {
@@ -98,10 +167,10 @@ export class SQLService {
             const item = parseData(rawItems[i]) as Item;
             try {
                 // security checkpoint
-                this.securityService.check({
-                    key: item[this.keyField(table)],
-                    data: item,
-                });
+                this.securityService.checkpoint(
+                    '/' + table + '/' + item[this.keyField(table)],
+                    item,
+                );
                 result.push(item);
             } catch (error) {
                 // not add the private item to result
@@ -110,6 +179,9 @@ export class SQLService {
         return result;
     }
 
+    /**
+     * main actions
+     */
     all<Item>(table: string): Item[] {
         return this.processItems(table, this.model(table).all());
     }
@@ -133,10 +205,10 @@ export class SQLService {
         if (item) {
             item = parseData(item) as Item;
             // security checkpoint
-            this.securityService.check({
-                key: item[this.keyField(table)],
-                data: item,
-            });
+            this.securityService.checkpoint(
+                '/' + table + '/' + item[this.keyField(table)],
+                item,
+            );
         }
         return item;
     }
@@ -144,7 +216,7 @@ export class SQLService {
     query<Item>(
         table: string,
         query: {
-            where?: {};
+            where?: { [key: string]: any };
             orderBy?: string;
             order?: string;
             limit?: number;
@@ -166,13 +238,10 @@ export class SQLService {
 
     search<Item>(
         table: string,
-        query: string,
-        options: {
-            ref?: string;
-            fields?: string[];
-        } = {},
+        s: string,
     ): Item[] {
-        const { ref = '#', fields = [] } = options;
+        const ref = '#';
+        const fields = this.searchField(table);
         // load items
         const items = this.all(table);
         const objItems = {};
@@ -190,7 +259,7 @@ export class SQLService {
                 builder.add(item); // add to lunr
             }
         });
-        const searchResult = engine.search(query);
+        const searchResult = engine.search(s);
         // extract result
         const result: any = [];
         for (let i = 0; i < searchResult.length; i++) {
@@ -205,58 +274,56 @@ export class SQLService {
         data: {},
         idOrCondition?: number | {[field: string]: string},
     ): void {
-        // prepare the id and item
-        let id: number;
-        let item: any = {};
         const keyField = this.keyField(table);
+
+        // id !== null; update existing item
+        // id === null; create new item
+        let id: number;
+        let item: any = {}; // for security checking and data preparation
         if (!idOrCondition) {
-            // new
+            // create new
             id = null;
-        } else if (typeof idOrCondition === 'number') {
-            // update by id
-            // or create new if no item
-            item = this.item(table, idOrCondition);
-            id = item ? idOrCondition : null;
         } else {
-            // update by condition
-            // or create new if no item
+            // update if item exists
+            // or create new
             item = this.item(table, idOrCondition);
             id = item ? item['#'] : null;
         }
-        // security checkpoint
-        if (!!id) {
-            this.securityService.check({
-                key: item[keyField],
-            });
-        }
+
         // prepare the update data
-        data = { ... item, ... (data || {}) }; // merge data to current item
+        data = { ... item, ... data }; // merge data to current item
         if (!!id) {
             // for existing item
-            // unchangable fields: # and key field and private properties
+            // unchangable fields: # and key field
             const unchangableData = {
                 '#': id,
                 [keyField]: item[keyField],
             };
-            for (const key of Object.keys(item)) {
-                if (this.securityService.isPrivate(key)) {
-                    unchangableData[key] = item[key];
-                }
-            }
             data = { ... data, ... unchangableData }; // patch it back
         } else {
             // for new item
             // must have an unique key field
             const key = data[keyField];
             if (!key) {
-                throw new Error('New item must have key field.');
+                throw new Error(`New item must have the key field of "${keyField}".`);
             }
             const exists = !!this.item(table, { [keyField]: key });
             if (exists) {
-                throw new Error('Item exist with ' + keyField + '=' + key);
+                throw new Error(`Item exist with ${keyField}=${key}.`);
             }
         }
         data = stringifyData(data); // stringify before saving back
+
+        // security checkpoint
+        if (!!id) {
+            this.securityService.checkpoint(
+                '/' + table + '/' + item[keyField],
+                item,
+                data,
+                'write',
+            );
+        }
+
         // execute
         this.model(table).createOrUpdate(data);
     }

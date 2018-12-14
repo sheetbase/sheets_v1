@@ -3,7 +3,12 @@ export interface Options {
     keyFields?: {
         [sheetName: string]: string;
     };
+    searchFields?: {
+        [sheetName: string]: string[];
+    };
 
     // security
     admin?: boolean;
+    encryptionKey?: string;
+    securityRules?: {};
 }

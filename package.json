@@ -23,6 +23,13 @@
       "test": "npm run transpile-test && npm run run-test",
       "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"
    },
+   "nyc": {
+      "exclude": [
+         "**/tests",
+         "**/src/lodash",
+         "**/src/lunr"
+      ]
+   },
    "keywords": [
       "google-apps-script",
       "sheets",
