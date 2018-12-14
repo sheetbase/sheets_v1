@@ -45,8 +45,7 @@
       "url": "https://github.com/sheetbase/sheets-server/issues"
    },
    "dependencies": {
-      "@sheetbase/tamotsux-server": "0.0.4",
-      "lunr": "^2.3.5"
+      "@sheetbase/tamotsux-server": "0.0.4"
    },
    "peerDependencies": {
       "@sheetbase/core-server": "0.0.19"
@@ -56,7 +55,6 @@
       "@types/chai": "^4.1.7",
       "@types/google-apps-script": "^0.0.32",
       "@types/lodash-es": "^4.17.1",
-      "@types/lunr": "^2.3.0",
       "@types/mocha": "^5.2.5",
       "@types/node": "^10.12.8",
       "@types/sinon": "^5.0.7",
