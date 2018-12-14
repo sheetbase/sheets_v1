@@ -31,7 +31,10 @@ export class SQLService {
         const {
             router,
             endpoint = 'data',
-            disabledRoutes = [],
+            disabledRoutes = [
+                'post:/' + endpoint,
+                'delete:/' + endpoint,
+            ],
             middlewares = [(req, res, next) => next()],
         } = options;
 
@@ -39,7 +42,7 @@ export class SQLService {
         router.setDisabled(disabledRoutes);
         router.setErrors(this.errors);
 
-        // regster request for security
+        // register request for security
         middlewares.push((req, res, next) => {
             this.securityService.setRequest(req);
             return next();
@@ -123,6 +126,26 @@ export class SQLService {
 
             return res.success({ updated: true });
         });
+
+        // #delete
+        router.delete('/' + endpoint, ... middlewares, (req, res) => {
+            const table: string = req.body.table;
+            const id: number = + req.body.id;
+            const { where, equal } = req.body;
+
+            try {
+                if (!!where && !!equal) {
+                    this.delete(table, { [where]: equal });
+                } else {
+                    this.delete(table, id);
+                }
+            } catch (error) {
+                return res.error(error);
+            }
+
+            return res.success({ deleted: true });
+        });
+
     }
 
     /**
@@ -326,6 +349,23 @@ export class SQLService {
 
         // execute
         this.model(table).createOrUpdate(data);
+    }
+
+    delete(
+        table: string,
+        idOrCondition: number | {[field: string]: string},
+    ) {
+        const item = this.item(table, idOrCondition);
+        if (!item) return;
+
+        // security checkpoint
+        this.securityService.checkpoint(
+            '/' + table + '/' + item[this.keyField(table)],
+            item, null, 'write',
+        );
+
+        // delete the item
+        this.model(table).find(item['#']).destroy();
     }
 
 }

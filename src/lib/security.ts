@@ -120,9 +120,23 @@ export class SecurityService {
         newData?: any,
         dynamicData: {[key: string]: string} = {},
     ) {
-        // prepare data
+        // auth object
+        let auth = null;
+        const { AuthToken } = this.options;
+        const idToken = this.request ? (
+            this.request.query['idToken'] || this.request.body['idToken']
+        ) : null;
+        if (AuthToken) {
+            try {
+                auth = AuthToken.decode(idToken);
+            } catch (error) {
+                // error decoding auth token
+            }
+        }
+
+        // sum up input
         const input = {
-            auth: {}, // TODO: decode auth from this.request
+            auth,
             now: (new Date()).getTime(),
             data,
             newData,
@@ -134,10 +148,11 @@ export class SecurityService {
             });
             return ${rule};
         `;
+
         // run
         try {
-            const executer = new Function('input', body);
-            return executer(input);
+            const executor = new Function('input', body);
+            return executor(input);
         } catch (error) {
             return false;
         }

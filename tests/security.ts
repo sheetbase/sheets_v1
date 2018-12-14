@@ -181,9 +181,14 @@ describe('(Security) #executeRule', () => {
         expect(result).to.equal(true);
     });
 
-    it('should have correct .auth', () => {
-        const result = Security.executeRule('auth instanceof Object');
+    it('should not have .auth', () => {
+        const result = Security.executeRule('!auth');
         expect(result).to.equal(true);
+    });
+
+    it('should not have .auth (throw error if access)', () => {
+        const result = Security.executeRule('auth.uid === $uid');
+        expect(result).to.equal(false);
     });
 
     it('should have correct .data', () => {

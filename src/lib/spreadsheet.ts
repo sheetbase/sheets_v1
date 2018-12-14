@@ -1,4 +1,4 @@
-import { Options } from './types';
+import { Options, SheetSchema } from './types';
 
 export class SpreadsheetService {
     private options: Options;
@@ -54,6 +54,42 @@ export class SpreadsheetService {
 
     lastRow(sheetName: string): number {
         return this.sheet(sheetName).getLastRow();
+    }
+
+    createSheet(sheetName: string, schema: SheetSchema[]) {
+        const sheet = this.spreadsheet().insertSheet(sheetName);
+        const colNumber = schema.length;
+        const range = sheet.getRange(1, colNumber);
+        const values = [];
+        const notes = [];
+        const backgrounds = [];
+
+        // cleanup
+        sheet.deleteColumns(colNumber, 100);
+        sheet.deleteRows(30, 1000);
+
+        // prepare data and set column width
+        for (let i = 0; i < schema.length; i++) {
+            const item = schema[i];
+
+            // values & backgrounds
+            values.push([item.name]);
+            notes.push([item.description]);
+            backgrounds.push(['gray']);
+
+            // set column size
+            if (item.size) {
+                sheet.setColumnWidth(1, item.size);
+            }
+        }
+
+        // values, notes, backgrounds
+        range.setValues(values);
+        range.setNotes(notes);
+        range.setBackgrounds(backgrounds);
+
+        // freeze row
+        sheet.setFrozenRows(1);
     }
 
 }

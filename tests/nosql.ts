@@ -17,6 +17,7 @@ const SheetsNoSQL = sheetsNoSQL({
 let allStub: sinon.SinonStub;
 let searchStub: sinon.SinonStub;
 let updateStub: sinon.SinonStub;
+let deleteStub: sinon.SinonStub;
 let collectionStub: sinon.SinonStub;
 let docStub: sinon.SinonStub;
 let objectStub: sinon.SinonStub;
@@ -29,6 +30,8 @@ function buildStubs() {
     searchStub = sinon.stub(SheetsNoSQL.sqlService, 'search');
     // @ts-ignore
     updateStub = sinon.stub(SheetsNoSQL.sqlService, 'update');
+    // @ts-ignore
+    deleteStub = sinon.stub(SheetsNoSQL.sqlService, 'delete');
     collectionStub = sinon.stub(SheetsNoSQL, 'collection');
     docStub = sinon.stub(SheetsNoSQL, 'doc');
     objectStub = sinon.stub(SheetsNoSQL, 'object');
@@ -39,6 +42,7 @@ function restoreStubs() {
     allStub.restore();
     searchStub.restore();
     updateStub.restore();
+    deleteStub.restore();
     collectionStub.restore();
     docStub.restore();
     objectStub.restore();
@@ -303,6 +307,19 @@ describe('(NoSQL) #updateDoc', () => {
         });
     });
 
+    it('should forward to SQL#delete', () => {
+        let result;
+        deleteStub.callsFake((collectionId, idOrCondition) => {
+            result = {collectionId, idOrCondition};
+        });
+
+        SheetsNoSQL.updateDoc('foo', null, 1);
+        expect(result).to.eql({
+            collectionId: 'foo',
+            idOrCondition: 1,
+        });
+    });
+
 });
 
 describe('(NoSQL) #update', () => {
@@ -337,10 +354,12 @@ describe('(NoSQL) #update', () => {
         SheetsNoSQL.update({
             '/foo/foo-1/title': 'Foo 1',
             '/bar/bar-1/content': { a: 1, b: 2 },
+            '/baz/baz-1/content': null,
         });
         expect(result).to.eql([
             { collectionId: 'foo', docId: 'foo-1', data: { title: 'Foo 1' } },
             { collectionId: 'bar', docId: 'bar-1', data: { content: { a: 1, b: 2 } } },
+            { collectionId: 'baz', docId: 'baz-1', data: null },
         ]);
     });
 
@@ -355,10 +374,12 @@ describe('(NoSQL) #update', () => {
         SheetsNoSQL.update({
             '/foo/foo-1/title': 'Foo 1',
             '/bar/bar-1/content': { a: 1, b: 2 },
+            '/baz/baz-1/content': null,
         });
         expect(result).to.eql([
             { collectionId: 'foo', docId: 'foo-1', data: { x: 'xxx', title: 'Foo 1' } },
             { collectionId: 'bar', docId: 'bar-1', data: { x2: 'xxx2', content: { a: 1, b: 2 } } },
+            { collectionId: 'baz', docId: 'baz-1', data: null },
         ]);
     });
 

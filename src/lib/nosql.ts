@@ -22,7 +22,10 @@ export class NoSQLService {
         const {
             router,
             endpoint = 'data',
-            disabledRoutes = [],
+            disabledRoutes = [
+                'post:/' + endpoint + '/doc',
+                'post:/' + endpoint,
+            ],
             middlewares = [(req, res, next) => next()],
         } = options;
 
@@ -30,7 +33,7 @@ export class NoSQLService {
         router.setDisabled(disabledRoutes);
         router.setErrors(this.errors);
 
-        // regster request for security
+        // register request for security
         middlewares.push((req, res, next) => {
             this.securityService.setRequest(req);
             return next();
@@ -297,7 +300,11 @@ export class NoSQLService {
             idorCondition = docIdOrCondition;
         }
         // execute
-        this.sqlService.update(collectionId, data, idorCondition);
+        if (data === null) {
+            this.sqlService.delete(collectionId, idorCondition);
+        } else {
+            this.sqlService.update(collectionId, data, idorCondition);
+        }
     }
 
     update(updates: {[key: string]: any}) {
@@ -306,7 +313,7 @@ export class NoSQLService {
             // process the path
             const [collectionId, docId = null, ... paths] = path.split('/').filter(Boolean);
             // update the data using paths
-            if (paths.length > 0) {
+            if (data !== null && paths.length > 0) {
                 const item = this.doc(collectionId, docId) || {}; // load the item
                 lodashSet(item, paths, data); // update the item
                 data = item; // patch it back to the data

@@ -451,6 +451,37 @@ describe('(SQL) #update (correct data, existing item)', () => {
 
 });
 
+describe('(SQL) #delete', () => {
+
+    beforeEach(() => buildStubs());
+    afterEach(() => restoreStubs());
+
+    it('should do nothing for no item', () => {
+        let result;
+        itemStub.onFirstCall().returns(null);
+        modelStub.onFirstCall().returns({
+            find: (id) => ({
+                destroy: () => { result = true; },
+            }),
+        });
+        SheetsSQL.delete('foo', 1);
+        expect(result).to.equal(undefined);
+    });
+
+    it('should delete the item', () => {
+        let result;
+        itemStub.onFirstCall().returns({ '#': 1 });
+        modelStub.onFirstCall().returns({
+            find: (id) => ({
+                destroy: () => { result = true; },
+            }),
+        });
+        SheetsSQL.delete('foo', 1);
+        expect(result).to.equal(true);
+    });
+
+});
+
 describe('(SQL) #registerRoutes', () => {
 
     it('#registerRoutes should work');

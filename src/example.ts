@@ -5,6 +5,7 @@ function load_() {
     return Sheets.sheets({
         databaseId,
         keyFields: { foo: 'slug' },
+        searchFields: { foo: ['content'] },
     });
 }
 
@@ -84,6 +85,6 @@ export function example8(): void {
 export function example9(): void {
     const { SQL } = load_();
 
-    const search = SQL.search('foo', 'me', { fields: ['content'] });
+    const search = SQL.search('foo', 'me' );
     Logger.log(search);
 }

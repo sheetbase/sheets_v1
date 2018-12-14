@@ -144,3 +144,9 @@ describe('(Spreadsheet) all methods', () => {
     });
 
 });
+
+describe('(Spreadsheet) #createSheet', () => {
+
+    it('#createSheet should work');
+
+});

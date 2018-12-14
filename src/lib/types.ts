@@ -9,6 +9,14 @@ export interface Options {
 
     // security
     admin?: boolean;
-    encryptionKey?: string;
     securityRules?: {};
+
+    // intergration
+    AuthToken?: any; // has decode() method;
+}
+
+export interface SheetSchema {
+    name: string;
+    description?: string;
+    size?: number;
 }
