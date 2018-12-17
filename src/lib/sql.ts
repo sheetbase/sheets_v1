@@ -30,7 +30,7 @@ export class SQLService {
     registerRoutes(options?: AddonRoutesOptions): void {
         const {
             router,
-            endpoint = 'data',
+            endpoint = 'database',
             disabledRoutes = [
                 'post:/' + endpoint,
                 'delete:/' + endpoint,

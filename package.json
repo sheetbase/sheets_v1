@@ -1,6 +1,6 @@
 {
    "name": "@sheetbase/sheets-server",
-   "version": "0.0.2",
+   "version": "0.0.3",
    "description": "Using Google Sheets as a database.",
    "author": "Sheetbase",
    "homepage": "https://sheetbase.net",
@@ -54,7 +54,6 @@
       "@sheetbase/app-scripts": "^0.0.28",
       "@types/chai": "^4.1.7",
       "@types/google-apps-script": "^0.0.32",
-      "@types/lodash-es": "^4.17.1",
       "@types/mocha": "^5.2.5",
       "@types/node": "^10.12.8",
       "@types/sinon": "^5.0.7",
