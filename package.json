@@ -45,13 +45,12 @@
       "url": "https://github.com/sheetbase/sheets-server/issues"
    },
    "dependencies": {
-      "@sheetbase/tamotsux-server": "0.0.4"
-   },
-   "peerDependencies": {
+      "@sheetbase/tamotsux-server": "0.0.4",
       "@sheetbase/core-server": "0.0.19"
    },
+   "peerDependencies": {},
    "devDependencies": {
-      "@sheetbase/app-scripts": "^0.0.28",
+      "@sheetbase/app-scripts": "0.0.30",
       "@types/chai": "^4.1.7",
       "@types/google-apps-script": "^0.0.32",
       "@types/mocha": "^5.2.5",
