@@ -1,14 +1,14 @@
 # @sheetbase/sheets-server
 
-- [Configs](#1-configs)
+- [1 configs](#1-configs)
 
-- [Spreadsheet](#2-spreadsheet)
+- [2 spreadsheet](#2-spreadsheet)
 
-- [Sql](#3-sql)
+- [3 sql](#3-sql)
 
-- [Nosql](#4-nosql)
+- [4 nosql](#4-nosql)
 
-- [Security](#5-security)
+- [5 security](#5-security)
 
 - [API Reference](https://sheetbase.github.io/sheets-server/api)
 

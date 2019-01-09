@@ -413,6 +413,7 @@ The module borrow idea from Firebase Realtime Database, see <https://firebase.go
 ```ts
 import * as Sheets from "./public_api";
 
+// create sheets instance
 function load_() {
   const databaseId = "1Zz5kvlTn2cXd41ZQZlFeCjvVR_XhpUnzKlDGB8QsXoI";
   return Sheets.sheets({
@@ -422,87 +423,90 @@ function load_() {
   });
 }
 
+// get all items from 'foo' table
 export function example1(): void {
-  const { SQL } = load_();
+  const Sheets = load_();
 
-  // get all items from 'foo' table
-  const all = SQL.all("foo");
+  const all = Sheets.all("foo");
   Logger.log(all);
 }
 
+// get item eith the # of 3 from 'foo' table
 export function example2(): void {
-  const { SQL } = load_();
+  const Sheets = load_();
 
-  // get item eith the # of 3 from 'foo' table
-  const item = SQL.item("foo", 3);
+  const item = Sheets.item("foo", 3);
   Logger.log(item);
 }
 
+// update item with # of 6
 export function example3(): void {
-  const { SQL } = load_();
+  const Sheets = load_();
 
-  // update item with # of 6
-  SQL.update("foo", { content: new Date().getTime() }, 6);
-  Logger.log("foo-6 updated using SQL.");
+  Sheets.update("foo", { content: new Date().getTime() }, 6);
+  Logger.log("foo-6 updated.");
 }
 
+// create foo-8
 export function example4(): void {
-  const { SQL } = load_();
+  const Sheets = load_();
 
-  // create foo-8
-  SQL.update("foo", {
+  Sheets.update("foo", {
     slug: "foo-8",
     title: "Foo 8",
     content: new Date().getTime()
   });
-  Logger.log("foo-8 added using SQL.");
+  Logger.log("foo-8 added.");
 }
 
+// get all item of 'foo' collection
+// get content of foo-2 as a list
 export function example5(): void {
-  const { NoSQL } = load_();
+  const Sheets = load_();
 
-  // get all item of 'foo' collection
-  const collection = NoSQL.collection("foo");
-  // get content of foo-2 as a list
-  const list = NoSQL.list("/foo/foo-2/content");
+  // all
+  const collection = Sheets.collection("foo");
+  // a list
+  const list = Sheets.list("/foo/foo-2/content");
   Logger.log(collection);
   Logger.log(list);
 }
 
+// get item foo-3
 export function example6(): void {
-  const { NoSQL } = load_();
+  const Sheets = load_();
 
-  // get item foo-3
-  const doc = NoSQL.doc("foo", "foo-3");
-  const object = NoSQL.object("/foo/foo-3");
+  const doc = Sheets.doc("foo", "foo-3");
+  const object = Sheets.object("/foo/foo-3");
   Logger.log(doc);
   Logger.log(object);
 }
 
+// update foo-6
 export function example7(): void {
-  const { NoSQL } = load_();
+  const Sheets = load_();
 
-  // update foo-6
-  NoSQL.update({
+  Sheets.updates({
     "/foo/foo-6/content": new Date().getTime()
   });
-  Logger.log("foo-6 updated using NoSQL.");
+  Logger.log("foo-6 updated");
 }
 
+// create foo-8
 export function example8(): void {
-  const { NoSQL } = load_();
+  const Sheets = load_();
 
-  // create foo-8
-  NoSQL.update({
+  Sheets.updates({
     "/foo": { slug: "foo-8", title: "Foo 8", content: new Date().getTime() }
   });
-  Logger.log("foo-8 added using NoSQL.");
+  Logger.log("foo-8 added");
 }
 
+// search 'foo' for 'me'
 export function example9(): void {
-  const { SQL } = load_();
+  const Sheets = load_();
 
-  const search = SQL.search("foo", "me");
+  const search = Sheets.search("foo", "me");
   Logger.log(search);
 }
 ```

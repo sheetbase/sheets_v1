@@ -66,7 +66,7 @@ describe('(Security) misc methods (#setRequest, #addRules)', () => {
     it('#setRequest should work', () => {
         Security.setRequest(true as any);
         // @ts-ignore
-        expect(Security.request).to.equal(true);
+        expect(Security.apiRequest).to.equal(true);
     });
 
     it('#addRules should work', () => {

@@ -4,9 +4,9 @@ import * as sinon from 'sinon';
 
 import * as TamotsuX from '@sheetbase/tamotsux-server';
 
-import { sheetsSQL } from '../src/public_api';
+import { sheets } from '../src/public_api';
 
-const SheetsSQL = sheetsSQL({
+const Sheets = sheets({
     databaseId: 'database_id_xxx',
     keyFields: { foo: 'slug' },
     searchFields: { bar: ['content'] },
@@ -22,10 +22,10 @@ let itemStub: sinon.SinonStub;
 function buildStubs() {
     defineStub = sinon.stub(TamotsuX.Table, 'define');
     // @ts-ignore
-    sheetNamesStub = sinon.stub(SheetsSQL.spreadsheetService, 'sheetNames');
-    modelStub = sinon.stub(SheetsSQL, 'model');
-    allStub = sinon.stub(SheetsSQL, 'all');
-    itemStub = sinon.stub(SheetsSQL, 'item');
+    sheetNamesStub = sinon.stub(Sheets.spreadsheetService, 'sheetNames');
+    modelStub = sinon.stub(Sheets, 'model');
+    allStub = sinon.stub(Sheets, 'all');
+    itemStub = sinon.stub(Sheets, 'item');
 }
 
 function restoreStubs() {
@@ -36,12 +36,12 @@ function restoreStubs() {
     itemStub.restore();
 }
 
-describe('(SQL) .options', () => {
+describe('.options', () => {
 
     it('should have default values', () => {
-        const SheetsSQL = sheetsSQL();
+        const Sheets = sheets();
         // @ts-ignore
-        expect(SheetsSQL.options).to.eql({
+        expect(Sheets.options).to.eql({
             keyFields: {},
             searchFields: {},
         });
@@ -53,14 +53,14 @@ describe('(SQL) .options', () => {
             keyFields: { foo: 'some_key' },
             searchFields: { foo: ['content'] },
         };
-        const SheetsSQL = sheetsSQL(options);
+        const Sheets = sheets(options);
         // @ts-ignore
-        expect(SheetsSQL.options).to.eql(options);
+        expect(Sheets.options).to.eql(options);
     });
 
 });
 
-describe('(SQL) model methods (#models, #model)', () => {
+describe('model methods (#models, #model)', () => {
 
     beforeEach(() => {
         buildStubs();
@@ -73,7 +73,7 @@ describe('(SQL) model methods (#models, #model)', () => {
         defineStub.callsFake(() => true);
         sheetNamesStub.onFirstCall().returns({ main: ['foo', 'bar'] } as any);
 
-        const result = SheetsSQL.models();
+        const result = Sheets.models();
         expect(result).to.eql({ foo: true, bar: true });
     });
 
@@ -81,31 +81,52 @@ describe('(SQL) model methods (#models, #model)', () => {
         // @ts-ignore
         defineStub.callsFake(options => options);
 
-        const result = SheetsSQL.model('foo');
+        const result = Sheets.model('foo');
         expect(result).to.eql({ sheetName: 'foo' });
     });
 
 });
 
-describe('(SQL) helper methods (#keyField, #processItems)', () => {
+describe('helper methods (#keyField, #processItems)', () => {
 
     it('#keyField should work', () => {
-        const SheetsSQL = sheetsSQL({
+        const Sheets = sheets({
             keyFields: {
                 foo: 'key',
                 bar: 'slug',
             },
         });
-        const result1 = SheetsSQL.keyField('foo');
-        const result2 = SheetsSQL.keyField('bar');
-        const result3 = SheetsSQL.keyField('baz');
+        const result1 = Sheets.keyField('foo');
+        const result2 = Sheets.keyField('bar');
+        const result3 = Sheets.keyField('baz');
         expect(result1).to.equal('key');
         expect(result2).to.equal('slug');
         expect(result3).to.equal('#');
     });
 
+    it('#key should work', () => {
+        const result = Sheets.key();
+        expect(!!result).to.equal(true);
+        expect(typeof result).to.equal('string');
+    });
+
+    it('#searchField should work', () => {
+        const Sheets = sheets({
+            searchFields: {
+                foo: ['content'],
+                bar: ['somewhere'],
+            },
+        });
+        const result1 = Sheets.searchField('foo');
+        const result2 = Sheets.searchField('bar');
+        const result3 = Sheets.searchField('baz');
+        expect(result1).to.eql(['content']);
+        expect(result2).to.eql(['somewhere']);
+        expect(result3).to.eql([]);
+    });
+
     it('#processItems should remove items (private rows)', () => {
-        const result = SheetsSQL.processItems('foo', [
+        const result = Sheets.processItems('foo', [
             { '#': 1, slug: '_foo-1', title: 'Foo 1' },
             { '#': 2, slug: 'foo-2', title: 'Foo 2' },
             { '#': 3, slug: '_foo-3', title: 'Foo 3' },
@@ -116,7 +137,7 @@ describe('(SQL) helper methods (#keyField, #processItems)', () => {
     });
 
     it('#processItems should remove items (contains private column)', () => {
-        const result = SheetsSQL.processItems('foo', [
+        const result = Sheets.processItems('foo', [
             { '#': 1, slug: 'foo-1', title: 'Foo 1' },
             { '#': 2, slug: 'foo-2', _title: 'Foo 2' },
             { '#': 3, slug: 'foo-3', _title: 'Foo 3' },
@@ -127,7 +148,7 @@ describe('(SQL) helper methods (#keyField, #processItems)', () => {
     });
 });
 
-describe('(SQL) #all', () => {
+describe('#all', () => {
 
     beforeEach(() => {
         buildStubs();
@@ -138,7 +159,7 @@ describe('(SQL) #all', () => {
     it('return no item', () => {
         modelStub.onFirstCall().returns({ all: () => [] });
 
-        const result = SheetsSQL.all('foo');
+        const result = Sheets.all('foo');
         expect(result).to.eql([]);
     });
 
@@ -150,7 +171,7 @@ describe('(SQL) #all', () => {
             ],
         });
 
-        const result = SheetsSQL.all('foo');
+        const result = Sheets.all('foo');
         expect(result).to.eql([
             { '#': 1, title: 'Foo 1', content: 'xxx' },
             { '#': 2, title: 'Foo 2', content: { a: 1, b: 2, c: 3 } },
@@ -159,7 +180,7 @@ describe('(SQL) #all', () => {
 
 });
 
-describe('(SQL) #item', () => {
+describe('#item', () => {
 
     beforeEach(() => {
         buildStubs();
@@ -175,8 +196,8 @@ describe('(SQL) #item', () => {
             where: (condition) => ({ first: () => condition }),
         });
 
-        const result1 = SheetsSQL.item('foo', 1);
-        const result2 = SheetsSQL.item('foo', { slug: 'foo-1' });
+        const result1 = Sheets.item('foo', 1);
+        const result2 = Sheets.item('foo', { slug: 'foo-1' });
         expect(result1).to.eql({ id: 1 });
         expect(result2).to.eql({ slug: 'foo-1' });
     });
@@ -187,7 +208,7 @@ describe('(SQL) #item', () => {
             find: (id) => { throw null; },
         });
 
-        const result = SheetsSQL.item('foo', 0);
+        const result = Sheets.item('foo', 0);
         expect(result).to.equal(null);
     });
 
@@ -196,7 +217,7 @@ describe('(SQL) #item', () => {
             where: (condition) => ({ first: () => null }),
         });
 
-        const result = SheetsSQL.item('foo', { slug: 'foo-x' });
+        const result = Sheets.item('foo', { slug: 'foo-x' });
         expect(result).to.equal(null);
     });
 
@@ -205,7 +226,7 @@ describe('(SQL) #item', () => {
             find: (id) => ({ '#': 1, title: 'Foo 1', content: '{"a":1,"b":2}' }),
         });
 
-        const result = SheetsSQL.item('foo', 1);
+        const result = Sheets.item('foo', 1);
         expect(result).to.eql({ '#': 1, title: 'Foo 1', content: { a: 1, b: 2 } });
     });
 
@@ -216,13 +237,13 @@ describe('(SQL) #item', () => {
             }),
         });
 
-        const result = SheetsSQL.item('foo', { slug: 'foo-1' });
+        const result = Sheets.item('foo', { slug: 'foo-1' });
         expect(result).to.eql({ '#': 1, title: 'Foo 1', content: 'xxx' });
     });
 
 });
 
-describe('(SQL) #query', () => {
+describe('#query', () => {
 
     beforeEach(() => buildStubs());
     afterEach(() => restoreStubs());
@@ -234,7 +255,7 @@ describe('(SQL) #query', () => {
             }),
         });
 
-        const result = SheetsSQL.query('foo', {
+        const result = Sheets.query('foo', {
             where: { x: 'xx' },
         });
         expect(result).to.eql([]);
@@ -247,7 +268,7 @@ describe('(SQL) #query', () => {
             }),
         });
 
-        const result = SheetsSQL.query('foo', {
+        const result = Sheets.query('foo', {
             orderBy: 'xxx',
         });
         expect(result).to.eql([]);
@@ -273,10 +294,10 @@ describe('(SQL) #query', () => {
             ],
         });
 
-        const result1 = SheetsSQL.query('foo', {
+        const result1 = Sheets.query('foo', {
             limit: 3,
         });
-        const result2 = SheetsSQL.query('foo', {
+        const result2 = Sheets.query('foo', {
             limit: 3, offset: 2,
         });
         expect(result1).to.eql([
@@ -293,7 +314,7 @@ describe('(SQL) #query', () => {
 
 });
 
-describe('(SQL) #search', () => {
+describe.skip('#search', () => {
 
     beforeEach(() => buildStubs());
     afterEach(() => restoreStubs());
@@ -301,7 +322,7 @@ describe('(SQL) #search', () => {
     it('should return no items', () => {
         allStub.onFirstCall().returns([]);
 
-        const result = SheetsSQL.search('foo', 'xxx');
+        const result = Sheets.search('foo', 'xxx');
         expect(result).to.eql([]);
     });
 
@@ -314,7 +335,7 @@ describe('(SQL) #search', () => {
             { '#': 5, title: 'Ipsum lorem' },
         ]);
 
-        const result = SheetsSQL.search('foo', 'ipsum');
+        const result = Sheets.search('foo', 'ipsum');
         expect(result).to.eql([
             { '#': 1, title: 'Lorem ipsum' },
             { '#': 3, title: 'Foo ipsum' },
@@ -331,7 +352,7 @@ describe('(SQL) #search', () => {
             { '#': 5, xxx: 'Ipsum lorem' },
         ]);
 
-        const result = SheetsSQL.search('bar', 'ipsum');
+        const result = Sheets.search('bar', 'ipsum');
         expect(result).to.eql([
             { '#': 1, content: 'Lorem ipsum' },
             { '#': 3, content: 'Bar ipsum' },
@@ -340,7 +361,7 @@ describe('(SQL) #search', () => {
 
 });
 
-describe('(SQL) #update (correct id)', () => {
+describe('#update (correct id)', () => {
 
     let recorder: any;
 
@@ -353,41 +374,41 @@ describe('(SQL) #update (correct id)', () => {
     afterEach(() => restoreStubs());
 
     it('should not have id', () => {
-        SheetsSQL.update('foo', { slug: 'xxx' });
+        Sheets.update('foo', { slug: 'xxx' });
         expect(recorder['#']).to.equal(undefined);
     });
 
     it('should not have id (id provided but no coresponding item)', () => {
         itemStub.onFirstCall().returns(null);
 
-        SheetsSQL.update('foo', { slug: 'xxx' }, 1);
+        Sheets.update('foo', { slug: 'xxx' }, 1);
         expect(recorder['#']).to.equal(undefined);
     });
 
     it('should not have id (condition provided but no coresponding item)', () => {
         itemStub.onFirstCall().returns(null);
 
-        SheetsSQL.update('foo', { slug: 'xxx' }, { slug: 'foo-1' });
+        Sheets.update('foo', { slug: 'xxx' }, { slug: 'foo-1' });
         expect(recorder['#']).to.equal(undefined);
     });
 
     it('should have id (id provided and item exists)', () => {
         itemStub.onFirstCall().returns({ '#': 1 });
 
-        SheetsSQL.update('foo', {}, 1);
+        Sheets.update('foo', {}, 1);
         expect(recorder['#']).to.equal(1);
     });
 
     it('should have id (condition provided and item exists)', () => {
         itemStub.onFirstCall().returns({ '#': 2 });
 
-        SheetsSQL.update('foo', {}, { slug: 'foo-2' });
+        Sheets.update('foo', {}, { slug: 'foo-2' });
         expect(recorder['#']).to.equal(2);
     });
 
 });
 
-describe('(SQL) #update (correct data, new item)', () => {
+describe('#update (correct data, new item)', () => {
 
     let recorder: any;
 
@@ -401,7 +422,7 @@ describe('(SQL) #update (correct data, new item)', () => {
 
     it('should throw error (no key field)', () => {
         expect(
-            SheetsSQL.update.bind(SheetsSQL, 'foo', {}),
+            Sheets.update.bind(Sheets, 'foo', {}),
         ).to.throw('New item must have the key field of "slug".');
     });
 
@@ -409,18 +430,18 @@ describe('(SQL) #update (correct data, new item)', () => {
         itemStub.onFirstCall().returns({ slug: 'foo-1' });
 
         expect(
-            SheetsSQL.update.bind(SheetsSQL, 'foo', { slug: 'foo-1' }),
+            Sheets.update.bind(Sheets, 'foo', { slug: 'foo-1' }),
         ).to.throw('Item exist with slug=foo-1.');
     });
 
     it('should have correct data', () => {
-        SheetsSQL.update('foo', { slug: 'xxx', a: 1, b: 2 });
+        Sheets.update('foo', { slug: 'xxx', a: 1, b: 2 });
         expect(recorder).to.eql({ slug: 'xxx', a: 1, b: 2 });
     });
 
 });
 
-describe('(SQL) #update (correct data, existing item)', () => {
+describe('#update (correct data, existing item)', () => {
 
     let recorder: any;
 
@@ -437,7 +458,7 @@ describe('(SQL) #update (correct data, existing item)', () => {
             '#': 1, slug: 'foo-1', a: 1, b: 2,
         });
 
-        SheetsSQL.update('foo', {
+        Sheets.update('foo', {
             '#': 100, // no
             slug: 'xxx', // no
             a: 100, // yes
@@ -451,7 +472,7 @@ describe('(SQL) #update (correct data, existing item)', () => {
 
 });
 
-describe('(SQL) #delete', () => {
+describe('#delete', () => {
 
     beforeEach(() => buildStubs());
     afterEach(() => restoreStubs());
@@ -464,7 +485,7 @@ describe('(SQL) #delete', () => {
                 destroy: () => { result = true; },
             }),
         });
-        SheetsSQL.delete('foo', 1);
+        Sheets.delete('foo', 1);
         expect(result).to.equal(undefined);
     });
 
@@ -476,14 +497,8 @@ describe('(SQL) #delete', () => {
                 destroy: () => { result = true; },
             }),
         });
-        SheetsSQL.delete('foo', 1);
+        Sheets.delete('foo', 1);
         expect(result).to.equal(true);
     });
-
-});
-
-describe('(SQL) #registerRoutes', () => {
-
-    it('#registerRoutes should work');
 
 });

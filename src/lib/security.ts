@@ -11,13 +11,22 @@ interface PrivateCheckInput {
 
 export class SecurityService {
     private options: Options;
-    private request: RouteRequest;
+    private apiRequest: RouteRequest;
 
     constructor(options: Options = {}) {
         this.options = {
             admin: false,
             securityRules: {},
             ... options,
+        };
+    }
+
+    setRequest(reqquest: RouteRequest) { this.apiRequest = reqquest; }
+
+    addRules(rules: {}) {
+        this.options.securityRules = {
+            ... this.options.securityRules,
+            ... rules,
         };
     }
 
@@ -38,19 +47,6 @@ export class SecurityService {
         } else {
             this.checkReadPermission(path, data);
         }
-    }
-
-    /**
-     * misc
-     */
-
-    setRequest(req: RouteRequest) { this.request = req; }
-
-    addRules(rules: {}) {
-        this.options.securityRules = {
-            ... this.options.securityRules,
-            ... rules,
-        };
     }
 
     /**
@@ -123,15 +119,12 @@ export class SecurityService {
         // auth object
         let auth = null;
         const { AuthToken } = this.options;
-        const idToken = this.request ? (
-            this.request.query['idToken'] || this.request.body['idToken']
+        const idToken = this.apiRequest ? (
+            this.apiRequest.body['idToken'] ||
+            this.apiRequest.query['idToken']
         ) : null;
-        if (AuthToken) {
-            try {
-                auth = AuthToken.decode(idToken);
-            } catch (error) {
-                // error decoding auth token
-            }
+        if (idToken && AuthToken) {
+            auth = AuthToken.decodeIdToken(idToken);
         }
 
         // sum up input

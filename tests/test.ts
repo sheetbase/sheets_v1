@@ -4,8 +4,6 @@ import { describe, it } from 'mocha';
 import {
     sheets,
     spreadsheet,
-    sheetsSQL,
-    sheetsNoSQL,
 
     translateRangeValues,
     parseData,
@@ -17,31 +15,15 @@ import {
  */
 
 describe('Module creation', () => {
-    const Sheets = sheets({ databaseId: 'database_id_xxx' });
     const Spreadsheet = spreadsheet({ databaseId: 'database_id_xxx' });
-    const SheetsSQL = sheetsSQL({ databaseId: 'database_id_xxx' });
-    const SheetsNoSQL = sheetsNoSQL({ databaseId: 'database_id_xxx' });
-
-    it('Sheets service should be created', () => {
-        expect(!!Sheets).to.equal(true);
-    });
-
-    it('Sheets service should have members', () => {
-        expect(!!Sheets.Spreadsheet).to.equal(true);
-        expect(!!Sheets.SQL).to.equal(true);
-        expect(!!Sheets.NoSQL).to.equal(true);
-    });
+    const Sheets = sheets({ databaseId: 'database_id_xxx' });
 
     it('Spreadsheet service should be created', () => {
         expect(!!Spreadsheet).to.equal(true);
     });
 
-    it('SheetsSQL service should be created', () => {
-        expect(!!SheetsSQL).to.equal(true);
-    });
-
-    it('SheetsNoSQL service should be created', () => {
-        expect(!!SheetsNoSQL).to.equal(true);
+    it('Sheets service should be created', () => {
+        expect(!!Sheets).to.equal(true);
     });
 
 });

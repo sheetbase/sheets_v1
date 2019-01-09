@@ -12,7 +12,7 @@ export interface Options {
     securityRules?: {};
 
     // intergration
-    AuthToken?: any; // has decode() method;
+    AuthToken?: any; // decodeIdToken();
 }
 
 export interface SheetSchema {
