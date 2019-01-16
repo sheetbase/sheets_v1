@@ -1,8 +1,5 @@
-export interface Options extends ExtendedOptions {
-    databaseId: string;
-}
-
-export interface ExtendedOptions {
+export interface Options {
+    databaseId?: string;
     keyFields?: {
         [sheetName: string]: string;
     };
