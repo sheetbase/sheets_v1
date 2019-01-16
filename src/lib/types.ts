@@ -1,5 +1,5 @@
 export interface Options {
-    databaseId?: string;
+    databaseId: string;
     keyFields?: {
         [sheetName: string]: string;
     };

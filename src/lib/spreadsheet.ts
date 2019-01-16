@@ -3,7 +3,7 @@ import { Options, SheetSchema } from './types';
 export class SpreadsheetService {
     private options: Options;
 
-    constructor(options: Options = {}) {
+    constructor(options?: Options) {
         this.options = options;
     }
 

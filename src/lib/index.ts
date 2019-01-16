@@ -14,6 +14,10 @@ export function sheets(options?: Options) {
     return new SheetsService(options);
 }
 
+export function sheetsAdmin(options?: Options) {
+    return new SheetsService({ ... options, admin: true });
+}
+
 export {
     sheets as database,
     sheets as db,

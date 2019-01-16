@@ -18,7 +18,7 @@ export class SheetsService {
     private securityService: SecurityService;
     private errors: RoutingErrors = {};
 
-    constructor(options: Options = {}) {
+    constructor(options?: Options) {
         this.spreadsheetService = new SpreadsheetService(options);
         this.securityService = new SecurityService(options);
         this.options = {
@@ -29,6 +29,11 @@ export class SheetsService {
 
         // init tamotsux
         initialize(this.spreadsheetService.spreadsheet());
+    }
+
+    // extend the calss
+    extend(options?: Options) {
+        return new SheetsService({ ... this.options, ... options });
     }
 
     // routes

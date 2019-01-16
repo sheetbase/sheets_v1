@@ -13,7 +13,7 @@ export class SecurityService {
     private options: Options;
     private apiRequest: RouteRequest;
 
-    constructor(options: Options = {}) {
+    constructor(options?: Options) {
         this.options = {
             admin: false,
             securityRules: {},
