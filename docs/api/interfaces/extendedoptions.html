@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>SheetSchema | @sheetbase/sheets-server</title>
+	<title>ExtendedOptions | @sheetbase/sheets-server</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,10 +52,10 @@
 					<a href="../index.html">Globals</a>
 				</li>
 				<li>
-					<a href="sheetschema.html">SheetSchema</a>
+					<a href="extendedoptions.html">ExtendedOptions</a>
 				</li>
 			</ul>
-			<h1>Interface SheetSchema</h1>
+			<h1>Interface ExtendedOptions</h1>
 		</div>
 	</div>
 </header>
@@ -66,7 +66,12 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">SheetSchema</span>
+						<span class="target">ExtendedOptions</span>
+						<ul class="tsd-hierarchy">
+							<li>
+								<a href="options.html" class="tsd-signature-type">Options</a>
+							</li>
+						</ul>
 					</li>
 				</ul>
 			</section>
@@ -77,9 +82,11 @@
 						<section class="tsd-index-section ">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="sheetschema.html#description" class="tsd-kind-icon">description</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="sheetschema.html#name" class="tsd-kind-icon">name</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="sheetschema.html#size" class="tsd-kind-icon">size</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="extendedoptions.html#authtoken" class="tsd-kind-icon">Auth<wbr>Token</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="extendedoptions.html#admin" class="tsd-kind-icon">admin</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="extendedoptions.html#keyfields" class="tsd-kind-icon">key<wbr>Fields</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="extendedoptions.html#searchfields" class="tsd-kind-icon">search<wbr>Fields</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="extendedoptions.html#securityrules" class="tsd-kind-icon">security<wbr>Rules</a></li>
 							</ul>
 						</section>
 					</div>
@@ -88,32 +95,68 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="description" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> description</h3>
-					<div class="tsd-signature tsd-kind-icon">description<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="authtoken" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> Auth<wbr>Token</h3>
+					<div class="tsd-signature tsd-kind-icon">Auth<wbr>Token<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/c3d8c08/src/lib/types.ts#L23">lib/types.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/c3d8c08/src/lib/types.ts#L18">lib/types.ts:18</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="name" class="tsd-anchor"></a>
-					<h3>name</h3>
-					<div class="tsd-signature tsd-kind-icon">name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+					<a name="admin" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> admin</h3>
+					<div class="tsd-signature tsd-kind-icon">admin<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/c3d8c08/src/lib/types.ts#L22">lib/types.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/c3d8c08/src/lib/types.ts#L14">lib/types.ts:14</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="size" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> size</h3>
-					<div class="tsd-signature tsd-kind-icon">size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<a name="keyfields" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> key<wbr>Fields</h3>
+					<div class="tsd-signature tsd-kind-icon">key<wbr>Fields<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/c3d8c08/src/lib/types.ts#L24">lib/types.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/c3d8c08/src/lib/types.ts#L6">lib/types.ts:6</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>sheetName: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">string</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="searchfields" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> search<wbr>Fields</h3>
+					<div class="tsd-signature tsd-kind-icon">search<wbr>Fields<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/c3d8c08/src/lib/types.ts#L9">lib/types.ts:9</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-index-signature">
+								<h5><span class="tsd-signature-symbol">[</span>sheetName: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="securityrules" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> security<wbr>Rules</h3>
+					<div class="tsd-signature tsd-kind-icon">security<wbr>Rules<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">__type</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/c3d8c08/src/lib/types.ts#L15">lib/types.ts:15</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -138,9 +181,30 @@
 					<li class=" tsd-kind-class">
 						<a href="../classes/spreadsheetservice.html" class="tsd-kind-icon">Spreadsheet<wbr>Service</a>
 					</li>
-					<li class=" tsd-kind-interface">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface">
 						<a href="extendedoptions.html" class="tsd-kind-icon">Extended<wbr>Options</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="extendedoptions.html#authtoken" class="tsd-kind-icon">Auth<wbr>Token</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="extendedoptions.html#admin" class="tsd-kind-icon">admin</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="extendedoptions.html#keyfields" class="tsd-kind-icon">key<wbr>Fields</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="extendedoptions.html#searchfields" class="tsd-kind-icon">search<wbr>Fields</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="extendedoptions.html#securityrules" class="tsd-kind-icon">security<wbr>Rules</a>
+							</li>
+						</ul>
 					</li>
+				</ul>
+				<ul class="after-current">
 					<li class=" tsd-kind-interface">
 						<a href="nosqlquery.html" class="tsd-kind-icon">NoSQLQuery</a>
 					</li>
@@ -150,24 +214,9 @@
 					<li class=" tsd-kind-interface">
 						<a href="sqlquery.html" class="tsd-kind-icon">SQLQuery</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface">
+					<li class=" tsd-kind-interface">
 						<a href="sheetschema.html" class="tsd-kind-icon">Sheet<wbr>Schema</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="sheetschema.html#description" class="tsd-kind-icon">description</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="sheetschema.html#name" class="tsd-kind-icon">name</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="sheetschema.html#size" class="tsd-kind-icon">size</a>
-							</li>
-						</ul>
 					</li>
-				</ul>
-				<ul class="after-current">
 					<li class=" tsd-kind-function">
 						<a href="../index.html#parsedata" class="tsd-kind-icon">parse<wbr>Data</a>
 					</li>

@@ -7,7 +7,7 @@ import { orderBy }  from '../lodash/orderBy';
 import  '../lunr/lunr';
 declare const lunr: any;
 
-import { Options } from './types';
+import { Options, ExtendedOptions } from './types';
 import { SecurityService } from './security';
 import { SpreadsheetService } from './spreadsheet';
 import { parseData, stringifyData } from './utils';
@@ -31,9 +31,13 @@ export class SheetsService {
         initialize(this.spreadsheetService.spreadsheet());
     }
 
-    // extend the calss
-    extend(options?: Options) {
-        return new SheetsService({ ... this.options, ... options });
+    extend(extendedPptions?: ExtendedOptions) {
+        return new SheetsService({ ... this.options, ... extendedPptions });
+    }
+
+    setOption<K extends keyof Options, Value>(key: K, value: Value): SheetsService {
+        this.options[key] = value;
+        return this;
     }
 
     // routes
