@@ -1,6 +1,6 @@
 {
    "name": "@sheetbase/sheets-server",
-   "version": "0.0.6",
+   "version": "0.0.7",
    "description": "Using Google Sheets as a database.",
    "author": "Sheetbase",
    "homepage": "https://sheetbase.net",
@@ -18,7 +18,7 @@
       "build": "npm run module && npm run readme && npm run docs",
       "push": "cd deploy && clasp push",
       "lint": "tslint --project tslint.json && echo 'All files pass linting.'",
-      "test": "tsc --project tests/tsconfig.test.json && nyc --cache false mocha --timeout 100000 -- build/tests/*.js",
+      "test": "tsc -p tests/tsconfig.test.json && nyc --cache false mocha build/tests/*.js",
       "coverage": "nyc --cache false report --reporter=text-lcov | coveralls"
    },
    "nyc": {
@@ -51,17 +51,18 @@
    "devDependencies": {
       "@sheetbase/app-scripts": "^0.0.30",
       "@types/chai": "^4.1.7",
-      "@types/google-apps-script": "^0.0.32",
-      "@types/mocha": "^5.2.5",
-      "@types/node": "^10.12.8",
-      "@types/sinon": "^5.0.7",
+      "@types/google-apps-script": "^0.0.38",
+      "@types/mocha": "^5.2.6",
+      "@types/node": "^11.10.4",
+      "@types/sinon": "^7.0.8",
       "chai": "^4.2.0",
-      "coveralls": "^3.0.2",
-      "mocha": "^5.2.0",
-      "nyc": "^13.1.0",
-      "rollup-plugin-node-resolve": "^3.4.0",
-      "sinon": "^7.1.1",
-      "tslint": "^5.11.0",
-      "typescript": "^3.1.6"
+      "coveralls": "^3.0.3",
+      "mocha": "^6.0.2",
+      "nyc": "^13.3.0",
+      "rollup-plugin-alias": "^1.5.1",
+      "rollup-plugin-node-resolve": "^4.0.1",
+      "sinon": "^7.2.7",
+      "tslint": "^5.13.1",
+      "typescript": "^3.3.3"
    }
 }

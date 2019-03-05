@@ -4,8 +4,7 @@ import { initialize, Table } from '@sheetbase/tamotsux-server';
 import { get as lodashGet }  from '../lodash/get';
 import { set as lodashSet }  from '../lodash/set';
 import { orderBy }  from '../lodash/orderBy';
-import  '../lunr/lunr';
-declare const lunr: any;
+import { lunr } from '../lunr/lunr';
 
 import { Options } from './types';
 import { SecurityService } from './security';
@@ -553,7 +552,7 @@ export class SheetsService {
         }
 
         // sort result
-        result = orderBy(result, [(orderByKey || '#')], (order || 'asc'));
+        result = orderBy(result, [(orderByKey || '#')], (order || 'asc'), null);
 
         // limit
         if (limitToFirst) {
