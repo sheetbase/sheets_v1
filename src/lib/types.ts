@@ -1,4 +1,14 @@
-export interface Options {
+export interface Rules {
+    '.read'?: any;
+    '.write'?: any;
+    [sheetName: string]: Rules;
+}
+
+export interface Intergration {
+    AuthToken?: any; // decodeIdToken();
+}
+
+export interface Options extends Intergration {
     databaseId?: string;
     keyFields?: {
         [sheetName: string]: string;
@@ -9,10 +19,7 @@ export interface Options {
 
     // security
     admin?: boolean;
-    securityRules?: {};
-
-    // intergration
-    AuthToken?: any; // decodeIdToken();
+    securityRules?: Rules;
 }
 
 export interface SheetSchema {

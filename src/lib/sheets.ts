@@ -6,7 +6,7 @@ import { set as lodashSet }  from '../lodash/set';
 import { orderBy }  from '../lodash/orderBy';
 import { lunr } from '../lunr/lunr';
 
-import { Options } from './types';
+import { Options, Intergration } from './types';
 import { SecurityService } from './security';
 import { SpreadsheetService } from './spreadsheet';
 import { parseData, stringifyData } from './utils';
@@ -33,6 +33,10 @@ export class SheetsService {
     setOption<K extends keyof Options, Value>(key: K, value: Value): SheetsService {
         this.options[key] = value;
         return this;
+    }
+
+    setIntegration<K extends keyof Intergration, Value>(key: K, value: Value): SheetsService {
+        return this.setOption(key, value);
     }
 
     extend(options?: Options) {
@@ -255,10 +259,21 @@ export class SheetsService {
         return this.options.searchFields[sheetName] || [];
     }
 
+    modifyItem<Item>(sheetName: string, item: Item) {
+        item = parseData(item);
+        // add '$key'
+        item['$key'] = item[this.keyField(sheetName)];
+        // add 'id'
+        if (!item['id']) {
+            item['id'] = item['#'] || null;
+        }
+        return item;
+    }
+
     processItems<Item>(sheetName: string, rawItems: any[]): Item[] {
         const result: Item[] = [];
         for (let i = 0; i < rawItems.length; i++) {
-            const item = parseData(rawItems[i]) as Item;
+            const item = this.modifyItem(sheetName, rawItems[i]);
             try {
                 // security checkpoint
                 this.securityService.checkpoint(
@@ -297,7 +312,7 @@ export class SheetsService {
             item = this.model(table).where(idOrCondition).first();
         }
         if (item) {
-            item = parseData(item) as Item;
+            item = this.modifyItem(table, item);
             // security checkpoint
             this.securityService.checkpoint(
                 '/' + table + '/' + item[this.keyField(table)],

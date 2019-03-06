@@ -419,7 +419,11 @@ function load_() {
   return Sheets.sheets({
     databaseId,
     keyFields: { foo: "slug" },
-    searchFields: { foo: ["content"] }
+    searchFields: { foo: ["content"] },
+    securityRules: {
+      foo: { ".read": true, ".write": true },
+      bar: { ".read": true, ".write": true }
+    }
   });
 }
 
