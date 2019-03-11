@@ -1,23 +1,25 @@
 // turn [[],[], ...] to [{},{}, ...]
-export function translateRangeValues(
+export function translateRangeValues<Item>(
     values: any[][],
-    noHeaders = false,
-    modifier = (item) => item,
+    noHeader = false,
+    modifier = item => item,
 ) {
     values = values || [];
     // get header
-    const headers: string[] = !noHeaders ? values.shift() : [];
+    const headers: string[] = !noHeader ? values.shift() : [];
     // build data
-    const result: Array<{}> = [];
+    const result: Item[] = [];
     for (let i = 0; i < values.length; i++) {
+        const item: Item = {} as any;
+        // process columns
         const rows = values[i] || [];
-        const item = {};
         for (let j = 0; j < rows.length; j++) {
             if (rows[j]) {
                 item[headers[j] || ('value' + (j + 1))] = rows[j];
             }
         }
         if (Object.keys(item).length > 0) {
+            item['_row'] = !noHeader ? i + 2 : i + 1;
             result.push(modifier(item));
         }
     }

@@ -1,62 +1,60 @@
 import { RouteRequest } from '@sheetbase/core-server';
 
 import { Options } from './types';
-
-interface PrivateCheckInput {
-    sheetName?: string;
-    key?: string;
-    data?: any;
-    dataKey?: string;
-}
+import { DataService } from './data';
 
 export class SecurityService {
     private options: Options;
     private apiRequest: RouteRequest;
 
     constructor(options?: Options) {
-        this.options = {
-            admin: false,
-            securityRules: {},
-            ... options,
-        };
+        this.options = { security: {}, ... options };
     }
 
-    setRequest(reqquest: RouteRequest) { this.apiRequest = reqquest; }
-
-    addRules(rules: {}) {
-        this.options.securityRules = {
-            ... this.options.securityRules,
-            ... rules,
-        };
+    setRequest(reqquest: RouteRequest) {
+        this.apiRequest = reqquest;
     }
 
     checkpoint(
-        path: string,
-        data?: any,
-        newData?: any,
-        permission = 'read',
+        permission: ('read' | 'write' ),
+        paths: string[],
+        data?: DataService,
+        newData: any = null,
     ) {
-        // private check
-        const [ sheetName, key, dataKey ] = path.split('/').filter(Boolean);
-        const input: PrivateCheckInput = { sheetName, key, data, dataKey };
-        this.checkPrivate(input);
-
-        // rule based check
-        if (permission === 'write') {
-            this.checkWritePermission(path, data, newData);
-        } else {
-            this.checkReadPermission(path, data);
+        // read
+        if (
+            permission === 'read' &&
+            !this.hasPermission('read', paths, data)
+        ) {
+            throw new Error('No read permission.');
+        }
+        // write
+        if (
+            permission === 'write' &&
+            !this.hasPermission('write', paths, data, newData)
+        ) {
+            throw new Error('No write permission.');
         }
     }
 
-    /**
-     * rule based
-     */
+    private hasPermission(
+        permission: ('read' | 'write'),
+        paths: string[],
+        data?: DataService,
+        newData?: any,
+    ): boolean {
+        // always when security is off
+        if (!this.options.security) {
+            return true;
+        }
+        // execute rule
+        const { rule, dynamicData } = this.parseRule(permission, paths);
+        return (typeof rule === 'boolean') ? rule : this.executeRule(rule, data, newData, dynamicData);
+    }
 
-    parseRule(path: string, permission = 'read') {
-        const paths = path.split('/').filter(Boolean);
-
-        let rules = this.options.securityRules;
+    private parseRule(permission: ('read' | 'write' ), paths: string[]) {
+        let rules = !!this.options.security ? this.options.security : { '.read': true, '.write': true };
+        rules = (typeof rules === 'boolean') ? {} : rules;
         const latestRules: {} = {
             '.read': rules['.read'] || false,
             '.write': rules['.write'] || false,
@@ -110,9 +108,9 @@ export class SecurityService {
         return { rule, dynamicData };
     }
 
-    executeRule(
+    private executeRule(
         rule: string,
-        data?: any,
+        data?: DataService,
         newData?: any,
         dynamicData: {[key: string]: string} = {},
     ) {
@@ -120,8 +118,7 @@ export class SecurityService {
         let auth = null;
         const { AuthToken } = this.options;
         const idToken = this.apiRequest ? (
-            this.apiRequest.body['idToken'] ||
-            this.apiRequest.query['idToken']
+            this.apiRequest.body['idToken'] || this.apiRequest.query['idToken']
         ) : null;
         if (idToken && AuthToken) {
             auth = AuthToken.decodeIdToken(idToken);
@@ -129,10 +126,11 @@ export class SecurityService {
 
         // sum up input
         const input = {
-            auth,
-            now: (new Date()).getTime(),
+            now: new Date(),
+            root: data.root(),
             data,
             newData,
+            auth,
             ... dynamicData,
         };
         const body = `
@@ -148,81 +146,6 @@ export class SecurityService {
             return executor(input);
         } catch (error) {
             return false;
-        }
-    }
-
-    hasPermission(
-        permission: ('read' | 'write'),
-        path: string,
-        data?: any,
-        newData?: any,
-    ): boolean {
-        if (this.options.admin) { return true; } // always for admin
-        const { rule, dynamicData } = this.parseRule(path, permission);
-        return (typeof rule === 'boolean') ? rule : this.executeRule(rule, data, newData, dynamicData);
-    }
-
-    hasReadPermission(path: string, data?: any) {
-        return this.hasPermission('read', path, data);
-    }
-    hasWritePermission(path: string, data?: any, newData?: any) {
-        return this.hasPermission('write', path, data, newData);
-    }
-
-    checkReadPermission(path: string, data?: any) {
-        if (!this.hasReadPermission(path, data)) {
-            throw new Error('No read permission.');
-        }
-    }
-    checkWritePermission(path: string, data?: any, newData?: any) {
-        if (!this.hasWritePermission(path, data, newData)) {
-            throw new Error('No write permission.');
-        }
-    }
-
-    /**
-     * private
-     */
-    isPrivate(str: string) {
-        return this.options.admin ? false : str.substr(0, 1) === '_';
-    }
-
-    isPrivateSheet(sheetName: string) {
-        return sheetName && this.isPrivate(sheetName);
-    }
-
-    isPrivateRow(key: string) {
-        return (key && this.isPrivate(key));
-    }
-
-    isPrivateColumn(data: any, dataKey?: string) {
-        if (!data) { return false; }
-        // process further
-        let status = false;
-        if (data instanceof Object && !(data instanceof Array)) {
-            for (const key of Object.keys(data)) {
-                if (this.isPrivate(key)) {
-                    status = true;
-                }
-            }
-        } else {
-            if (!dataKey || this.isPrivate(dataKey)) {
-                status = true;
-            }
-        }
-        return status;
-    }
-
-    checkPrivate(input: PrivateCheckInput = {}): void {
-        const { sheetName, key, data, dataKey } = input;
-        if (this.isPrivateSheet(sheetName)) {
-            throw new Error('Private sheet.');
-        }
-        if (this.isPrivateRow(key)) {
-            throw new Error('Private row.');
-        }
-        if (this.isPrivateColumn(data, dataKey)) {
-            throw new Error('Data contains private columns.');
         }
     }
 

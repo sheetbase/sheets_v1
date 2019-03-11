@@ -1,6 +1,6 @@
 {
    "name": "@sheetbase/sheets-server",
-   "version": "0.0.7",
+   "version": "0.0.8",
    "description": "Using Google Sheets as a database.",
    "author": "Sheetbase",
    "homepage": "https://sheetbase.net",
@@ -59,7 +59,6 @@
       "coveralls": "^3.0.3",
       "mocha": "^6.0.2",
       "nyc": "^13.3.0",
-      "rollup-plugin-alias": "^1.5.1",
       "rollup-plugin-node-resolve": "^4.0.1",
       "sinon": "^7.2.7",
       "tslint": "^5.13.1",

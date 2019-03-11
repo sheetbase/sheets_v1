@@ -4,7 +4,8 @@ import { describe, it } from 'mocha';
 import { SecurityService } from '../src/lib/security';
 
 const Security = new SecurityService({
-    securityRules: {
+    databaseId: 'xxx',
+    security: {
         '.read': true,
         '.write': true,
         users: {
@@ -40,17 +41,14 @@ describe('(Security) .options', () => {
         const Security = new SecurityService();
         // @ts-ignore
         expect(Security.options).to.eql({
-            admin: false,
-            securityRules: {},
+            security: {},
         });
     });
 
     it('should have values', () => {
         const options = {
-            admin: true,
-            securityRules: {
-                '.read': true, '.write': true,
-            },
+            databaseId: '',
+            security: false,
         };
         const Security = new SecurityService(options);
         // @ts-ignore
