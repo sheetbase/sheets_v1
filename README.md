@@ -383,7 +383,7 @@ The module borrow idea from Firebase Realtime Database, see <https://firebase.go
 ### Examples
 
 ```ts
-import * as SheetsModule from "./public_api";
+import * as Sheets from "./public_api";
 
 // helpers
 function describe_(description: string, handler: () => void) {
@@ -397,14 +397,8 @@ function it_(description: string, result: () => boolean) {
     Logger.log("   [FAILED] " + description);
   }
 }
-
-// test
-function test() {
-  const describe = describe_;
-  const it = it_;
-
-  // create sheets instance
-  const Sheets = SheetsModule.sheets({
+function load_() {
+  return Sheets.sheets({
     databaseId: "1Zz5kvlTn2cXd41ZQZlFeCjvVR_XhpUnzKlDGB8QsXoI",
     keyFields: {
       // foo: 'key',
@@ -423,6 +417,15 @@ function test() {
       }
     }
   });
+}
+
+// test
+function test() {
+  const describe = describe_;
+  const it = it_;
+
+  // create sheets instance
+  const Sheets = load_();
 
   describe("Root ref", () => {
     it("Generate auto key", () => {
@@ -517,7 +520,7 @@ function test() {
       return bar.length === 1;
     });
 
-    it("Add a bar (fail for no read permission)", () => {
+    it("Add a bar (fail for no write permission)", () => {
       let error = null;
       try {
         Sheets.add("bar", "bar-x", {
@@ -530,7 +533,7 @@ function test() {
       return !!error;
     });
 
-    it("Update a bar (fail for no read permission)", () => {
+    it("Update a bar (fail for no write permission)", () => {
       let error = null;
       try {
         Sheets.update("bar", "bar-x", { content: "Bar x new content!" });
@@ -540,7 +543,7 @@ function test() {
       return !!error;
     });
 
-    it("Delete a bar (fail for no read permission)", () => {
+    it("Delete a bar (fail for no write permission)", () => {
       let error = null;
       try {
         Sheets.remove("bar", "bar-x");
@@ -646,7 +649,7 @@ function test() {
 
     it("Query bax (has permission)", () => {
       const bax = Sheets.query<any>("bax", item => {
-        return item.xxx === "abc" || item.xxx === "xyz";
+        return item.key === "abc" || item.key === "xyz";
       });
       return bax.length === 2;
     });

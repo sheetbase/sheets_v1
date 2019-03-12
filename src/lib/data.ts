@@ -139,46 +139,47 @@ export class DataService {
   update<Data>(data: Data = null) {
     if (this.paths.length > 0) {
       const [ sheetName, pathKey ] = this.paths;
+
       // load data
       const items = this.loadDataBySheet(sheetName);
       const sheet = this.Sheets.spreadsheet.getSheetByName(sheetName);
+
       // prepare data
       const key = pathKey || this.key();
       let item = items[key];
+      let _row: number;
+      if (!data && !!item) { // remove
+        _row = item._row;
+      } else if (!!data && !!item) { // update
+        _row = item._row;
+        item = {
+          ... item,
+          ... data,
+          '#': item['#'],
+          [this.Sheets.options.keyFields[sheetName] || 'key']: key,
+          _row,
+        };
+      } else if (!!data && !item) { // new
+        const lastRow = sheet.getLastRow();
+        const lastItemId = sheet.getRange('A' + lastRow + ':' + lastRow).getValues()[0][0];
+        _row = lastRow + 1;
+        item = {
+          ... data,
+          '#': lastItemId + 1,
+          [this.Sheets.options.keyFields[sheetName] || 'key']: key,
+          _row,
+        };
+      }
+
+      // check permission
+      this.Sheets.Security.checkpoint('write', this.paths, this, item);
+
       // start actions
-      if (!data) { // remove
-        if (!!item) {
-          const { _row } = item;
-          delete items[key]; // remove from database
-          sheet.deleteRow(_row);
-        }
-      } else {
-        let _row: number;
-        if (!!item) { // update
-          _row = item._row;
-          // modify item
-          item = {
-            ... item,
-            ... data,
-            '#': item['#'],
-            [this.Sheets.options.keyFields[sheetName] || 'key']: key,
-            _row,
-          };
-          items[key] = item; // update in database
-        } else { // new
-          // retrieve last row
-          const lastRow = sheet.getLastRow();
-          const lastItemId = sheet.getRange('A' + lastRow + ':' + lastRow).getValues()[0][0];
-          _row = lastRow + 1;
-          // modify item
-          item = {
-            ... data,
-            '#': lastItemId + 1,
-            [this.Sheets.options.keyFields[sheetName] || 'key']: key,
-            _row,
-          };
-          items[key] = item; // add item to database
-        }
+      if (!data && !!item) { // remove
+        delete items[key]; // remove from database
+        sheet.deleteRow(_row);
+      } else if (!!data) { // update / new
+        items[key] = item; // add item to database
         // turn data to array
         const values = [];
         const [ headers ] = sheet.getRange('A1:1').getValues();
@@ -191,11 +192,10 @@ export class DataService {
           }
           values.push(value || '');
         }
-        // check permission
-        this.Sheets.Security.checkpoint('write', this.paths, this, item);
-        // update values
+        // set values
         sheet.getRange('A' + _row + ':' + _row).setValues([values]);
       }
+
     } else {
       throw new Error('Can not modify root ref.');
     }
