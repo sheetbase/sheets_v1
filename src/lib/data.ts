@@ -23,7 +23,7 @@ export class DataService {
       for (let i = 0; i < rawItems.length; i++) {
         const item = parseData(rawItems[i]);
         // get item key
-        const key = item[this.Sheets.options.keyFields[sheetName] || 'slug'];
+        const key = item[this.Sheets.options.keyFields[sheetName] || 'key'];
         // add 'id' & '$key'
         item['$key'] = key;
         item['id'] = item['id'] ? item['id'] : (item['#'] || null);
@@ -161,7 +161,7 @@ export class DataService {
             ... item,
             ... data,
             '#': item['#'],
-            [this.Sheets.options.keyFields[sheetName] || 'slug']: key,
+            [this.Sheets.options.keyFields[sheetName] || 'key']: key,
             _row,
           };
           items[key] = item; // update in database
@@ -174,7 +174,7 @@ export class DataService {
           item = {
             ... data,
             '#': lastItemId + 1,
-            [this.Sheets.options.keyFields[sheetName] || 'slug']: key,
+            [this.Sheets.options.keyFields[sheetName] || 'key']: key,
             _row,
           };
           items[key] = item; // add item to database

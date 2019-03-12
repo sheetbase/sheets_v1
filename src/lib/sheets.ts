@@ -10,6 +10,7 @@ export class SheetsService {
     spreadsheet: any;
 
     database: {[sheetName: string]: any} = {};
+    // TODO: add route errors
     errors: RoutingErrors = {};
 
     constructor(options: Options) {
@@ -39,28 +40,34 @@ export class SheetsService {
         return this.ref().key();
     }
 
-    all<Item>(sheet: string) {
-        return this.ref('/' + sheet).toArray() as Item[];
+    all<Item>(sheetName: string) {
+        return this.ref('/' + sheetName).toArray() as Item[];
     }
 
-    query<Item>(sheet: string, filter: (item: Item) => boolean) {
-        return this.ref('/' + sheet).query(filter) as Item[];
+    query<Item>(sheetName: string, filter: { where: string, equal: any } | {(item: Item): boolean}) {
+        if (!(filter instanceof Function)) {
+            const { where, equal } = filter as any;
+            filter = item => {
+                return item[where] === equal;
+            };
+        }
+        return this.ref('/' + sheetName).query(filter) as Item[];
     }
 
-    item<Item>(sheet: string, key: string) {
-        return this.ref('/' + sheet + '/' + key).toObject() as Item;
+    item<Item>(sheetName: string, key: string) {
+        return this.ref('/' + sheetName + '/' + key).toObject() as Item;
     }
 
-    add<Data>(sheet: string, key: string, data: Data) {
-        return this.ref('/' + sheet + (!!key ? ('/' + key) : '')).update(data);
+    update<Data>(sheetName: string, key: string, data: Data) {
+        return this.ref('/' + sheetName + (!!key ? ('/' + key) : '')).update(data);
     }
 
-    update<Data>(sheet: string, key: string, data: Data) {
-        return this.ref('/' + sheet + '/' + key).update(data);
+    add<Data>(sheetName: string, key: string, data: Data) {
+        return this.update(sheetName, key, data);
     }
 
-    remove(sheet: string, key: string) {
-        return this.ref('/' + sheet + '/' + key).update(null);
+    remove(sheetName: string, key: string) {
+        return this.update(sheetName, key, null);
     }
 
     // routes
@@ -88,24 +95,62 @@ export class SheetsService {
         });
 
         router.get('/' + endpoint, ... middlewares, (req, res) => {
+            const {
+                path = '/', // sheet name and item key
+                table, sheet, // sheet name
+                id, key, // item key
+                where, equal, // query
+            } = req.query;
+            const paths = path.split('/').filter(Boolean);
+            const sheetName = table || sheet || paths[0];
+            const itemKey = id || key || paths[1];
 
+            if (!sheetName) {
+                return res.error('No path/table/sheet.');
+            }
+
+            let result: any;
+            try {
+                if (!!itemKey) { // get item
+                    result = this.item(sheetName, itemKey);
+                } else if (!!where && !!equal) { // query
+                    result = this.query(sheetName, { where, equal });
+                } else { // all
+                    result = this.all(sheetName);
+                }
+            } catch (error) {
+                return res.error(error);
+            }
+            return res.success(result);
         });
 
-        router.post('/' + endpoint, ... middlewares, (req, res) => {
+        const updateHandler: RouteHandler = (req, res) => {
+            const {
+                path = '/', // sheet name and item key
+                table, sheet, // sheet name
+                id, key, // item key
+                data = null, // data
+            } = req.body;
+            const paths = path.split('/').filter(Boolean);
+            const sheetName = table || sheet || paths[0];
+            const itemKey = id || key || paths[1] || null;
 
-        });
+            if (!sheetName) {
+                return res.error('No path/table/sheet.');
+            }
 
-        router.put('/' + endpoint, ... middlewares, (req, res) => {
+            try {
+                this.update(sheetName, itemKey, data);
+            } catch (error) {
+                return res.error(error);
+            }
+            return res.success({ acknowledge: true });
+        };
 
-        });
-
-        router.patch('/' + endpoint, ... middlewares, (req, res) => {
-
-        });
-
-        router.delete('/' + endpoint, ... middlewares, (req, res) => {
-
-        });
+        router.post('/' + endpoint, ... middlewares, updateHandler);
+        router.put('/' + endpoint, ... middlewares, updateHandler);
+        router.patch('/' + endpoint, ... middlewares, updateHandler);
+        router.delete('/' + endpoint, ... middlewares, updateHandler);
 
     }
 

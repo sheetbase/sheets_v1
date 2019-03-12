@@ -37,166 +37,235 @@ const Sheets = SheetsModule.Sheets;
 
 <!-- <block:body> -->
 
+## Install & usage
+
+Install: `npm install --save @sheetbase/sheets-server`
+
+Usage:
+
+```ts
+import { sheets } from "@sheetbase/sheets-server";
+
+const Sheets = sheets(
+  /* configs */ {
+    databaseId: "Abc...xyz"
+  }
+);
+
+const foo = Sheets.all("foo"); // => [{}, {}, {}, ...]
+```
+
 ## Configs
 
 ### databaseId
 
 - Type: `string`
-- Default: (current active spreadsheet where supported else error)
 
 The spreadsheet id works as the database.
 
 ### keyFields
 
 - Type: `{ [sheetName: string]: string }`
-- Default: #
+- Default: `key` field
 
 Key fields of tables.
 
 ```ts
 keyFields: {
-    foo: 'slug', // use value of the slug field as key
-    bar: 'baz' // use value of the baz field as key
+  foo: 'slug', // use the value of the 'slug' field as the key
+  bar: 'xxx' // use the value of the 'xxx' field as the key
 }
 ```
 
-### searchFields
+### security
 
-- Type: `{ [sheetName: string]: string[] }`
-- Default: `title`
-
-List of fields content search values.
-
-```ts
-searchFields: {
-    foo: ['content'], // look for value in ['title', 'content']
-    bar: ['baz', 'buzzz'] // ['title', 'baz', 'buzzz']
-}
-```
-
-### admin
-
-- Type: `boolean`
-- Default: `false`
-
-If true, all security check points will be passed.
-
-### securityRules
-
-- Type: `Object`
+- Type: `boolean` | `Object`
 - Default: `{}`
 
-Security rules for checking against the request.
+Security rules for checking against the request:
+
+- `true` or `{}` = **private**, no read/write access anywhere
+- `false` = **public**, read/write to any sheet/table
+- `Object` = rule based access
 
 ```ts
-securityRules: {
-    '.read': true,
-    '.write': true,
+security: {
+  foo: { '.read': true, '.write': true }, // read/write
+  bar: { '.read': true } // read only
+  baz: { '.write': true } // write only
+  bax: {
+    $uid: {
+      '.read': '!!auth && auth.uid == $uid' // only authorize user can read
+    }
+  }
 }
 ```
 
-### AuthToken (todo)
+### AuthToken
 
 - Type: `Class`
 - Default: `null`
 
 User management token class to decode auth token.
 
-## Spreadsheet
-
-Spreadsheet related actions, source: <https://github.com/sheetbase/sheets-server/blob/master/src/lib/spreadsheet.ts>
-
-### Methods
-
-- `spreadsheet`: return the spreadsheet, active or by id.
-- `sheets`: list of all sheets
-- `sheet`: a sheet, active or by name
-- `range`: get range, active or by R1C1
-- `getValues`: get range values
-- `setValues`: set range values
-- `sheetNames`: get all names of sheets
-- `lastCol`: get the last collumn of a sheet
-- `lastRow`: get the last row of a sheet
-- `createSheet`: create a sheet by schema
-
 ```ts
-import { spreadsheet } from "@sheetbase/sheets-server";
+// import and create user instance (Auth)
 
-const Spreadsheet = spreadsheet({
-  databaseId: "Abcd..."
-});
-
-const values = Spreadsheet.getValues("foo!A1:C");
+Sheets.setIntegration("AuthToken", Auth.Token);
 ```
 
-## Sheets SQL
+## Sheets
 
-Access Sheets data in the SQL style, source: <https://github.com/sheetbase/sheets-server/blob/master/src/lib/sql.ts>
+CRUD interface for Sheetbase backend accessing Google Sheets.
 
-### Methods
+- `setIntegration`: integrate with orther modules (Auth, ...).
+- `extend`: create new Sheets instance from this instance.
+- `toAdmin`: create an admin instance from this instance.
+- `registerRoutes`: expose database routes.
+- `ref`: create a data service for a location.
+- `key`: generate an unique key.
+- `all`: get all items of a sheet/table.
+- `query`: query a sheet/table.
+- `item`: get an item of a sheet/table.
+- `add`: add an item.
+- `update`: update a item of a sheet/table.
+- `remove`: delete an item.
 
-- `models`: return all TamotsuX models.
-- `model`: return a TamotsuX model.
-- `all`: get all items of a table.
-- `item`: get an item of a table.
-- `query`: query a table.
-- `search`: search a table.
-- `update`: update a item of a table.
-- `delete`: delete an item.
+### setIntegration
+
+Integrate Sheets module with orther modules (Auth, ...)
 
 ```ts
-import { sheetsSQL } from "@sheetbase/sheets-server";
+// import and create user instance (Auth)
+// const Auth = auth({ ... });
 
-const SheetsSQL = sheetsSQL({
-  databaseId: "Abcd..."
-});
+// integrate Token class to the Sheets instacce
+Sheets.setIntegration("AuthToken", Auth.Token);
 
-const foo1 = SheetsSQL.item("foo", 1);
+// then we may use `auth ` object in security rule
+// { '.read': '!!auth && auth.uid == $uid' }
 ```
 
-### Query
+### extend
+
+Create new Sheets instance from this instance.
 
 ```ts
-{
-    where?: { [key: string]: any };
-    orderBy?: string;
-    order?: string;
-    limit?: number;
-    offset?: number;
-}
-```
-
-All items from `foo` where `xxx = 'abc'`.
-
-```ts
-const result = SheetsSQL.query("foo", {
-  where: { xxx: "abc" }
+const SheetsAdmin = Sheets.extend({
+  security: false // turn off security for this instance
 });
 ```
 
-Limit to the first 10 items.
+### toAdmin
+
+Create an admin instance from this instance.
 
 ```ts
-const result = SheetsSQL.query("foo", {
-  limit: 10
+const SheetsAdmin = Sheets.toAdmin(); // will pass all security, security = false
+```
+
+### registerRoutes
+
+Expose database routes.
+
+```ts
+Sheets.registerRoutes({
+  router: Sheetbase.Router, // Sheetbase router
+  middlewares: [], // list of middlewares, [] = no middlewares
+  disabledRoutes: [] // list of disabled routes, [] = no disabled
 });
 ```
 
-Page 2.
+### ref
+
+Create a data service for a location. Data service interface: <https://github.com/sheetbase/sheets-server/blob/master/src/lib/data.ts>
 
 ```ts
-const result = SheetsSQL.query("foo", {
-  limit: 10,
-  offset: 10
+const fooRef = Sheets.ref("/foo");
+
+const foo1Ref = fooRef.child("foo-1"); // create a ref to '/foo/foo-1'
+foo1Ref.parent(); // create a ref to '/foo'
+const rootRef = fooRef.root(); // create a ref to '/'
+
+fooRef.key(); // generate an unique id: -Abc...xyz
+
+fooRef.toObject(); // retrieve data as an object
+fooRef.toArray(); // retrieve data as an array
+
+foo1Ref.update({ title: "Foo 1" }); // create foo-1 if not exists
+foo1Ref.update({ title: "Foo 1 new title" }); // update foo-1 title if exists
+foo1Ref.update(null); // delete foo-1
+```
+
+## key
+
+Generate a Firebase-liked unique key.
+
+```ts
+const key = Sheets.key(); // -Abc...xyz
+```
+
+## all
+
+Get all items of a sheet/table.
+
+```ts
+const foo = Sheets.all("foo"); // [{}, {}, {}, ...]
+const bar = Sheets.ref("/bar").toObject(); // { item-1: {}, item-2: {}, item-3: {}, ... }
+```
+
+## query
+
+Query a sheet/table.
+
+```ts
+// simple query, all item from 'foo' has field1 === 'xxx'
+const foo = Sheets.query("foo", { where: "field1", equal: "xxx" });
+
+// advanced query, all item from 'bar' has content field include 'hello'
+const bar = Sheets.query("bar", item => {
+  return !!item.content && item.content.indexOf("hello") > -1;
 });
 ```
 
-Sorting.
+## item
+
+Get an item of a sheet/table.
 
 ```ts
-const result = SheetsSQL.query("foo", {
-  orderBy: "title"
-});
+const foo1 = Sheets.item("foo", "foo-1"); // { ... }
+```
+
+### add
+
+Add an item.
+
+```ts
+// add 'foo-x'
+// { key: 'foo-x', title: 'Foo x' }
+Sheets.add("foo", "foo-x", { title: "Foo x" });
+
+// add a 'foo' with auto key
+// { key: '-Abc...xyz', title: 'A foo' }
+Sheets.add("foo", null, { title: "A foo" });
+```
+
+### update
+
+Update a item of a sheet/table.
+
+```ts
+// update foo-x title
+Sheets.add("foo", "foo-x", { title: "Foo x new title" });
+```
+
+### remove
+
+Delete an item.
+
+```ts
+// delete 'foo-x'
+Sheets.remove("foo", "foo-x");
 ```
 
 ### Routes
@@ -204,7 +273,7 @@ const result = SheetsSQL.query("foo", {
 To add routes to your app, see options [AddonRoutesOptions](https://github.com/sheetbase/core-server/blob/eb221ec3034d6b53abe11bc1942e1920c8f8d81f/src/lib/types.ts#L71):
 
 ```ts
-SheetsSQL.registerRoutes(options?: AddonRoutesOptions);
+Sheets.registerRoutes(options?: AddonRoutesOptions);
 ```
 
 #### Default disabled
@@ -213,7 +282,9 @@ Disabled routes by default, to enable set `{ disabledRoutes: [] }` in `registerR
 
 ```ts
 [
-  "post:/database", // update an item
+  "post:/database", // add/update/remove an item
+  "put:/database" // add an item
+  "patch:/database" // update an item
   "delete:/database" // remove an item
 ];
 ```
@@ -222,168 +293,68 @@ Disabled routes by default, to enable set `{ disabledRoutes: [] }` in `registerR
 
 #### GET `/database`
 
-Get `all` or `item`. Route query string:
+Get `all`, `query` or `item`. Route query string:
 
-- `table`: table name
-- `id`: item id
-- `where` and `equal`: item condition
+- `path`: sheet/table name and item key
+- `sheet` or `table`: sheet/table name
+- `key` or `id`: item key
+- `where` and `equal`: query condition
 
-#### GET `/database/query`
+Get all item from 'foo':
 
-Query items. Route query string:
+- `sheet=foo`
+- `table=foo`
+- `path=/foo`
 
-- `table`: table name
-- `where`, `orderBy`, `order`, `limit`, `offset`: query params
+Get an item from 'foo':
 
-#### GET `/database/search`
+- `sheet=foo&key=foo-1`
+- `table=foo&id=foo-1`
+- `path=/foo/foo-1`
 
-Search items. Route query string:
+Query from 'foo':
 
-- `table`: table name
-- `s`: search string
+- `table=foo&where=abc&equal=xyz`
 
 #### POST `/database`
 
-Update item. Route body:
+Add/update/delete item. Route body:
 
-- `table`: table name
-- `id`: item id
-- `data`: update data
-- `where` and `equal`: item condition
+- `path`: sheet/table name and item key
+- `sheet` or `table`: sheet/table name
+- `key` or `id`: item key
+- `data`: item data
+
+Add an item (PUT):
+
+- `{ sheet: 'foo', key: 'foo-x', data: { ... } }`
+- `{ table: 'foo', data: { ... } }` // auto generated key
+
+Update an item (PATCH):
+
+- `{ sheet: 'foo', key: 'foo-x', data: { ... } }`
+
+Remove an item (DELETE):
+
+- `{ sheet: 'foo', key: 'foo-x' }`
+
+#### PUT `/database`
+
+Add an item. Route body same as `POST`.
+
+#### PATCH `/database`
+
+Update an item. Route body same as `POST`.
 
 #### DELETE `/database`
 
-Remove item. Route body:
-
-- `table`: table name
-- `id`: item id
-- `where` and `equal`: item condition
-
-## SheetsNoSQL
-
-Access Sheets data in the NoSQL style, source: <https://github.com/sheetbase/sheets-server/blob/master/src/lib/nosql.ts>
-
-### Methods
-
-- `key`: return 27 chars for using as an item key
-- `collection`: get all items
-- `doc`: get an item
-- `object`: return data as object, by path
-- `list`: return data as array, by path
-- `query`: query items
-- `search`: search for items
-- `updateDoc`: update an item
-- `update`: update multiple items
-
-```ts
-import { sheetsNoSQL } from "@sheetbase/sheets-server";
-
-const SheetsNoSQL = sheetsNoSQL({
-  databaseId: "Abcd..."
-});
-
-const foo1 = SheetsNoSQL.doc("foo", "foo-1");
-```
-
-### Query
-
-```ts
-{
-    limitToFirst?: number;
-    limitToLast?: number;
-    offset?: number;
-    orderByKey?: string;
-    equalTo?: any;
-    order?: string;
-}
-```
-
-Items from `foo` where an item belong to `cat-1`.
-
-```ts
-const result = SheetsNoSQL.query("foo", {
-  orderByKey: "categories/cat-1",
-  equalTo: "!null"
-});
-```
-
-Last 10 items, order by `title`.
-
-```ts
-const result = SheetsNoSQL.query("foo", {
-  orderByKey: "title",
-  limitToLast: 10
-});
-```
-
-### Routes
-
-To add routes to your app, see options [AddonRoutesOptions](https://github.com/sheetbase/core-server/blob/eb221ec3034d6b53abe11bc1942e1920c8f8d81f/src/lib/types.ts#L71):
-
-```ts
-SheetsNoSQL.registerRoutes(options?: AddonRoutesOptions);
-```
-
-#### Default disabled
-
-Disabled routes by default, to enable set `{ disabledRoutes: [] }` in `registerRoutes()`:
-
-```ts
-[
-  "post:/database/doc", // update an item
-  "post:/database" // update multiple items
-];
-```
-
-#### Endpoints
-
-#### GET `/database`
-
-Get data `collection`, `doc`, `object`, `list`. Route query string:
-
-- `collection`: collection name
-- `doc`: item key
-- `path`: full path to data
-- `type`: return type, `object` or `list`
-
-#### GET `/database/query`
-
-Query items. Route query string:
-
-- `collection`: collection name
-- `limitToFirst`, `limitToLast`, `orderByKey`, `order`, `equalTo`, `offset`: query object
-
-#### GET `/database/search`
-
-Search items. Route query string:
-
-- `collection`: collection name
-- `s`: search string
-
-#### POST `/database/doc`
-
-Update item. Route body:
-
-- `collection`: collection name
-- `doc`: item key
-- `data`: update data
-- `where` and `equal`: item condition
-
-#### POST `/database`
-
-Update items. Route body:
-
-- `updates`: update data, in form `path: value`
+Remove an item. Route body same as `POST`, omit `data` field.
 
 ## Security
 
-Sheets Server comes with two forms of security: **private** and **rule-based**.
+Sheets Server comes with a rule based security.
 
-To by pass security, add `{ admin: true }` in configs.
-
-### Private
-
-You can make private to **table**, **item** and **properties** by adding `_` before its name. Get and set any private will cause error.
+To by pass security, add `{ security: false }` in configs.
 
 ### Rule-based
 
@@ -391,8 +362,8 @@ Allow all read and write (public).
 
 ```ts
 {
-    '.read': true,
-    '.write': true
+  '.read': true,
+  '.write': true
 }
 ```
 
@@ -401,9 +372,10 @@ The module borrow idea from Firebase Realtime Database, see <https://firebase.go
 ### Rule objects
 
 - `now`: current time
-- `auth`: (todo): auth object
-- `data`: get data
-- `newDat`: update data
+- `auth`: auth object
+- `root`: data service for root
+- `data`: data service for current location
+- `newData`: data to be updated
 - `$dynamic`: any dynamic data
 
 <!-- </block:body> -->
@@ -413,37 +385,287 @@ The module borrow idea from Firebase Realtime Database, see <https://firebase.go
 ```ts
 import * as Sheets from "./public_api";
 
+// test helpers
+function describe_(description: string, handler: () => void) {
+  Logger.log(description);
+  return handler();
+}
+
+function it_(description: string, result: () => boolean) {
+  if (result()) {
+    Logger.log("   (OK) " + description);
+  } else {
+    Logger.log("   [FAILED] " + description);
+  }
+}
+
 // create sheets instance
 function load_() {
   return Sheets.sheets({
     databaseId: "1Zz5kvlTn2cXd41ZQZlFeCjvVR_XhpUnzKlDGB8QsXoI",
-    security: false
+    keyFields: {
+      foo: "slug",
+      bar: "slug",
+      baz: "slug",
+      bax: "xxx"
+    },
+    security: {
+      foo: { ".read": true, ".write": true },
+      bar: { ".read": true },
+      baz: { ".read": false, ".write": true },
+      bax: {
+        $xxx: {
+          ".read": '$xxx == "abc" || $xxx == "xyz"'
+        }
+      }
+    }
   });
 }
 
-// get all items from 'foo' table
-export function example1(): void {
+function test() {
+  const describe = describe_;
+  const it = it_;
   const Sheets = load_();
 
-  const rootRef = Sheets.ref("/");
-  Logger.log(rootRef.paths);
-  Logger.log("=======");
-  Logger.log(rootRef.toObject());
-  Logger.log("=======");
+  describe("Root ref", () => {
+    it("Generate auto key", () => {
+      const key = Sheets.ref().key();
+      return typeof key === "string";
+    });
 
-  const fooRef = rootRef.child("foo");
-  Logger.log(fooRef.paths);
-  Logger.log("=======");
-  Logger.log(fooRef.toObject());
-  Logger.log("=======");
-  Logger.log(fooRef.toArray());
-  Logger.log("=======");
+    it("Read (fail for no read permission)", () => {
+      let error = null;
+      try {
+        Sheets.ref().toObject();
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
 
-  const foo1Ref = Sheets.ref("/foo/foo-1");
-  Logger.log(foo1Ref.paths);
-  Logger.log("=======");
-  Logger.log(foo1Ref.toObject());
-  Logger.log("=======");
+    it("Write (can not update root ref)", () => {
+      let error = null;
+      try {
+        Sheets.ref().update({ a: 1, b: 2 });
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+  });
+
+  describe("Foo table", () => {
+    it("Get all foo", () => {
+      const foo = Sheets.all("foo");
+      return foo.length === 3;
+    });
+
+    it("Get a foo", () => {
+      const foo = Sheets.item<any>("foo", "foo-3");
+      return foo.title === "Foo 3";
+    });
+
+    it("Query foo", () => {
+      const foo = Sheets.query<any>("foo", item => {
+        return !!item.content && item.content.indexOf("Hello") > -1;
+      });
+      return foo.length === 2;
+    });
+
+    it("Add a foo", () => {
+      Sheets.add("foo", "foo-x", { title: "Foo x", content: "Foo x content." });
+      const foo = Sheets.item<any>("foo", "foo-x");
+      return foo.title === "Foo x";
+    });
+
+    it("Add a foo (auto key)", () => {
+      Sheets.add("foo", null, {
+        title: "Foo auto",
+        content: "Foo auto content."
+      });
+      // clean up
+      const sheet = Sheets.spreadsheet.getSheetByName("foo");
+      sheet.deleteRow(sheet.getLastRow());
+      return true;
+    });
+
+    it("Update a foo", () => {
+      Sheets.update("foo", "foo-x", { content: "Foo x new content!" });
+      const foo = Sheets.item<any>("foo", "foo-x");
+      return foo.content === "Foo x new content!";
+    });
+
+    it("Delete a foo", () => {
+      Sheets.remove("foo", "foo-x");
+      const foo = Sheets.item<any>("foo", "foo-x");
+      return foo === null;
+    });
+  });
+
+  describe("Bar table", () => {
+    it("Get all bar", () => {
+      const bar = Sheets.all("bar");
+      return bar.length === 3;
+    });
+
+    it("Get a bar", () => {
+      const bar = Sheets.item<any>("bar", "bar-2");
+      return bar.title === "Bar 2";
+    });
+
+    it("Query bar", () => {
+      const bar = Sheets.query<any>("bar", item => {
+        return !!item.content && item.content.indexOf("Hello") > -1;
+      });
+      return bar.length === 1;
+    });
+
+    it("Add a bar (fail for no read permission)", () => {
+      let error = null;
+      try {
+        Sheets.add("bar", "bar-x", {
+          title: "Bar x",
+          content: "Bar x content."
+        });
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+
+    it("Update a bar (fail for no read permission)", () => {
+      let error = null;
+      try {
+        Sheets.update("bar", "bar-x", { content: "Bar x new content!" });
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+
+    it("Delete a bar (fail for no read permission)", () => {
+      let error = null;
+      try {
+        Sheets.remove("bar", "bar-x");
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+  });
+
+  describe("Baz table", () => {
+    it("Get all baz (fail for no read permission)", () => {
+      let error = null;
+      try {
+        const baz = Sheets.all("baz");
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+
+    it("Get a baz (fail for no read permission)", () => {
+      let error = null;
+      try {
+        const baz = Sheets.item<any>("baz", "baz-2");
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+
+    it("Query baz (fail for no read permission)", () => {
+      let error = null;
+      try {
+        const baz = Sheets.query<any>("baz", item => {
+          return !!item.content && item.content.indexOf("Baz") > -1;
+        });
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+
+    it("Add a baz", () => {
+      let error = null;
+      try {
+        Sheets.add("baz", "baz-x", {
+          title: "Baz x",
+          content: "Baz x content."
+        });
+      } catch (err) {
+        error = err;
+      }
+      return !error;
+    });
+
+    it("Update a baz", () => {
+      let error = null;
+      try {
+        Sheets.update("baz", "baz-x", { content: "Baz x new content!" });
+      } catch (err) {
+        error = err;
+      }
+      return !error;
+    });
+
+    it("Delete a baz", () => {
+      let error = null;
+      try {
+        Sheets.remove("baz", "baz-x");
+      } catch (err) {
+        error = err;
+      }
+      return !error;
+    });
+  });
+
+  describe("Bax table", () => {
+    it("Get all bax (fail for no permission)", () => {
+      let error = null;
+      try {
+        const bax = Sheets.all("bax");
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+
+    it("Get a bax (has permission)", () => {
+      const bax = Sheets.item("bax", "abc");
+      return !!bax;
+    });
+
+    it("Get a bax (fail for no permission)", () => {
+      let error = null;
+      try {
+        const bax = Sheets.item("bax", "def");
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+
+    it("Query bax (has permission)", () => {
+      const bax = Sheets.query<any>("bax", item => {
+        return item.xxx === "abc" || item.xxx === "xyz";
+      });
+      return bax.length === 2;
+    });
+
+    it("Query bax (fail for no permission)", () => {
+      let error = null;
+      try {
+        const bax = Sheets.query<any>("bax", item => {
+          return !!item.content;
+        });
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+  });
 }
 ```
 

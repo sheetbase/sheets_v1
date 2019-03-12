@@ -90,12 +90,10 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="securityservice.html#checkreadpermission" class="tsd-kind-icon">check<wbr>Read<wbr>Permission</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="securityservice.html#checkwritepermission" class="tsd-kind-icon">check<wbr>Write<wbr>Permission</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="securityservice.html#checkpoint" class="tsd-kind-icon">checkpoint</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="securityservice.html#executerule" class="tsd-kind-icon">execute<wbr>Rule</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="securityservice.html#haspermission" class="tsd-kind-icon">has<wbr>Permission</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="securityservice.html#parserule" class="tsd-kind-icon">parse<wbr>Rule</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="securityservice.html#executerule" class="tsd-kind-icon">execute<wbr>Rule</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="securityservice.html#haspermission" class="tsd-kind-icon">has<wbr>Permission</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="securityservice.html#parserule" class="tsd-kind-icon">parse<wbr>Rule</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="securityservice.html#setrequest" class="tsd-kind-icon">set<wbr>Request</a></li>
 							</ul>
 						</section>
@@ -114,7 +112,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/0a0b71b/src/lib/security.ts#L7">lib/security.ts:7</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/87236cc/src/lib/security.ts#L8">lib/security.ts:8</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -136,7 +134,7 @@
 					<div class="tsd-signature tsd-kind-icon">api<wbr>Request<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">RouteRequest</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/0a0b71b/src/lib/security.ts#L7">lib/security.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/87236cc/src/lib/security.ts#L8">lib/security.ts:8</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -146,7 +144,7 @@
 					<div class="tsd-signature tsd-kind-icon">options<span class="tsd-signature-symbol">:</span> <a href="../interfaces/options.html" class="tsd-signature-type">Options</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/0a0b71b/src/lib/security.ts#L6">lib/security.ts:6</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/87236cc/src/lib/security.ts#L7">lib/security.ts:7</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -154,103 +152,48 @@
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="checkreadpermission" class="tsd-anchor"></a>
-					<h3>check<wbr>Read<wbr>Permission</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">check<wbr>Read<wbr>Permission<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, data<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/0a0b71b/src/lib/security.ts#L143">lib/security.ts:143</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>path: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> data: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="checkwritepermission" class="tsd-anchor"></a>
-					<h3>check<wbr>Write<wbr>Permission</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">check<wbr>Write<wbr>Permission<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, data<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, newData<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/0a0b71b/src/lib/security.ts#L148">lib/security.ts:148</a></li>
-								</ul>
-							</aside>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>path: <span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> data: <span class="tsd-signature-type">any</span></h5>
-								</li>
-								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> newData: <span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="checkpoint" class="tsd-anchor"></a>
 					<h3>checkpoint</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">checkpoint<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, data<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, newData<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, permission<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+						<li class="tsd-signature tsd-kind-icon">checkpoint<span class="tsd-signature-symbol">(</span>permission<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"read"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"write"</span>, paths<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, data<span class="tsd-signature-symbol">?: </span><a href="dataservice.html" class="tsd-signature-type">DataService</a>, newData<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/0a0b71b/src/lib/security.ts#L15">lib/security.ts:15</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/87236cc/src/lib/security.ts#L18">lib/security.ts:18</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>path: <span class="tsd-signature-type">string</span></h5>
+									<h5>permission: <span class="tsd-signature-type">"read"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"write"</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> data: <span class="tsd-signature-type">any</span></h5>
+									<h5>paths: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> newData: <span class="tsd-signature-type">any</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> data: <a href="dataservice.html" class="tsd-signature-type">DataService</a></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> permission: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;read&quot;</span></h5>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> newData: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> =&nbsp;null</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
 					<a name="executerule" class="tsd-anchor"></a>
-					<h3>execute<wbr>Rule</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">execute<wbr>Rule<span class="tsd-signature-symbol">(</span>rule<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, data<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, newData<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, dynamicData<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> execute<wbr>Rule</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">execute<wbr>Rule<span class="tsd-signature-symbol">(</span>rule<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, data<span class="tsd-signature-symbol">?: </span><a href="dataservice.html" class="tsd-signature-type">DataService</a>, newData<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, dynamicData<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/0a0b71b/src/lib/security.ts#L91">lib/security.ts:91</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/87236cc/src/lib/security.ts#L111">lib/security.ts:111</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -259,7 +202,7 @@
 									<h5>rule: <span class="tsd-signature-type">string</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> data: <span class="tsd-signature-type">any</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> data: <a href="dataservice.html" class="tsd-signature-type">DataService</a></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> newData: <span class="tsd-signature-type">any</span></h5>
@@ -277,17 +220,17 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
 					<a name="haspermission" class="tsd-anchor"></a>
-					<h3>has<wbr>Permission</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">has<wbr>Permission<span class="tsd-signature-symbol">(</span>permission<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"read"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"write"</span>, path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, data<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span>, newData<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> has<wbr>Permission</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">has<wbr>Permission<span class="tsd-signature-symbol">(</span>permission<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"read"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"write"</span>, paths<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span>, data<span class="tsd-signature-symbol">?: </span><a href="dataservice.html" class="tsd-signature-type">DataService</a>, newData<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/0a0b71b/src/lib/security.ts#L132">lib/security.ts:132</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/87236cc/src/lib/security.ts#L40">lib/security.ts:40</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -296,10 +239,10 @@
 									<h5>permission: <span class="tsd-signature-type">"read"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"write"</span></h5>
 								</li>
 								<li>
-									<h5>path: <span class="tsd-signature-type">string</span></h5>
+									<h5>paths: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagOptional">Optional</span> data: <span class="tsd-signature-type">any</span></h5>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> data: <a href="dataservice.html" class="tsd-signature-type">DataService</a></h5>
 								</li>
 								<li>
 									<h5><span class="tsd-flag ts-flagOptional">Optional</span> newData: <span class="tsd-signature-type">any</span></h5>
@@ -309,31 +252,26 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
 					<a name="parserule" class="tsd-anchor"></a>
-					<h3>parse<wbr>Rule</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">parse<wbr>Rule<span class="tsd-signature-symbol">(</span>path<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, permission<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> parse<wbr>Rule</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">parse<wbr>Rule<span class="tsd-signature-symbol">(</span>permission<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"read"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"write"</span>, paths<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/0a0b71b/src/lib/security.ts#L33">lib/security.ts:33</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/87236cc/src/lib/security.ts#L55">lib/security.ts:55</a></li>
 								</ul>
 							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>rule based</p>
-								</div>
-							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>path: <span class="tsd-signature-type">string</span></h5>
+									<h5>permission: <span class="tsd-signature-type">"read"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"write"</span></h5>
 								</li>
 								<li>
-									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> permission: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;read&quot;</span></h5>
+									<h5>paths: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
@@ -352,7 +290,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/0a0b71b/src/lib/security.ts#L13">lib/security.ts:13</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/87236cc/src/lib/security.ts#L14">lib/security.ts:14</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -378,7 +316,7 @@
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-class">
-						<a href="refservice.html" class="tsd-kind-icon">Ref<wbr>Service</a>
+						<a href="dataservice.html" class="tsd-kind-icon">Data<wbr>Service</a>
 					</li>
 				</ul>
 				<ul class="current">
@@ -395,21 +333,15 @@
 								<a href="securityservice.html#options" class="tsd-kind-icon">options</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="securityservice.html#checkreadpermission" class="tsd-kind-icon">check<wbr>Read<wbr>Permission</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="securityservice.html#checkwritepermission" class="tsd-kind-icon">check<wbr>Write<wbr>Permission</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="securityservice.html#checkpoint" class="tsd-kind-icon">checkpoint</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
 								<a href="securityservice.html#executerule" class="tsd-kind-icon">execute<wbr>Rule</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
 								<a href="securityservice.html#haspermission" class="tsd-kind-icon">has<wbr>Permission</a>
 							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
 								<a href="securityservice.html#parserule" class="tsd-kind-icon">parse<wbr>Rule</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -431,9 +363,6 @@
 					<li class=" tsd-kind-interface">
 						<a href="../interfaces/options.html" class="tsd-kind-icon">Options</a>
 					</li>
-					<li class=" tsd-kind-interface">
-						<a href="../interfaces/query.html" class="tsd-kind-icon">Query</a>
-					</li>
 					<li class=" tsd-kind-function">
 						<a href="../index.html#parsedata" class="tsd-kind-icon">parse<wbr>Data</a>
 					</li>
@@ -446,7 +375,7 @@
 					<li class=" tsd-kind-function">
 						<a href="../index.html#stringifydata" class="tsd-kind-icon">stringify<wbr>Data</a>
 					</li>
-					<li class=" tsd-kind-function">
+					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="../index.html#translaterangevalues" class="tsd-kind-icon">translate<wbr>Range<wbr>Values</a>
 					</li>
 				</ul>

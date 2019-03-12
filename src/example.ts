@@ -18,7 +18,12 @@ function it_(description: string, result: () => boolean) {
 function load_() {
     return Sheets.sheets({
         databaseId: '1Zz5kvlTn2cXd41ZQZlFeCjvVR_XhpUnzKlDGB8QsXoI',
-        keyFields: { bax: 'xxx' },
+        keyFields: {
+            foo: 'slug',
+            bar: 'slug',
+            baz: 'slug',
+            bax: 'xxx',
+        },
         security: {
             foo: { '.read': true, '.write': true },
             bar: { '.read': true },
