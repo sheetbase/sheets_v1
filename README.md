@@ -221,6 +221,8 @@ Query a sheet/table.
 ```ts
 // simple query, all item from 'foo' has field1 === 'xxx'
 const foo = Sheets.query("foo", { where: "field1", equal: "xxx" });
+// shorthand for where/equal, pass in an object, format: { where: equal }
+const foo2 = Sheets.query("foo", { field1: "xxx" });
 
 // advanced query, all item from 'bar' has content field include 'hello'
 const bar = Sheets.query("bar", item => {
@@ -233,7 +235,14 @@ const bar = Sheets.query("bar", item => {
 Get an item of a sheet/table.
 
 ```ts
+// get item by its key
 const foo1 = Sheets.item("foo", "foo-1"); // { ... }
+
+// second argument also accept the query arg (like query above)
+// if only one item returned then it the item we need
+// but if there is no item or more than 1 item, then it returns NULL
+// so choose another unique field for query arg
+const foo2 = Sheets.item("foo", { field1: "xxx" });
 ```
 
 ### add

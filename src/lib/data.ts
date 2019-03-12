@@ -165,7 +165,7 @@ export class DataService {
         _row = lastRow + 1;
         item = {
           ... data,
-          '#': lastItemId + 1,
+          '#': !isNaN(lastItemId) ? (lastItemId + 1) : 1,
           [this.Sheets.options.keyFields[sheetName] || 'key']: key,
           _row,
         };

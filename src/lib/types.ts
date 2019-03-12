@@ -1,3 +1,9 @@
+export type Filter = {[field: string]: any} | Query | {(item: any): boolean};
+export interface Query {
+    where: string;
+    equal?: any;
+}
+
 export interface Intergration {
     AuthToken?: any;
 }

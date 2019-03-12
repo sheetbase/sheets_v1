@@ -1,6 +1,6 @@
 import { AddonRoutesOptions, RoutingErrors, RouteHandler } from '@sheetbase/core-server';
 
-import { Options, Extendable, Intergration } from './types';
+import { Options, Extendable, Intergration, Filter } from './types';
 import { SecurityService } from './security';
 import { DataService } from './data';
 
@@ -44,18 +44,32 @@ export class SheetsService {
         return this.ref('/' + sheetName).toArray() as Item[];
     }
 
-    query<Item>(sheetName: string, filter: { where: string, equal: any } | {(item: Item): boolean}) {
+    query<Item>(sheetName: string, filter: Filter) {
         if (!(filter instanceof Function)) {
-            const { where, equal } = filter as any;
+            let { where, equal } = filter as any;
+            if (!where) { // pass in an object, format: { where: equal }
+                where = Object.keys(filter)[0];
+                equal = filter[where];
+            }
             filter = item => {
                 return item[where] === equal;
             };
         }
-        return this.ref('/' + sheetName).query(filter) as Item[];
+        return this.ref('/' + sheetName).query(filter as any) as Item[];
     }
 
-    item<Item>(sheetName: string, key: string) {
-        return this.ref('/' + sheetName + '/' + key).toObject() as Item;
+    item<Item>(sheetName: string, finder: string | Filter) {
+        let item: Item = null;
+        if (typeof finder === 'string') {
+            const key = finder;
+            item = this.ref('/' + sheetName + '/' + key).toObject() as Item;
+        } else {
+            const items = this.query(sheetName, finder);
+            if (!!items && items.length === 1) {
+                item = items[0] as Item;
+            }
+        }
+        return item;
     }
 
     update<Data>(sheetName: string, key: string, data: Data) {
