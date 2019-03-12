@@ -256,7 +256,7 @@ Update a item of a sheet/table.
 
 ```ts
 // update foo-x title
-Sheets.add("foo", "foo-x", { title: "Foo x new title" });
+Sheets.update("foo", "foo-x", { title: "Foo x new title" });
 ```
 
 ### remove
