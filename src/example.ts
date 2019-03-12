@@ -1,11 +1,10 @@
-import * as Sheets from './public_api';
+import * as SheetsModule from './public_api';
 
-// test helpers
+// helpers
 function describe_(description: string, handler: () => void) {
     Logger.log(description);
     return handler();
 }
-
 function it_(description: string, result: () => boolean) {
     if (result()) {
         Logger.log('   (OK) ' + description);
@@ -14,33 +13,31 @@ function it_(description: string, result: () => boolean) {
     }
 }
 
-// create sheets instance
-function load_() {
-    return Sheets.sheets({
+// test
+function test() {
+    const describe = describe_;
+    const it = it_;
+
+    // create sheets instance
+    const Sheets = SheetsModule.sheets({
         databaseId: '1Zz5kvlTn2cXd41ZQZlFeCjvVR_XhpUnzKlDGB8QsXoI',
         keyFields: {
-            foo: 'slug',
+            // foo: 'key',
             bar: 'slug',
-            baz: 'slug',
-            bax: 'xxx',
+            // baz: 'key',
+            // bax: 'key',
         },
         security: {
             foo: { '.read': true, '.write': true },
             bar: { '.read': true },
             baz: { '.read': false, '.write': true },
             bax: {
-                $xxx: {
-                    '.read': '$xxx == "abc" || $xxx == "xyz"',
+                $key: {
+                    '.read': '$key == "abc" || $key == "xyz"',
                 },
             },
         },
     });
-}
-
-function test() {
-    const describe = describe_;
-    const it = it_;
-    const Sheets = load_();
 
     describe('Root ref', () => {
 
