@@ -1,4 +1,5 @@
-export type Filter = {[field: string]: any} | Query | {(item: any): boolean};
+export type Filter = {[field: string]: any} | Query | AdvancedFilter;
+export type AdvancedFilter = (item: any) => boolean;
 export interface Query {
     where: string;
     equal?: any;
@@ -17,4 +18,10 @@ export interface Extendable {
 
 export interface Options extends Extendable, Intergration {
     databaseId: string;
+}
+
+export interface Database {
+    [sheetName: string]: {
+        [key: string]: any;
+    };
 }

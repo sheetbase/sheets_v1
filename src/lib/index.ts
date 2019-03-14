@@ -1,10 +1,12 @@
-import { Options } from './types';
+import { Options, Database } from './types';
 import { SheetsService } from './sheets';
 
+export let DATABASE: Database = {};
+
 export function sheets(options: Options) {
-    return new SheetsService(options);
+    return new SheetsService(options, DATABASE);
 }
 
 export function sheetsAdmin(options: Options) {
-    return new SheetsService({ ... options, security: false });
+    return sheets(options).toAdmin();
 }

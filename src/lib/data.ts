@@ -6,7 +6,7 @@ import { translateRangeValues, parseData } from './utils';
 export class DataService {
 
   private Sheets: SheetsService;
-  paths: string[];
+  private paths: string[];
 
   constructor(paths: string[], Sheets: SheetsService) {
     this.paths = paths;
@@ -104,8 +104,8 @@ export class DataService {
    * read
    */
 
-  key(): string {
-    return uniqueId(27);
+  key(length = 27, startWith = '-'): string {
+    return uniqueId(length, startWith);
   }
 
   toObject() {

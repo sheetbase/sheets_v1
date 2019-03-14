@@ -1,21 +1,28 @@
 import { AddonRoutesOptions, RoutingErrors, RouteHandler } from '@sheetbase/core-server';
 
-import { Options, Extendable, Intergration, Filter } from './types';
+import { Options, Extendable, Intergration, Filter, Database } from './types';
 import { SecurityService } from './security';
 import { DataService } from './data';
 
 export class SheetsService {
     options: Options;
+    database: Database;
+
     Security: SecurityService;
     spreadsheet: any;
 
-    database: {[sheetName: string]: any} = {};
     // TODO: add route errors
     errors: RoutingErrors = {};
 
-    constructor(options: Options) {
-        this.options = { keyFields: {}, ... options };
-        this.Security = new SecurityService(options);
+    constructor(options: Options, database: any) {
+        this.options = {
+            keyFields: {},
+            security: {},
+            ... options,
+        };
+        this.database = database;
+
+        this.Security = new SecurityService(this);
         this.spreadsheet = SpreadsheetApp.openById(options.databaseId);
     }
 
@@ -25,7 +32,7 @@ export class SheetsService {
     }
 
     extend(options: Extendable) {
-        return new SheetsService({ ... this.options, ... options });
+        return new SheetsService({ ... this.options, ... options }, this.database);
     }
 
     toAdmin() {
@@ -36,8 +43,8 @@ export class SheetsService {
         return new DataService(path.split('/').filter(Boolean), this);
     }
 
-    key() {
-        return this.ref().key();
+    key(length = 27, startWith = '-') {
+        return this.ref().key(length, startWith);
     }
 
     all<Item>(sheetName: string) {

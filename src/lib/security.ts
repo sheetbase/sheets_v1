@@ -1,18 +1,18 @@
 import { RouteRequest } from '@sheetbase/core-server';
 
-import { Options } from './types';
+import { SheetsService } from './sheets';
 import { DataService } from './data';
 
 export class SecurityService {
-    private options: Options;
+    private Sheets: SheetsService;
     private apiRequest: RouteRequest;
 
-    constructor(options?: Options) {
-        this.options = { security: {}, ... options };
+    constructor(Sheets?: SheetsService) {
+        this.Sheets = Sheets;
     }
 
-    setRequest(reqquest: RouteRequest) {
-        this.apiRequest = reqquest;
+    setRequest(request: RouteRequest) {
+        this.apiRequest = request;
     }
 
     checkpoint(
@@ -43,8 +43,10 @@ export class SecurityService {
         data?: DataService,
         newData?: any,
     ): boolean {
+        const security = this.Sheets.options.security;
+
         // always when security is off
-        if (!this.options.security) {
+        if (!security) {
             return true;
         }
         // execute rule
@@ -53,7 +55,10 @@ export class SecurityService {
     }
 
     private parseRule(permission: ('read' | 'write' ), paths: string[]) {
-        let rules = !!this.options.security ? this.options.security : { '.read': true, '.write': true };
+        const security = this.Sheets.options.security;
+
+        // prepare
+        let rules = !!security ? security : { '.read': true, '.write': true };
         rules = (typeof rules === 'boolean') ? {} : rules;
         const latestRules: {} = {
             '.read': rules['.read'] || false,
@@ -116,11 +121,11 @@ export class SecurityService {
     ) {
         // auth object
         let auth = null;
-        const { AuthToken } = this.options;
+        const AuthToken = this.Sheets.options.AuthToken;
         const idToken = this.apiRequest ? (
-            this.apiRequest.body['idToken'] || this.apiRequest.query['idToken']
+            this.apiRequest.query['idToken'] || this.apiRequest.body['idToken']
         ) : null;
-        if (idToken && AuthToken) {
+        if (!!idToken && !!AuthToken) {
             auth = AuthToken.decodeIdToken(idToken);
         }
 
@@ -137,7 +142,7 @@ export class SecurityService {
             Object.keys(input).map(function (k) {
                 this[k] = input[k];
             });
-            return ${rule};
+            return (${rule});
         `;
 
         // run

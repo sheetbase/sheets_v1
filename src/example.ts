@@ -20,6 +20,8 @@ function load_() {
             bar: 'slug',
             // baz: 'key',
             // bax: 'key',
+            users: 'uid',
+            // userData: 'key',
         },
         security: {
             foo: { '.read': true, '.write': true },
@@ -28,6 +30,16 @@ function load_() {
             bax: {
                 $key: {
                     '.read': '$key == "abc" || $key == "xyz"',
+                },
+            },
+            users: {
+                $uid: {
+                    '.read': '!!auth && auth.uid == $uid',
+                },
+            },
+            userData: {
+                $key: {
+                    '.read': '!!auth && auth.uid == data.val().uid',
                 },
             },
         },
@@ -282,4 +294,122 @@ function test() {
         });
 
     });
+
+    // mock request data
+    const uid = '1LXPDE2qW_2s6nE3eAihfu2rEkWs';
+    Sheets.Security.setRequest({
+        query: {
+            idToken: 'xxx.xxx.xxx',
+        },
+        body: {},
+    });
+
+    describe('Users table', () => {
+
+        it('Get (no auth)', () => {
+            let error = null;
+            try {
+                const user = Sheets.item('users', uid);
+            } catch (err) {
+                error = err;
+            }
+            return !!error;
+        });
+
+        it('Get (has auth, invalid token)', () => {
+
+            Sheets.setIntegration('AuthToken', {
+                decodeIdToken: idToken => null,
+            });
+
+            let error = null;
+            try {
+                const user = Sheets.item('users', uid);
+            } catch (err) {
+                error = err;
+            }
+            return !!error;
+        });
+
+        it('Get (has auth, valid token, not the user)', () => {
+
+            Sheets.setIntegration('AuthToken', {
+                decodeIdToken: idToken => ({ uid: 'xxx' }),
+            });
+
+            let error = null;
+            try {
+                const user = Sheets.item('users', uid);
+            } catch (err) {
+                error = err;
+            }
+            return !!error;
+        });
+
+        it('Get (has auth, valid token)', () => {
+
+            Sheets.setIntegration('AuthToken', {
+                decodeIdToken: idToken => ({ uid }),
+            });
+
+            let error = null;
+            try {
+                const user = Sheets.item('users', uid);
+            } catch (err) {
+                error = err;
+            }
+            return !error;
+        });
+
+    });
+
+    describe('User data table', () => {
+
+        it('Get (has auth, valid token, not owned item)', () => {
+
+            Sheets.setIntegration('AuthToken', {
+                decodeIdToken: idToken => ({ uid }),
+            });
+
+            let error = null;
+            try {
+                const data = Sheets.item('userData', 'item-2');
+            } catch (err) {
+                error = err;
+            }
+            return !!error;
+        });
+
+        it('Get (has auth, valid token, owned item)', () => {
+
+            Sheets.setIntegration('AuthToken', {
+                decodeIdToken: idToken => ({ uid }),
+            });
+
+            let error = null;
+            try {
+                const data = Sheets.item('userData', 'item-1');
+            } catch (err) {
+                error = err;
+            }
+            return !error;
+        });
+
+        it('Query', () => {
+
+            Sheets.setIntegration('AuthToken', {
+                decodeIdToken: idToken => ({ uid }),
+            });
+
+            let error = null;
+            try {
+                const data = Sheets.query('userData', { uid });
+            } catch (err) {
+                error = err;
+            }
+            return !error;
+        });
+
+    });
+
 }
