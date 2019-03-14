@@ -105,29 +105,51 @@ export class SheetsService {
                     typeof item[where] === 'number' &&
                     item[where] >= gte
                 );
-            } else if (!!childExists) { // where/childExists
+            } else if (!!childExists) { // where/child exists, not exists
+                const notExists = childExists.substr(0, 1) === '!';
+                const child = notExists ? childExists.replace('!', '') : childExists;
                 advancedFilter = item => {
-                    if (!!item[where]) {
+                    if (!item[where] && notExists) {
+                        return true; // child always not exists
+                    } else if (!!item[where]) {
                         if (item[where] instanceof Array) {
-                            return (childExists === false) ?
-                                (item[where].indexOf(childExists) < 0) :
-                                (item[where].indexOf(childExists) > -1);
+                            return notExists ?
+                                (item[where].indexOf(child) < 0) :
+                                (item[where].indexOf(child) > -1);
                         } else if (item[where] instanceof Object) {
-                            const childKey = childExists.replace('!', '');
-                            const notExists = childExists.substr(0, 1) === '!';
-                            return notExists ? !item[where][childKey] : !!item[where][childKey];
+                            return notExists ? !item[where][child] : !!item[where][child];
                         }
                     }
                     return false;
                 };
-            } else if (!!childEqual) { // where/childEqual
-                const [ childKey, childValue ] = childEqual.split('=').filter(Boolean);
-                advancedFilter = item => (
-                    !!item[where] &&
-                    item[where] instanceof Object &&
-                    !!item[where][childKey] &&
-                    item[where][childKey] === childValue
-                );
+            } else if (!!childEqual) { // where/child equal, not equal
+                let notEqual: boolean;
+                let childKey: string;
+                let childValue: string;
+                if (childEqual.indexOf('!=') > -1) {
+                    notEqual = true;
+                    const keyValue = childEqual.split('!=').filter(Boolean);
+                    childKey = keyValue[0];
+                    childValue = keyValue[1];
+                } else {
+                    const keyValue = childEqual.split('=').filter(Boolean);
+                    childKey = keyValue[0];
+                    childValue = keyValue[1];
+                }
+                advancedFilter = item => {
+                    if (!item[where] && notEqual) {
+                        return true; // always not equal
+                    } else if (!!item[where]) {
+                        return  (
+                            item[where] instanceof Object &&
+                            (notEqual ?
+                                (!item[where][childKey] || item[where][childKey] !== childValue) :
+                                (!!item[where][childKey] && item[where][childKey] === childValue)
+                            )
+                        );
+                    }
+                    return false;
+                };
             }
         }
         return this.ref('/' + sheetName).query(advancedFilter) as Item[];

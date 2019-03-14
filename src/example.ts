@@ -20,6 +20,7 @@ function load_() {
             bar: 'slug',
             // baz: 'key',
             // bax: 'key',
+            // query: 'key',
             users: 'uid',
             // userData: 'key',
         },
@@ -32,6 +33,7 @@ function load_() {
                     '.read': '$key == "abc" || $key == "xyz"',
                 },
             },
+            query: { '.read': true },
             users: {
                 $uid: {
                     '.read': '!!auth && auth.uid == $uid',
@@ -408,6 +410,85 @@ function test() {
                 error = err;
             }
             return !error;
+        });
+
+    });
+
+    describe('Query table', () => {
+
+        it('equal', () => {
+            const data = Sheets.query('query', { where: 'title', equal: 'Foo me' });
+            return (data.length === 2);
+        });
+
+        it('equal (shorthand)', () => {
+            const data = Sheets.query('query', { title: 'Foo me' });
+            return (data.length === 2);
+        });
+
+        it('exists', () => {
+            const data = Sheets.query('query', { where: 'content', exists: true });
+            return (data.length === 3);
+        });
+
+        it('exists (not)', () => {
+            const data = Sheets.query('query', { where: 'content', exists: false });
+            return (data.length === 1);
+        });
+
+        it('contains', () => {
+            const data = Sheets.query('query', { where: 'content', contains: 'me' });
+            return (data.length === 1);
+        });
+
+        it('lt', () => {
+            const data = Sheets.query('query', { where: 'age', lt: 18 });
+            return (data.length === 1);
+        });
+
+        it('lte', () => {
+            const data = Sheets.query('query', { where: 'age', lte: 18 });
+            return (data.length === 2);
+        });
+
+        it('gt', () => {
+            const data = Sheets.query('query', { where: 'age', gt: 18 });
+            return (data.length === 2);
+        });
+
+        it('gte', () => {
+            const data = Sheets.query('query', { where: 'age', gte: 18 });
+            return (data.length === 3);
+        });
+
+        it('childExists (object)', () => {
+            const data = Sheets.query('query', { where: 'categories', childExists: 'cat-1' });
+            return (data.length === 2);
+        });
+
+        it('childExists (object, not)', () => {
+            const data = Sheets.query('query', { where: 'categories', childExists: '!cat-1' });
+            return (data.length === 2);
+        });
+
+        it('childExists (array)', () => {
+            const data = Sheets.query('query', { where: 'list', childExists: 'abc' });
+            return (data.length === 2);
+        });
+
+        it('childExists (array, not)', () => {
+            const data = Sheets.query('query', { where: 'list', childExists: '!abc' });
+            return (data.length === 2);
+        });
+
+        it('childEqual', () => {
+            const data = Sheets.query('query', { where: 'categories', childEqual: 'cat-1=Cat 1' });
+            return (data.length === 1);
+        });
+
+        it('childEqual (not)', () => {
+            const data = Sheets.query('query', { where: 'categories', childEqual: 'cat-1!=Cat 1' });
+            return (data.length === 3);
         });
 
     });

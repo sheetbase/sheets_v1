@@ -80,11 +80,11 @@
 								<li class="tsd-kind-constructor tsd-parent-kind-class"><a href="dataservice.html#constructor" class="tsd-kind-icon">constructor</a></li>
 							</ul>
 						</section>
-						<section class="tsd-index-section ">
+						<section class="tsd-index-section tsd-is-private tsd-is-private-protected">
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="dataservice.html#sheets" class="tsd-kind-icon">Sheets</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class"><a href="dataservice.html#paths" class="tsd-kind-icon">paths</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="dataservice.html#paths" class="tsd-kind-icon">paths</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -118,7 +118,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L9">lib/data.ts:9</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L9">lib/data.ts:9</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -135,7 +135,7 @@
 					</ul>
 				</section>
 			</section>
-			<section class="tsd-panel-group tsd-member-group ">
+			<section class="tsd-panel-group tsd-member-group tsd-is-private tsd-is-private-protected">
 				<h2>Properties</h2>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="sheets" class="tsd-anchor"></a>
@@ -143,17 +143,17 @@
 					<div class="tsd-signature tsd-kind-icon">Sheets<span class="tsd-signature-symbol">:</span> <a href="sheetsservice.html" class="tsd-signature-type">SheetsService</a></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L8">lib/data.ts:8</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L8">lib/data.ts:8</a></li>
 						</ul>
 					</aside>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class">
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="paths" class="tsd-anchor"></a>
-					<h3>paths</h3>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> paths</h3>
 					<div class="tsd-signature tsd-kind-icon">paths<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L9">lib/data.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L9">lib/data.ts:9</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -170,7 +170,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L97">lib/data.ts:97</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L97">lib/data.ts:97</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -187,13 +187,13 @@
 					<a name="key" class="tsd-anchor"></a>
 					<h3>key</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">key<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						<li class="tsd-signature tsd-kind-icon">key<span class="tsd-signature-symbol">(</span>length<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, startWith<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L107">lib/data.ts:107</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L107">lib/data.ts:107</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -201,6 +201,15 @@
 									<p>read</p>
 								</div>
 							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> length: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;27</span></h5>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> startWith: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;-&quot;</span></h5>
+								</li>
+							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
 						</li>
 					</ul>
@@ -209,13 +218,13 @@
 					<a name="loaddatabysheet" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> load<wbr>Data<wbr>BySheet</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-has-type-parameter tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">load<wbr>Data<wbr>BySheet&lt;Item&gt;<span class="tsd-signature-symbol">(</span>sheetName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, fresh<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+						<li class="tsd-signature tsd-kind-icon">load<wbr>Data<wbr>BySheet&lt;Item&gt;<span class="tsd-signature-symbol">(</span>sheetName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, fresh<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L16">lib/data.ts:16</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L16">lib/data.ts:16</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -233,7 +242,12 @@
 									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> fresh: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> =&nbsp;false</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter-index-signature">
+									<h5><span class="tsd-signature-symbol">[</span>key: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
 						</li>
 					</ul>
 				</section>
@@ -241,21 +255,16 @@
 					<a name="loadrootdata" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> load<wbr>Root<wbr>Data</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
-						<li class="tsd-signature tsd-kind-icon">load<wbr>Root<wbr>Data<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></li>
+						<li class="tsd-signature tsd-kind-icon">load<wbr>Root<wbr>Data<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/database.html" class="tsd-signature-type">Database</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L39">lib/data.ts:39</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L39">lib/data.ts:39</a></li>
 								</ul>
 							</aside>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
-							<ul class="tsd-parameters">
-								<li class="tsd-parameter-index-signature">
-									<h5><span class="tsd-signature-symbol">[</span>sheetName: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">any</span></h5>
-								</li>
-							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/database.html" class="tsd-signature-type">Database</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -269,7 +278,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L87">lib/data.ts:87</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L87">lib/data.ts:87</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="dataservice.html" class="tsd-signature-type">DataService</a></h4>
@@ -286,7 +295,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L120">lib/data.ts:120</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L120">lib/data.ts:120</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -333,7 +342,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L83">lib/data.ts:83</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L83">lib/data.ts:83</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -355,7 +364,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L116">lib/data.ts:116</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L116">lib/data.ts:116</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span></h4>
@@ -372,7 +381,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L111">lib/data.ts:111</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L111">lib/data.ts:111</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
@@ -391,7 +400,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L139">lib/data.ts:139</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L139">lib/data.ts:139</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -425,7 +434,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/be91d27/src/lib/data.ts#L61">lib/data.ts:61</a></li>
+									<li>Defined in <a href="https://github.com/sheetbase/sheets-server/blob/cbcf2a7/src/lib/data.ts#L61">lib/data.ts:61</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">object</span></h4>
@@ -457,7 +466,7 @@
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="dataservice.html#sheets" class="tsd-kind-icon">Sheets</a>
 							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-class">
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="dataservice.html#paths" class="tsd-kind-icon">paths</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
@@ -504,6 +513,9 @@
 						<a href="sheetsservice.html" class="tsd-kind-icon">Sheets<wbr>Service</a>
 					</li>
 					<li class=" tsd-kind-interface">
+						<a href="../interfaces/database.html" class="tsd-kind-icon">Database</a>
+					</li>
+					<li class=" tsd-kind-interface">
 						<a href="../interfaces/extendable.html" class="tsd-kind-icon">Extendable</a>
 					</li>
 					<li class=" tsd-kind-interface">
@@ -516,7 +528,16 @@
 						<a href="../interfaces/query.html" class="tsd-kind-icon">Query</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
+						<a href="../index.html#advancedfilter" class="tsd-kind-icon">Advanced<wbr>Filter</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
 						<a href="../index.html#filter" class="tsd-kind-icon">Filter</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="../index.html#shorthandequal" class="tsd-kind-icon">Shorthand<wbr>Equal</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="../index.html#database" class="tsd-kind-icon">DATABASE</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="../index.html#parsedata" class="tsd-kind-icon">parse<wbr>Data</a>

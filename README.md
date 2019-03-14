@@ -230,6 +230,54 @@ const bar = Sheets.query("bar", item => {
 });
 ```
 
+List of simple query:
+
+- `where`: (required) an item property to perform query on
+- `equal`: (optional) must exists and equal to (===)
+- `exists`: (optional) exists = `true`, not exists = `false`
+- `contains`: (optional) must be a string and contains the phrase (for array, user `childExists`)
+- `lt|lte|gt|gte`: (optional) less/greater than or equal
+- `childExists`: (optional) exists = key name or a value, not exists = add `!` before key name.
+- `childEqual`: (optional) object only, exists = `key=value`, not exists = `key!=value`, child must be exists and equal to (===)
+
+```ts
+// equal
+// (title === 'Foo me')
+Sheets.query("foo", { where: "title", equal: "Foo me" });
+
+// exists
+// (!!content)
+Sheets.query("foo", { where: "content", exists: true });
+// (!content)
+Sheets.query("foo", { where: "content", exists: false });
+
+// contains
+// (title.indexOf('me') > -1)
+Sheets.query("foo", { where: "title", contains: "me" });
+
+// lt, lte, gt, gte
+// (age < 18)
+Sheets.query("foo", { where: "age", lt: 18 });
+// (age >= 18)
+Sheets.query("foo", { where: "age", gte: 18 });
+
+// childExists
+// (object, !!categories['cat-1'])
+Sheets.query("foo", { where: "categories", childExists: "cat-1" });
+// (object, !categories['cat-1'])
+Sheets.query("foo", { where: "categories", childExists: "!cat-1" });
+// (array, list.indexOf('abc') > -1)
+Sheets.query("foo", { where: "list", childExists: "abc" });
+// (array, list.indexOf('abc') < 0)
+Sheets.query("foo", { where: "list", childExists: "!abc" });
+
+// childEqual
+// (categories['cat-1'] === 'Cat 1')
+Sheets.query("foo", { where: "categories", childEqual: "cat-1=Cat 1" });
+// (categories['cat-1'] !== 'Cat 1')
+Sheets.query("foo", { where: "categories", childEqual: "cat-1!=Cat 1" });
+```
+
 ## item
 
 Get an item of a sheet/table.
@@ -307,7 +355,7 @@ Get `all`, `query` or `item`. Route query string:
 - `path`: sheet/table name and item key
 - `sheet` or `table`: sheet/table name
 - `key` or `id`: item key
-- `where` and `equal`: query condition
+- `where`, `equal`, ...: query condition
 
 Get all item from 'foo':
 
@@ -323,7 +371,7 @@ Get an item from 'foo':
 
 Query from 'foo':
 
-- `table=foo&where=abc&equal=xyz`
+- `table=foo&where=abc&equal=xyz` (same for other query)
 
 #### POST `/database`
 
@@ -411,9 +459,12 @@ function load_() {
     databaseId: "1Zz5kvlTn2cXd41ZQZlFeCjvVR_XhpUnzKlDGB8QsXoI",
     keyFields: {
       // foo: 'key',
-      bar: "slug"
+      bar: "slug",
       // baz: 'key',
       // bax: 'key',
+      // query: 'key',
+      users: "uid"
+      // userData: 'key',
     },
     security: {
       foo: { ".read": true, ".write": true },
@@ -422,6 +473,17 @@ function load_() {
       bax: {
         $key: {
           ".read": '$key == "abc" || $key == "xyz"'
+        }
+      },
+      query: { ".read": true },
+      users: {
+        $uid: {
+          ".read": "!!auth && auth.uid == $uid"
+        }
+      },
+      userData: {
+        $key: {
+          ".read": "!!auth && auth.uid == data.val().uid"
         }
       }
     }
@@ -673,6 +735,205 @@ function test() {
         error = err;
       }
       return !!error;
+    });
+  });
+
+  // mock request data
+  const uid = "1LXPDE2qW_2s6nE3eAihfu2rEkWs";
+  Sheets.Security.setRequest({
+    query: {
+      idToken: "xxx.xxx.xxx"
+    },
+    body: {}
+  });
+
+  describe("Users table", () => {
+    it("Get (no auth)", () => {
+      let error = null;
+      try {
+        const user = Sheets.item("users", uid);
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+
+    it("Get (has auth, invalid token)", () => {
+      Sheets.setIntegration("AuthToken", {
+        decodeIdToken: idToken => null
+      });
+
+      let error = null;
+      try {
+        const user = Sheets.item("users", uid);
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+
+    it("Get (has auth, valid token, not the user)", () => {
+      Sheets.setIntegration("AuthToken", {
+        decodeIdToken: idToken => ({ uid: "xxx" })
+      });
+
+      let error = null;
+      try {
+        const user = Sheets.item("users", uid);
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+
+    it("Get (has auth, valid token)", () => {
+      Sheets.setIntegration("AuthToken", {
+        decodeIdToken: idToken => ({ uid })
+      });
+
+      let error = null;
+      try {
+        const user = Sheets.item("users", uid);
+      } catch (err) {
+        error = err;
+      }
+      return !error;
+    });
+  });
+
+  describe("User data table", () => {
+    it("Get (has auth, valid token, not owned item)", () => {
+      Sheets.setIntegration("AuthToken", {
+        decodeIdToken: idToken => ({ uid })
+      });
+
+      let error = null;
+      try {
+        const data = Sheets.item("userData", "item-2");
+      } catch (err) {
+        error = err;
+      }
+      return !!error;
+    });
+
+    it("Get (has auth, valid token, owned item)", () => {
+      Sheets.setIntegration("AuthToken", {
+        decodeIdToken: idToken => ({ uid })
+      });
+
+      let error = null;
+      try {
+        const data = Sheets.item("userData", "item-1");
+      } catch (err) {
+        error = err;
+      }
+      return !error;
+    });
+
+    it("Query", () => {
+      Sheets.setIntegration("AuthToken", {
+        decodeIdToken: idToken => ({ uid })
+      });
+
+      let error = null;
+      try {
+        const data = Sheets.query("userData", { uid });
+      } catch (err) {
+        error = err;
+      }
+      return !error;
+    });
+  });
+
+  describe("Query table", () => {
+    it("equal", () => {
+      const data = Sheets.query("query", { where: "title", equal: "Foo me" });
+      return data.length === 2;
+    });
+
+    it("equal (shorthand)", () => {
+      const data = Sheets.query("query", { title: "Foo me" });
+      return data.length === 2;
+    });
+
+    it("exists", () => {
+      const data = Sheets.query("query", { where: "content", exists: true });
+      return data.length === 3;
+    });
+
+    it("exists (not)", () => {
+      const data = Sheets.query("query", { where: "content", exists: false });
+      return data.length === 1;
+    });
+
+    it("contains", () => {
+      const data = Sheets.query("query", { where: "content", contains: "me" });
+      return data.length === 1;
+    });
+
+    it("lt", () => {
+      const data = Sheets.query("query", { where: "age", lt: 18 });
+      return data.length === 1;
+    });
+
+    it("lte", () => {
+      const data = Sheets.query("query", { where: "age", lte: 18 });
+      return data.length === 2;
+    });
+
+    it("gt", () => {
+      const data = Sheets.query("query", { where: "age", gt: 18 });
+      return data.length === 2;
+    });
+
+    it("gte", () => {
+      const data = Sheets.query("query", { where: "age", gte: 18 });
+      return data.length === 3;
+    });
+
+    it("childExists (object)", () => {
+      const data = Sheets.query("query", {
+        where: "categories",
+        childExists: "cat-1"
+      });
+      return data.length === 2;
+    });
+
+    it("childExists (object, not)", () => {
+      const data = Sheets.query("query", {
+        where: "categories",
+        childExists: "!cat-1"
+      });
+      return data.length === 2;
+    });
+
+    it("childExists (array)", () => {
+      const data = Sheets.query("query", { where: "list", childExists: "abc" });
+      return data.length === 2;
+    });
+
+    it("childExists (array, not)", () => {
+      const data = Sheets.query("query", {
+        where: "list",
+        childExists: "!abc"
+      });
+      return data.length === 2;
+    });
+
+    it("childEqual", () => {
+      const data = Sheets.query("query", {
+        where: "categories",
+        childEqual: "cat-1=Cat 1"
+      });
+      return data.length === 1;
+    });
+
+    it("childEqual (not)", () => {
+      const data = Sheets.query("query", {
+        where: "categories",
+        childEqual: "cat-1!=Cat 1"
+      });
+      return data.length === 3;
     });
   });
 }
