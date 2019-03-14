@@ -188,7 +188,15 @@ export class SheetsService {
                 path = '/', // sheet name and item key
                 table, sheet, // sheet name
                 id, key, // item key
-                where, equal, // query
+                // query
+                where,
+                equal,
+                exists,
+                contains,
+                lt, lte,
+                gt, gte,
+                childExists,
+                childEqual,
             } = req.query;
             const paths = path.split('/').filter(Boolean);
             const sheetName = table || sheet || paths[0];
@@ -202,8 +210,17 @@ export class SheetsService {
             try {
                 if (!!itemKey) { // get item
                     result = this.item(sheetName, itemKey);
-                } else if (!!where && !!equal) { // query
-                    result = this.query(sheetName, { where, equal });
+                } else if (!!where) { // query
+                    result = this.query(sheetName, {
+                        where,
+                        equal,
+                        exists,
+                        contains,
+                        lt, lte,
+                        gt, gte,
+                        childExists,
+                        childEqual,
+                    });
                 } else { // all
                     result = this.all(sheetName);
                 }
