@@ -1,6 +1,6 @@
 {
    "name": "@sheetbase/sheets-server",
-   "version": "0.0.12",
+   "version": "0.0.13",
    "description": "Using Google Sheets as a database.",
    "author": "Sheetbase",
    "homepage": "https://sheetbase.net",
@@ -42,9 +42,7 @@
    "bugs": {
       "url": "https://github.com/sheetbase/sheets-server/issues"
    },
-   "dependencies": {
-      "@sheetbase/core-server": "0.0.19"
-   },
+   "dependencies": {},
    "peerDependencies": {
       "@sheetbase/core-server": "0.0.19"
    },
