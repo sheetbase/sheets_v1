@@ -45,7 +45,10 @@ function load_() {
                     '.read': '!!auth && auth.uid == data.val().uid',
                 },
             },
-            increasing: { '.read': true, '.write': true },
+            increasing: {
+                '.read': true,
+                '.write': 'inputData.only([ "likeCount", "rating" ])',
+            },
         },
     });
 }
@@ -280,7 +283,7 @@ function test() {
 
         it('Query bax (has permission)', () => {
             const bax = Sheets.query<any>('bax', item => {
-                return (item.key === 'abc' || item.key === 'xyz');
+                return (item.$key === 'abc' || item.$key === 'xyz');
             });
             return (bax.length === 2);
         });
@@ -301,12 +304,14 @@ function test() {
 
     // mock request data
     const uid = '1LXPDE2qW_2s6nE3eAihfu2rEkWs';
-    Sheets.Security.setRequest({
-        query: {
-            idToken: 'xxx.xxx.xxx',
-        },
-        body: {},
-    });
+    const setFakeRequest = () => {
+        Sheets.Security.setRequest({
+            query: {
+                idToken: 'xxx.xxx.xxx',
+            },
+            body: {},
+        });
+    };
 
     describe('Users table', () => {
 
@@ -325,6 +330,7 @@ function test() {
             Sheets.setIntegration('AuthToken', {
                 decodeIdToken: idToken => null,
             });
+            setFakeRequest();
 
             let error = null;
             try {
@@ -340,6 +346,7 @@ function test() {
             Sheets.setIntegration('AuthToken', {
                 decodeIdToken: idToken => ({ uid: 'xxx' }),
             });
+            setFakeRequest();
 
             let error = null;
             try {
@@ -355,6 +362,7 @@ function test() {
             Sheets.setIntegration('AuthToken', {
                 decodeIdToken: idToken => ({ uid }),
             });
+            setFakeRequest();
 
             let error = null;
             try {
@@ -374,6 +382,7 @@ function test() {
             Sheets.setIntegration('AuthToken', {
                 decodeIdToken: idToken => ({ uid }),
             });
+            setFakeRequest();
 
             let error = null;
             try {
@@ -389,6 +398,7 @@ function test() {
             Sheets.setIntegration('AuthToken', {
                 decodeIdToken: idToken => ({ uid }),
             });
+            setFakeRequest();
 
             let error = null;
             try {
@@ -404,6 +414,7 @@ function test() {
             Sheets.setIntegration('AuthToken', {
                 decodeIdToken: idToken => ({ uid }),
             });
+            setFakeRequest();
 
             let error = null;
             try {
@@ -496,6 +507,16 @@ function test() {
     });
 
     describe('Increasing', () => {
+
+        it('Fail (no permission)', () => {
+            let error = null;
+            try {
+                Sheets.increase('increasing', 'item-1', 'notMe');
+            } catch (err) {
+                error = err;
+            }
+            return !!error;
+        });
 
         // batch 1
         it('Fail for root ref', () => {

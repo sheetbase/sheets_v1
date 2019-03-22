@@ -12,7 +12,7 @@ export class SecurityService {
         params: {},
         body: {},
     };
-    private auth: any;
+    private auth: any = null;
 
     constructor(Sheets?: SheetsService) {
         this.Sheets = Sheets;
@@ -22,9 +22,8 @@ export class SecurityService {
         // req object
         this.req = request;
         // auth object
-        this.auth = null;
         const AuthToken = this.Sheets.options.AuthToken;
-        const idToken = request ? (
+        const idToken = !!request ? (
             request.query['idToken'] || request.body['idToken']
         ) : null;
         if (!!idToken && !!AuthToken) {
@@ -93,7 +92,7 @@ export class SecurityService {
             root: new DataSnapshot(ref.root(), customHelpers),
             data: new DataSnapshot(ref, customHelpers), // current ref data
             newData: new DataSnapshot(item, customHelpers), // item after processed update data
-            updateData: new DataSnapshot(data, customHelpers), // only update input data
+            inputData: new DataSnapshot(data, customHelpers), // only update input data
             ... dynamicData,
         };
         const body = `

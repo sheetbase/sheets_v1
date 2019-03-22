@@ -178,7 +178,7 @@ export class RefService {
       }
 
       // check permission
-      this.Sheets.Security.checkpoint('write', this.paths, this, item);
+      this.Sheets.Security.checkpoint('write', this.paths, this, item, data);
 
       // start actions
       if (!data && !!item) { // remove

@@ -187,7 +187,7 @@ export class SheetsService {
         key: string,
         updates: string | string[] | {[path: string]: number},
     ) {
-        return this.ref('/' + sheetName + '/' + key).increase(updates);
+        return this.ref('/' + sheetName + (!!key ? ('/' + key) : '')).increase(updates);
     }
 
     // routes
@@ -267,6 +267,7 @@ export class SheetsService {
                 table, sheet, // sheet name
                 id, key, // item key
                 data = null, // data
+                increasing = null, //increasing
             } = req.body;
             const paths = path.split('/').filter(Boolean);
             const sheetName = table || sheet || paths[0];
@@ -277,7 +278,11 @@ export class SheetsService {
             }
 
             try {
-                this.update(sheetName, itemKey, data);
+                if (!!increasing) {
+                    this.increase(sheetName, key, increasing);
+                } else {
+                    this.update(sheetName, itemKey, data);
+                }
             } catch (error) {
                 return res.error(error);
             }
