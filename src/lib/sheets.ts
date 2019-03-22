@@ -279,7 +279,7 @@ export class SheetsService {
 
             try {
                 if (!!increasing) {
-                    this.increase(sheetName, key, increasing);
+                    this.increase(sheetName, itemKey, increasing);
                 } else {
                     this.update(sheetName, itemKey, data);
                 }

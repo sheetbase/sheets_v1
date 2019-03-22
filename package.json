@@ -1,6 +1,6 @@
 {
    "name": "@sheetbase/sheets-server",
-   "version": "0.0.11",
+   "version": "0.0.12",
    "description": "Using Google Sheets as a database.",
    "author": "Sheetbase",
    "homepage": "https://sheetbase.net",
