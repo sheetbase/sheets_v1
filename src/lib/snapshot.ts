@@ -48,26 +48,4 @@ export class DataSnapshot {
     }
   }
 
-  // prop exists
-  exists(prop: string) {
-    const data = this.val();
-    return (
-      !!prop &&
-      (!!data && data instanceof Object) &&
-      !!data[prop]
-    );
-  }
-
-  // prop not exists
-  notExists(prop: string) {
-    const data = this.val();
-    return (
-      !prop ||
-      (
-        (!!data && data instanceof Object) &&
-        !data[prop]
-      )
-    );
-  }
-
 }
