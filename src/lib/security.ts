@@ -1,37 +1,55 @@
 import { RouteRequest } from '@sheetbase/core-server';
 
 import { SheetsService } from './sheets';
-import { DataService } from './data';
+import { RefService } from './ref';
+import { DataSnapshot } from './snapshot';
 
 export class SecurityService {
     private Sheets: SheetsService;
-    private apiRequest: RouteRequest;
+
+    private req: RouteRequest = {
+        query: {},
+        params: {},
+        body: {},
+    };
+    private auth: any;
 
     constructor(Sheets?: SheetsService) {
         this.Sheets = Sheets;
     }
 
     setRequest(request: RouteRequest) {
-        this.apiRequest = request;
+        // req object
+        this.req = request;
+        // auth object
+        this.auth = null;
+        const AuthToken = this.Sheets.options.AuthToken;
+        const idToken = request ? (
+            request.query['idToken'] || request.body['idToken']
+        ) : null;
+        if (!!idToken && !!AuthToken) {
+            this.auth = AuthToken.decodeIdToken(idToken);
+        }
     }
 
     checkpoint(
         permission: ('read' | 'write' ),
         paths: string[],
-        data?: DataService,
-        newData: any = null,
+        ref?: RefService,
+        item: any = null,
+        data: any = null,
     ) {
         // read
         if (
             permission === 'read' &&
-            !this.hasPermission('read', paths, data)
+            !this.hasPermission('read', paths, ref)
         ) {
             throw new Error('No read permission.');
         }
         // write
         if (
             permission === 'write' &&
-            !this.hasPermission('write', paths, data, newData)
+            !this.hasPermission('write', paths, ref, item, data)
         ) {
             throw new Error('No write permission.');
         }
@@ -40,18 +58,57 @@ export class SecurityService {
     private hasPermission(
         permission: ('read' | 'write'),
         paths: string[],
-        data?: DataService,
-        newData?: any,
+        ref?: RefService,
+        item?: any,
+        data?: any,
     ): boolean {
         const security = this.Sheets.options.security;
-
         // always when security is off
         if (!security) {
             return true;
         }
+        // user claims has admin previledge
+        if (!!this.auth && this.auth.isAdmin) {
+            return true;
+        }
         // execute rule
         const { rule, dynamicData } = this.parseRule(permission, paths);
-        return (typeof rule === 'boolean') ? rule : this.executeRule(rule, data, newData, dynamicData);
+        return (typeof rule === 'boolean') ? rule :
+            this.executeRule(rule, ref, item, data, dynamicData);
+    }
+
+    private executeRule(
+        rule: string,
+        ref?: RefService,
+        item?: any,
+        data?: any,
+        dynamicData: {[key: string]: string} = {},
+    ) {
+        const customHelpers = this.Sheets.options.securityHelpers;
+        // sum up input
+        const input = {
+            now: new Date(),
+            req: this.req, // req object
+            auth: this.auth, // auth object
+            root: new DataSnapshot(ref.root(), customHelpers),
+            data: new DataSnapshot(ref, customHelpers), // current ref data
+            newData: new DataSnapshot(item, customHelpers), // item after processed update data
+            updateData: new DataSnapshot(data, customHelpers), // only update input data
+            ... dynamicData,
+        };
+        const body = `
+            Object.keys(input).map(function (k) {
+                this[k] = input[k];
+            });
+            return (${rule});
+        `;
+        // run
+        try {
+            const executor = new Function('input', body);
+            return executor(input);
+        } catch (error) {
+            return false;
+        }
     }
 
     private parseRule(permission: ('read' | 'write' ), paths: string[]) {
@@ -111,47 +168,6 @@ export class SecurityService {
 
         // return data
         return { rule, dynamicData };
-    }
-
-    private executeRule(
-        rule: string,
-        data?: DataService,
-        newData?: any,
-        dynamicData: {[key: string]: string} = {},
-    ) {
-        // auth object
-        let auth = null;
-        const AuthToken = this.Sheets.options.AuthToken;
-        const idToken = this.apiRequest ? (
-            this.apiRequest.query['idToken'] || this.apiRequest.body['idToken']
-        ) : null;
-        if (!!idToken && !!AuthToken) {
-            auth = AuthToken.decodeIdToken(idToken);
-        }
-
-        // sum up input
-        const input = {
-            now: new Date(),
-            root: data.root(),
-            data,
-            newData,
-            auth,
-            ... dynamicData,
-        };
-        const body = `
-            Object.keys(input).map(function (k) {
-                this[k] = input[k];
-            });
-            return (${rule});
-        `;
-
-        // run
-        try {
-            const executor = new Function('input', body);
-            return executor(input);
-        } catch (error) {
-            return false;
-        }
     }
 
 }

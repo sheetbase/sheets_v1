@@ -3,9 +3,9 @@ import { o2a, uniqueId } from '@sheetbase/core-server';
 import { SheetsService } from './sheets';
 import { translateRangeValues, parseData } from './utils';
 
-export class DataService {
-
+export class RefService {
   private Sheets: SheetsService;
+
   private paths: string[];
 
   constructor(paths: string[], Sheets: SheetsService) {
@@ -13,6 +13,11 @@ export class DataService {
     this.Sheets = Sheets;
   }
 
+  private keyField(sheetName: string) {
+    return this.Sheets.options.keyFields[sheetName] || '$key';
+  }
+
+  // load sheet data
   private loadDataBySheet<Item>(sheetName: string, fresh = false) {
     if (!this.Sheets.database[sheetName] || fresh) {
       // load raw items
@@ -23,10 +28,9 @@ export class DataService {
       for (let i = 0; i < rawItems.length; i++) {
         const item = parseData(rawItems[i]);
         // get item key
-        const key = item[this.Sheets.options.keyFields[sheetName] || 'key'];
-        // add 'id' & '$key'
+        const key = item[this.keyField(sheetName)];
+        // add '$key' field
         item['$key'] = key;
-        item['id'] = item['id'] ? item['id'] : (item['#'] || null);
         // set items
         items[key] = item;
       }
@@ -36,6 +40,7 @@ export class DataService {
     return this.Sheets.database[sheetName];
   }
 
+  // load all data
   private loadRootData() {
     // load all sheets
     const sheets = this.Sheets.spreadsheet.getSheets();
@@ -58,7 +63,8 @@ export class DataService {
     return this.Sheets.database;
   }
 
-  private val() {
+  // get data at this ref location
+  private data() {
     const [ sheetName, ...paths ] = this.paths;
     let data = {};
     if (!sheetName) { // root data
@@ -81,14 +87,14 @@ export class DataService {
    * ref navigation
    */
   root() {
-    return new DataService([], this.Sheets);
+    return new RefService([], this.Sheets);
   }
 
   parent() {
     const paths = [ ... this.paths ];
     if (paths.length > 0) {
       paths.pop();
-      return new DataService(paths, this.Sheets);
+      return new RefService(paths, this.Sheets);
     } else {
       return this.root();
     }
@@ -97,11 +103,11 @@ export class DataService {
   child(path: string) {
     const childPaths = path.split('/').filter(Boolean);
     const paths = [ ... this.paths, ... childPaths ];
-    return new DataService(paths, this.Sheets);
+    return new RefService(paths, this.Sheets);
   }
 
   /**
-   * read
+   * read data
    */
 
   key(length = 27, startWith = '-'): string {
@@ -110,7 +116,7 @@ export class DataService {
 
   toObject() {
     this.Sheets.Security.checkpoint('read', this.paths, this);
-    return this.val();
+    return this.data();
   }
 
   toArray() {
@@ -120,7 +126,7 @@ export class DataService {
   query<Item>(filter: (item: Item) => boolean) {
     const result: Item[] = [];
     // go through items, filter and check for security
-    const items = this.val();
+    const items = this.data();
     for (const key of Object.keys(items)) {
       const item = items[key];
       if (filter(item)) {
@@ -133,20 +139,20 @@ export class DataService {
   }
 
   /**
-   * add/update/remove
+   * add/update/remove/...
    */
 
-  update<Data>(data: Data = null) {
+  update<Item, Data>(data: Data = null): Item {
     if (this.paths.length > 0) {
-      const [ sheetName, pathKey ] = this.paths;
+      const [ sheetName, _itemKey ] = this.paths;
 
       // load data
       const items = this.loadDataBySheet(sheetName);
       const sheet = this.Sheets.spreadsheet.getSheetByName(sheetName);
 
       // prepare data
-      const key = pathKey || this.key();
-      let item = items[key];
+      const itemKey = _itemKey || this.key();
+      let item = items[itemKey];
       let _row: number;
       if (!data && !!item) { // remove
         _row = item._row;
@@ -156,7 +162,7 @@ export class DataService {
           ... item,
           ... data,
           '#': item['#'],
-          [this.Sheets.options.keyFields[sheetName] || 'key']: key,
+          [this.keyField(sheetName)]: itemKey,
           _row,
         };
       } else if (!!data && !item) { // new
@@ -166,7 +172,7 @@ export class DataService {
         item = {
           ... data,
           '#': !isNaN(lastItemId) ? (lastItemId + 1) : 1,
-          [this.Sheets.options.keyFields[sheetName] || 'key']: key,
+          [this.keyField(sheetName)]: itemKey,
           _row,
         };
       }
@@ -176,10 +182,10 @@ export class DataService {
 
       // start actions
       if (!data && !!item) { // remove
-        delete items[key]; // remove from database
+        delete items[itemKey]; // remove from database
         sheet.deleteRow(_row);
       } else if (!!data) { // update / new
-        items[key] = item; // add item to database
+        items[itemKey] = item; // add item to database
         // turn data to array
         const values = [];
         const [ headers ] = sheet.getRange('A1:1').getValues();
@@ -194,10 +200,70 @@ export class DataService {
         }
         // set values
         sheet.getRange('A' + _row + ':' + _row).setValues([values]);
+        return item;
       }
 
     } else {
       throw new Error('Can not modify root ref.');
+    }
+  }
+
+  increase(updates: string | string[] | {[path: string]: number}) {
+    if (this.paths.length === 2) {
+      const item = this.data();
+      const data: any = {}; // changed data
+      // turn a path or array of paths to updates object
+      if (typeof updates === 'string') {
+        updates = { [updates]: 1 };
+      } else if (updates instanceof Array) {
+        const _updates = {};
+        for (let i = 0; i < updates.length; i++) {
+          _updates[updates[i]] = 1;
+        }
+        updates = _updates;
+      }
+      // increase props
+      for (const path of Object.keys(updates)) {
+        const [ itemKey, childKey ] = path.split('/').filter(Boolean);
+        const increasedBy = updates[path] || 1;
+        if (!isNaN(increasedBy)) { // only number
+          // set value
+          if (!!childKey) { // deep props
+            const child = item[itemKey] || {};
+            // only apply for object
+            if (child instanceof Object) {
+              // only for number prop
+              if (
+                !child[childKey] ||
+                (!!child[childKey] && typeof child[childKey] === 'number')
+              ) {
+                // set child
+                child[childKey] = (child[childKey] || 0) + increasedBy;
+                // set item
+                item[itemKey] = child;
+                // set changed
+                data[itemKey] = child;
+              }
+            }
+          } else { // direct prop
+            // only for number prop
+            if (
+              !item[itemKey] ||
+              (!!item[itemKey] && typeof item[itemKey] === 'number')
+            ) {
+              // set item
+              item[itemKey] = (item[itemKey] || 0) + increasedBy;
+              // set changed
+              data[itemKey] = item[itemKey];
+            }
+          }
+        }
+      }
+      // finally
+      // save changed data to database
+      this.update(data);
+    } else {
+      throw new Error('Only increasing item ref data.');
     }
   }
 

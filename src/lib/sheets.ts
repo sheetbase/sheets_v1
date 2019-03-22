@@ -2,7 +2,7 @@ import { AddonRoutesOptions, RoutingErrors, RouteHandler } from '@sheetbase/core
 
 import { Options, Extendable, Intergration, Filter, Query, AdvancedFilter, Database } from './types';
 import { SecurityService } from './security';
-import { DataService } from './data';
+import { RefService } from './ref';
 
 export class SheetsService {
     options: Options;
@@ -18,6 +18,7 @@ export class SheetsService {
         this.options = {
             keyFields: {},
             security: {},
+            securityHelpers: {},
             ... options,
         };
         this.database = database;
@@ -40,7 +41,7 @@ export class SheetsService {
     }
 
     ref(path = '/') {
-        return new DataService(path.split('/').filter(Boolean), this);
+        return new RefService(path.split('/').filter(Boolean), this);
     }
 
     key(length = 27, startWith = '-') {
@@ -179,6 +180,14 @@ export class SheetsService {
 
     remove(sheetName: string, key: string) {
         return this.update(sheetName, key, null);
+    }
+
+    increase(
+        sheetName: string,
+        key: string,
+        updates: string | string[] | {[path: string]: number},
+    ) {
+        return this.ref('/' + sheetName + '/' + key).increase(updates);
     }
 
     // routes
