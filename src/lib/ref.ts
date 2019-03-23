@@ -142,7 +142,11 @@ export class RefService {
    * add/update/remove/...
    */
 
-  update<Item, Data>(data: Data = null): Item {
+  set<Item, Data>(data: Data = null): Item {
+    return this.update(data, true);
+  }
+
+  update<Item, Data>(data: Data = null, clean = false): Item {
     if (this.paths.length > 0) {
       const [ sheetName, _itemKey ] = this.paths;
 
@@ -158,13 +162,20 @@ export class RefService {
         _row = item._row;
       } else if (!!data && !!item) { // update
         _row = item._row;
-        item = {
-          ... item,
+        const newItem = {
           ... data,
           '#': item['#'],
           [this.keyField(sheetName)]: itemKey,
           _row,
         };
+        if (clean) { // set
+          item = newItem;
+        } else { // update
+          item = {
+            ... item,
+            ... newItem,
+          };
+        }
       } else if (!!data && !item) { // new
         const lastRow = sheet.getLastRow();
         const lastItemId = sheet.getRange('A' + lastRow + ':' + lastRow).getValues()[0][0];
@@ -208,24 +219,24 @@ export class RefService {
     }
   }
 
-  increase(updates: string | string[] | {[path: string]: number}) {
+  increase(increasing: string | string[] | {[path: string]: number}) {
     if (this.paths.length === 2) {
       const item = this.data();
       const data: any = {}; // changed data
-      // turn a path or array of paths to updates object
-      if (typeof updates === 'string') {
-        updates = { [updates]: 1 };
-      } else if (updates instanceof Array) {
-        const _updates = {};
-        for (let i = 0; i < updates.length; i++) {
-          _updates[updates[i]] = 1;
+      // turn a path or array of paths to increasing object
+      if (typeof increasing === 'string') {
+        increasing = { [increasing]: 1 };
+      } else if (increasing instanceof Array) {
+        const _increasing = {};
+        for (let i = 0; i < increasing.length; i++) {
+          _increasing[increasing[i]] = 1;
         }
-        updates = _updates;
+        increasing = _increasing;
       }
       // increase props
-      for (const path of Object.keys(updates)) {
+      for (const path of Object.keys(increasing)) {
         const [ itemKey, childKey ] = path.split('/').filter(Boolean);
-        const increasedBy = updates[path] || 1;
+        const increasedBy = increasing[path] || 1;
         if (!isNaN(increasedBy)) { // only number
           // set value
           if (!!childKey) { // deep props

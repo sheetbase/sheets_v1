@@ -156,6 +156,10 @@ export class SheetsService {
         return this.ref('/' + sheetName).query(advancedFilter) as Item[];
     }
 
+    items<Item>(sheetName: string, filter?: Filter) {
+        return !!filter ? this.query<Item>(sheetName, filter) : this.all<Item>(sheetName);
+    }
+
     item<Item>(sheetName: string, finder: string | Filter) {
         let item: Item = null;
         if (typeof finder === 'string') {
@@ -168,6 +172,10 @@ export class SheetsService {
             }
         }
         return item;
+    }
+
+    set<Data>(sheetName: string, key: string, data: Data) {
+        return this.ref('/' + sheetName + (!!key ? ('/' + key) : '')).set(data);
     }
 
     update<Data>(sheetName: string, key: string, data: Data) {
@@ -185,9 +193,9 @@ export class SheetsService {
     increase(
         sheetName: string,
         key: string,
-        updates: string | string[] | {[path: string]: number},
+        increasing: string | string[] | {[path: string]: number},
     ) {
-        return this.ref('/' + sheetName + (!!key ? ('/' + key) : '')).increase(updates);
+        return this.ref('/' + sheetName + (!!key ? ('/' + key) : '')).increase(increasing);
     }
 
     // routes
@@ -268,6 +276,7 @@ export class SheetsService {
                 id, key, // item key
                 data = null, // data
                 increasing = null, //increasing
+                clean = false, // set or update
             } = req.body;
             const paths = path.split('/').filter(Boolean);
             const sheetName = table || sheet || paths[0];
@@ -280,6 +289,8 @@ export class SheetsService {
             try {
                 if (!!increasing) {
                     this.increase(sheetName, itemKey, increasing);
+                } else if (clean) {
+                    this.set(sheetName, itemKey, data);
                 } else {
                     this.update(sheetName, itemKey, data);
                 }
