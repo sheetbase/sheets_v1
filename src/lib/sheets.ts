@@ -198,6 +198,58 @@ export class SheetsService {
         return this.ref('/' + sheetName + (!!key ? ('/' + key) : '')).increase(increasing);
     }
 
+    content(docId: string, withStyles = false) {
+        DriveApp.getStorageUsed(); // trigger authorization
+
+        // cache
+        const cacheService = CacheService.getScriptCache();
+        const cacheKey = 'content_' + docId + '_' + (withStyles ? 'styles' : 'no_styles');
+
+        // get content
+        let content = '';
+        const cachedContent = cacheService.get(cacheKey);
+        if (!!cachedContent) {
+            content = cachedContent;
+        } else {
+            // fetch
+            const url = 'https://www.googleapis.com/drive/v3/files/' + docId + '/export?mimeType=text/html';
+            const response = UrlFetchApp.fetch(url, {
+                method: 'get',
+                headers: {
+                    Authorization: 'Bearer ' + ScriptApp.getOAuthToken(),
+                },
+                muteHttpExceptions:true,
+            });
+            // finalize content
+            if (!!response && response.getResponseCode() === 200) {
+                let htmlContent = response.getContentText();
+                // remove styles
+                if (!withStyles) {
+                    const removeAttrs = ['style', 'id', 'class', 'width', 'height'];
+                    for (let i = 0; i < removeAttrs.length; i++) {
+                        htmlContent = htmlContent.replace(
+                            new RegExp('(\ ' + removeAttrs[i] + '\=\".*?\")', 'g'), '');
+                    }
+                    htmlContent = htmlContent.substring(
+                        htmlContent.lastIndexOf('<body>') + 6,
+                        htmlContent.lastIndexOf('</body>'),
+                    );
+                }
+                // final content
+                content = htmlContent;
+            }
+            // save to cache
+            try {
+                cacheService.put(cacheKey, content, 3600); // 1 hour
+            } catch (error) {
+                // cache error (may be content larger 100K)
+            }
+        }
+
+        // return content
+        return content;
+    }
+
     // routes
     registerRoutes(options?: AddonRoutesOptions): void {
         const {
@@ -304,6 +356,26 @@ export class SheetsService {
         router.put('/' + endpoint, ... middlewares, updateHandler);
         router.patch('/' + endpoint, ... middlewares, updateHandler);
         router.delete('/' + endpoint, ... middlewares, updateHandler);
+
+        router.get('/' + endpoint + '/content', ... middlewares, (req, res) => {
+            const {
+                docId,
+                withStyles,
+            } = req.query;
+
+            if (!docId) {
+                return res.error('No doc id.');
+            }
+
+            let result: any;
+            try {
+                const content = this.content(docId, withStyles);
+                result = { docId, content };
+            } catch (error) {
+                return res.error(error);
+            }
+            return res.success(result);
+        });
 
     }
 
