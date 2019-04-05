@@ -41,3 +41,5 @@ export interface Database {
         [key: string]: any;
     };
 }
+
+export type DocsContentStyles = 'clean' | 'full' | 'original';

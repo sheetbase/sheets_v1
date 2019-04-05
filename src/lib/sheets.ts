@@ -1,6 +1,15 @@
 import { AddonRoutesOptions, RoutingErrors, RouteHandler } from '@sheetbase/core-server';
 
-import { Options, Extendable, Intergration, Filter, Query, AdvancedFilter, Database } from './types';
+import {
+    Options,
+    Extendable,
+    Intergration,
+    Filter,
+    Query,
+    AdvancedFilter,
+    Database,
+    DocsContentStyles,
+} from './types';
 import { SecurityService } from './security';
 import { RefService } from './ref';
 
@@ -46,6 +55,10 @@ export class SheetsService {
 
     key(length = 27, startWith = '-') {
         return this.ref().key(length, startWith);
+    }
+
+    data<Item>(sheetName: string) {
+        return this.ref('/' + sheetName).toObject() as {[$key: string]: Item};
     }
 
     all<Item>(sheetName: string) {
@@ -198,12 +211,12 @@ export class SheetsService {
         return this.ref('/' + sheetName + (!!key ? ('/' + key) : '')).increase(increasing);
     }
 
-    content(docId: string, withStyles = false) {
+    content(docId: string, styles: DocsContentStyles = 'clean') {
         DriveApp.getStorageUsed(); // trigger authorization
 
         // cache
         const cacheService = CacheService.getScriptCache();
-        const cacheKey = 'content_' + docId + '_' + (withStyles ? 'styles' : 'no_styles');
+        const cacheKey = 'content_' + docId + '_' + styles;
 
         // get content
         let content = '';
@@ -222,21 +235,48 @@ export class SheetsService {
             });
             // finalize content
             if (!!response && response.getResponseCode() === 200) {
-                let htmlContent = response.getContentText();
-                // remove styles
-                if (!withStyles) {
-                    const removeAttrs = ['style', 'id', 'class', 'width', 'height'];
-                    for (let i = 0; i < removeAttrs.length; i++) {
-                        htmlContent = htmlContent.replace(
-                            new RegExp('(\ ' + removeAttrs[i] + '\=\".*?\")', 'g'), '');
+                const html = response.getContentText();
+                // original
+                content = html;
+                // full & clean
+                if (styles !== 'original') {
+
+                    // extract content, between: </head></html>
+                    content = html.match(/\<\/head\>(.*)\<\/html\>/).pop();
+
+                    // clean up
+                    content = content
+                        .replace(/\<body(.*?)\>/, '') // replace: <body...>
+                        .replace('</body>', '') // replace </body>
+                        .replace(/\<script(.*?)\<\/script\>/g, '') // remove all script tag
+                        .replace(/\<style(.*?)\<\/style\>/g, ''); // remove all style tag
+
+                    // replace redirect links
+                    const links = content.match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\"/g);
+                    if (!!links) {
+                        for (let i = 0, l = links.length; i < l; i++) {
+                            const link = links[i];
+                            const urlMatch = link
+                                .match(/\"https\:\/\/www\.google\.com\/url\?q\=(.*?)\&amp\;/);
+                            if (!!urlMatch) {
+                                const url = urlMatch.pop();
+                                content = content.replace(link, '"' + url + '"');
+                            }
+                        }
                     }
-                    htmlContent = htmlContent.substring(
-                        htmlContent.lastIndexOf('<body>') + 6,
-                        htmlContent.lastIndexOf('</body>'),
-                    );
+
+                    // clean
+                    if (styles === 'clean') {
+                        // remove all attributes
+                        const removeAttrs = ['style', 'id', 'class', 'width', 'height'];
+                        for (let i = 0, l = removeAttrs.length; i < l; i++) {
+                            content = content.replace(
+                                new RegExp('\ ' + removeAttrs[i] + '\=\"(.*?)\"', 'g'),
+                                '',
+                            );
+                        }
+                    }
                 }
-                // final content
-                content = htmlContent;
             }
             // save to cache
             try {
@@ -288,6 +328,8 @@ export class SheetsService {
                 gt, gte,
                 childExists,
                 childEqual,
+                // type
+                type = 'list',
             } = req.query;
             const paths = path.split('/').filter(Boolean);
             const sheetName = table || sheet || paths[0];
@@ -312,6 +354,8 @@ export class SheetsService {
                         childExists,
                         childEqual,
                     });
+                } else if (type === 'object') {
+                    result = this.data(sheetName);
                 } else { // all
                     result = this.all(sheetName);
                 }
@@ -360,7 +404,7 @@ export class SheetsService {
         router.get('/' + endpoint + '/content', ... middlewares, (req, res) => {
             const {
                 docId,
-                withStyles,
+                styles,
             } = req.query;
 
             if (!docId) {
@@ -369,7 +413,7 @@ export class SheetsService {
 
             let result: any;
             try {
-                const content = this.content(docId, withStyles);
+                const content = this.content(docId, styles);
                 result = { docId, content };
             } catch (error) {
                 return res.error(error);
