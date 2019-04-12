@@ -1,4 +1,4 @@
-import { RouteRequest } from '@sheetbase/core-server';
+import { RouteRequest } from '@sheetbase/server';
 
 import { SheetsService } from './sheets';
 import { RefService } from './ref';

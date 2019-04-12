@@ -7,7 +7,7 @@ node_js:
 
 install:
   - npm install
-  - npm install @sheetbase/core-server
+  - npm install @sheetbase/server
 
 script:
   - npm run lint

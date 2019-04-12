@@ -1,4 +1,4 @@
-# Sheetbase Module: @sheetbase/sheets-server
+# Sheetbase Module: @sheetbase/sheets
 
 Using Google Sheets as a database.
 
@@ -10,10 +10,10 @@ Using Google Sheets as a database.
 
 ## Install
 
-Using npm: `npm install --save @sheetbase/sheets-server`
+Using npm: `npm install --save @sheetbase/sheets`
 
 ```ts
-import * as Sheets from "@sheetbase/sheets-server";
+import * as Sheets from "@sheetbase/sheets";
 ```
 
 As a library: `1pbQpXAA98ruKtYTtKwBDtdgGTL_Nc_ayGzdRR2ULosG6GcKQJUF5Qyjy`
@@ -487,7 +487,7 @@ The module borrow idea from Firebase Realtime Database, see <https://firebase.go
 
 ## License
 
-**@sheetbase/sheets-server** is released under the [MIT](https://github.com/sheetbase/sheets-server/blob/master/LICENSE) license.
+**@sheetbase/sheets** is released under the [MIT](https://github.com/sheetbase/sheets-server/blob/master/LICENSE) license.
 
 <!-- <block:footer> -->
 

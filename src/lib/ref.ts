@@ -1,7 +1,5 @@
-import { o2a, uniqueId } from '@sheetbase/core-server';
-
 import { SheetsService } from './sheets';
-import { translateRangeValues, parseData } from './utils';
+import { translateRangeValues, parseData, o2a, uniqueId } from './utils';
 
 export class RefService {
   private Sheets: SheetsService;
@@ -22,7 +20,7 @@ export class RefService {
     if (!this.Sheets.database[sheetName] || fresh) {
       // load raw items
       const rawItems = translateRangeValues(
-        this.Sheets.spreadsheet.getRange(sheetName + '!A1:Z').getValues());
+        this.Sheets.spreadsheet.getRange(sheetName + '!A1:ZZ').getValues());
       // process items
       const items: {[$key: string]: Item} = {};
       for (let i = 0; i < rawItems.length; i++) {

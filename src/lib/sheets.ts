@@ -1,4 +1,4 @@
-import { AddonRoutesOptions, RoutingErrors, RouteHandler } from '@sheetbase/core-server';
+import { AddonRoutesOptions, RoutingErrors, RouteHandler } from '@sheetbase/server';
 
 import {
     Options,

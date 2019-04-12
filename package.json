@@ -1,13 +1,13 @@
 {
-   "name": "@sheetbase/sheets-server",
-   "version": "0.0.16",
+   "name": "@sheetbase/sheets",
+   "version": "1.0.0-rc.0",
    "description": "Using Google Sheets as a database.",
    "author": "Sheetbase",
    "homepage": "https://sheetbase.net",
    "license": "MIT",
-   "main": "dist/bundles/sheetbase-sheets-server.umd.js",
-   "module": "dist/fesm3/sheetbase-sheets-server.js",
-   "typings": "dist/sheetbase-sheets-server.d.ts",
+   "main": "dist/bundles/sheetbase-sheets.umd.js",
+   "module": "dist/fesm3/sheetbase-sheets.js",
+   "typings": "dist/sheetbase-sheets.d.ts",
    "files": [
       "dist"
    ],
@@ -23,9 +23,7 @@
    },
    "nyc": {
       "exclude": [
-         "**/tests",
-         "**/src/lodash",
-         "**/src/lunr"
+         "**/tests"
       ]
    },
    "keywords": [
@@ -44,22 +42,22 @@
    },
    "dependencies": {},
    "peerDependencies": {
-      "@sheetbase/core-server": "0.0.19"
+      "@sheetbase/server": "1.0.0-rc.0"
    },
    "devDependencies": {
-      "@sheetbase/app-scripts": "^0.0.30",
+      "@sheetbase/app-scripts": "^1.0.0-rc.0",
       "@types/chai": "^4.1.7",
-      "@types/google-apps-script": "0.0.39",
+      "@types/google-apps-script": "^0.0.44",
       "@types/mocha": "^5.2.6",
-      "@types/node": "^11.10.4",
-      "@types/sinon": "^7.0.8",
+      "@types/node": "^11.13.4",
+      "@types/sinon": "^7.0.11",
       "chai": "^4.2.0",
       "coveralls": "^3.0.3",
-      "mocha": "^6.0.2",
+      "mocha": "^6.1.3",
       "nyc": "^13.3.0",
-      "rollup-plugin-node-resolve": "^4.0.1",
-      "sinon": "^7.2.7",
-      "tslint": "^5.13.1",
-      "typescript": "^3.3.4000"
+      "rollup-plugin-node-resolve": "^4.2.3",
+      "sinon": "^7.3.1",
+      "tslint": "^5.15.0",
+      "typescript": "^3.4.3"
    }
 }
