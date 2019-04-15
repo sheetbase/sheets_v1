@@ -42,7 +42,7 @@ export class RefService {
   private loadRootData() {
     // load all sheets
     const sheets = this.Sheets.spreadsheet.getSheets();
-    const sheetNames = [];
+    // load data sheet by sheet
     for (let i = 0; i < sheets.length; i++) {
       const sheetName = sheets[i].getName();
       if (
@@ -50,13 +50,10 @@ export class RefService {
         sheetName.substr(sheetName.length - 2, 2) === '__'
       ) {
         // meta sheets
+        // ignore
       } else {
-        sheetNames.push(sheetName);
+        this.loadDataBySheet(sheetName);
       }
-    }
-    // load data sheet by sheet
-    for (let i = 0; i < sheetNames.length; i++) {
-      this.loadDataBySheet(sheetNames[i]);
     }
     return this.Sheets.database;
   }
