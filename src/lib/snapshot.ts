@@ -3,10 +3,14 @@ import { RefService } from './ref';
 
 export class DataSnapshot {
 
+  private isRef = false;
   private input: any;
 
   constructor(input: RefService | any, securityHelpers?: SecurityHelpers) {
     this.input = input;
+    if (input instanceof RefService) {
+      this.isRef = true;
+    }
     // add helpers
     if (!!securityHelpers) {
       for (const key of Object.keys(securityHelpers)) {
@@ -18,7 +22,7 @@ export class DataSnapshot {
 
   // get data
   val() {
-    if (this.input instanceof RefService) {
+    if (this.isRef) {
       return this.input['data']();
     } else {
       return this.input;
