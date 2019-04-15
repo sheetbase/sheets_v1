@@ -1,7 +1,7 @@
 import { Options, Database } from './types';
 import { SheetsService } from './sheets';
 
-export let DATABASE: Database = {};
+export const DATABASE: Database = {};
 
 export function sheets(options: Options) {
     return new SheetsService(options, DATABASE);

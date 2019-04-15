@@ -7,14 +7,10 @@ import { DataSnapshot } from './snapshot';
 export class SecurityService {
     private Sheets: SheetsService;
 
-    private req: RouteRequest = {
-        query: {},
-        params: {},
-        body: {},
-    };
+    private req: RouteRequest = null;
     private auth: any = null;
 
-    constructor(Sheets?: SheetsService) {
+    constructor(Sheets: SheetsService) {
         this.Sheets = Sheets;
     }
 
@@ -34,7 +30,7 @@ export class SecurityService {
     checkpoint(
         permission: ('read' | 'write' ),
         paths: string[],
-        ref?: RefService,
+        ref: RefService,
         item: any = null,
         data: any = null,
     ) {
@@ -57,7 +53,7 @@ export class SecurityService {
     private hasPermission(
         permission: ('read' | 'write'),
         paths: string[],
-        ref?: RefService,
+        ref: RefService,
         item?: any,
         data?: any,
     ): boolean {
@@ -78,7 +74,7 @@ export class SecurityService {
 
     private executeRule(
         rule: string,
-        ref?: RefService,
+        ref: RefService,
         item?: any,
         data?: any,
         dynamicData: {[key: string]: string} = {},
@@ -114,8 +110,17 @@ export class SecurityService {
         const security = this.Sheets.options.security;
 
         // prepare
-        let rules = !!security ? security : { '.read': true, '.write': true };
-        rules = (typeof rules === 'boolean') ? {} : rules;
+        let rules = {};
+        if (security === false) {
+            // implicit no security (public)
+            rules = { '.read': true, '.write': true };
+        } else if (!security || security === true) {
+            // undefined or null or true (private)
+            rules = { '.read': false, '.write': false };
+        } else {
+            // rule based
+            rules = security;
+        }
         const latestRules: {} = {
             '.read': rules['.read'] || false,
             '.write': rules['.write'] || false,

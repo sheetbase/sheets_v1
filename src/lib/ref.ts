@@ -24,7 +24,7 @@ export class RefService {
       // process items
       const items: {[$key: string]: Item} = {};
       for (let i = 0; i < rawItems.length; i++) {
-        const item = parseData(rawItems[i]);
+        const item = parseData<Item>(rawItems[i] as Item);
         // get item key
         const key = item[this.keyField(sheetName)];
         // add '$key' field
