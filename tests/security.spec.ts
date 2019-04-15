@@ -233,7 +233,7 @@ describe('(Security) #executeRule', () => {
     root: () => ({}) as any,
   };
 
-  it('should return false (throw error)', () => {
+  it('should return false (any error)', () => {
     // faked RefService
     // @ts-ignore
     const result = Security.executeRule(
@@ -247,6 +247,23 @@ describe('(Security) #executeRule', () => {
     // @ts-ignore
     const result = Security.executeRule(
       'now instanceof Date',
+      fakedRef,
+    );
+    expect(result).to.equal(true);
+  });
+
+  it('should have correct .req', () => {
+    Security.setRequest({
+      query: { a: 1 },
+      body: { b: 2 },
+      data: {},
+    });
+    // @ts-ignore
+    const result = Security.executeRule(
+      '!!req &&' +
+      '!!req.query && req.query.a === 1 &&' +
+      '!!req.body && req.body.b === 2 &&' +
+      '!!req.data',
       fakedRef,
     );
     expect(result).to.equal(true);
@@ -270,6 +287,34 @@ describe('(Security) #executeRule', () => {
     expect(result).to.equal(false);
   });
 
+  it('should have .root & .data', () => {
+    const fakedRef: any = {
+      value: 'data',
+      root: () => ({ value: 'root' }) as any,
+    };
+    // @ts-ignore
+    const result = Security.executeRule(
+      '!!root && !!data &&' +
+      'root.val().value === "root" &&' +
+      'data.val().value === "data"',
+      fakedRef,
+    );
+    expect(result).to.equal(true);
+  });
+
+  it('should have .newData & .inputData', () => {
+    // @ts-ignore
+    const result = Security.executeRule(
+      '!!root && !!data &&' +
+      'newData.val().value === 1 &&' +
+      'inputData.val().value === 2',
+      fakedRef,
+      { value: 1 },
+      { value: 2 },
+    );
+    expect(result).to.equal(true);
+  });
+
   it('should have correct dynamic values', () => {
     // @ts-ignore
     const result = Security.executeRule(
@@ -284,7 +329,7 @@ describe('(Security) #executeRule', () => {
 
 });
 
-describe('(Security) has/check permission', () => {
+describe('(Security) #hasPermission / #checkpoitn', () => {
 
   beforeEach(before);
   afterEach(after);
@@ -319,6 +364,32 @@ describe('(Security) has/check permission', () => {
     // @ts-ignore
     const result = Security.hasPermission('read', ['users'], fakedRef);
     expect(result).to.equal(false);
+  });
+
+  it('#checkpoint should pass (admin, read)', () => {
+    // @ts-ignore
+    Security.Sheets.options.security = false;
+
+    let error: Error;
+    try {
+      Security.checkpoint('read', [], fakedRef);
+    } catch (err) {
+      error = err;
+    }
+    expect(error).to.equal(undefined);
+  });
+
+  it('#checkpoint should pass (admin, write)', () => {
+    // @ts-ignore
+    Security.Sheets.options.security = false;
+
+    let error: Error;
+    try {
+      Security.checkpoint('write', [], fakedRef);
+    } catch (err) {
+      error = err;
+    }
+    expect(error).to.equal(undefined);
   });
 
 });
