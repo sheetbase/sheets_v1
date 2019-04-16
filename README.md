@@ -31,9 +31,9 @@ const Sheets = SheetsModule.Sheets;
 
 ## Usage
 
-- Docs homepage: https://sheetbase.github.io/sheets-server
+- Docs homepage: https://sheetbase.github.io/sheets
 
-- API reference: https://sheetbase.github.io/sheets-server/api
+- API reference: https://sheetbase.github.io/sheets/api
 
 <!-- <block:body> -->
 
@@ -487,7 +487,7 @@ The module borrow idea from Firebase Realtime Database, see <https://firebase.go
 
 ## License
 
-**@sheetbase/sheets** is released under the [MIT](https://github.com/sheetbase/sheets-server/blob/master/LICENSE) license.
+**@sheetbase/sheets** is released under the [MIT](https://github.com/sheetbase/sheets/blob/master/LICENSE) license.
 
 <!-- <block:footer> -->
 

@@ -171,6 +171,8 @@ describe('(SheetsService)', () => {
     expect(result).equal(1);
   });
 
+  it('#content');
+
   it('#set', () => {
     refStub.returns({
       set: data => data,
