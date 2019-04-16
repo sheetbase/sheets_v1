@@ -411,6 +411,13 @@ describe('(RefService) ', () => {
     expect(inputData).equal(null);
   });
 
+  it('#set', () => {
+    let updateStubResult: any;
+    updateStub.callsFake((data, clean) => updateStubResult = { data, clean } );
+    Ref.set('xxx');
+    expect(updateStubResult).eql({ data: 'xxx', clean: true });
+  });
+
   it('#increase (not item ref)', () => {
     let error: Error;
     try {
