@@ -119,18 +119,22 @@ export class RefService {
   }
 
   query<Item>(filter: (item: Item) => boolean) {
-    const result: Item[] = [];
-    // go through items, filter and check for security
-    const items = this.data();
-    for (const key of Object.keys(items)) {
-      const item = items[key];
-      if (filter(item)) {
-        const itemRef = this.child(key);
-        this.Sheets.Security.checkpoint('read', itemRef.paths, itemRef);
-        result.push(item);
+    if (this.paths.length === 1) {
+      const result: Item[] = [];
+      // go through items, filter and check for security
+      const items = this.data();
+      for (const key of Object.keys(items)) {
+        const item = items[key];
+        if (filter(item)) {
+          const itemRef = this.child(key);
+          this.Sheets.Security.checkpoint('read', itemRef.paths, itemRef);
+          result.push(item);
+        }
       }
+      return result;
+    } else {
+      throw new Error('Can only query list ref.');
     }
-    return result;
   }
 
   /**
@@ -210,7 +214,7 @@ export class RefService {
       }
 
     } else {
-      throw new Error('Can not modify root ref.');
+      throw new Error('Can only modify list ref (new) and item ref.');
     }
   }
 
@@ -269,7 +273,7 @@ export class RefService {
       // save changed data to database
       this.update(data);
     } else {
-      throw new Error('Only increasing item ref data.');
+      throw new Error('Can only increasing item ref.');
     }
   }
 
