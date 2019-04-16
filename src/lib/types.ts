@@ -6,7 +6,7 @@ export type Filter = ShorthandEqual | Query | AdvancedFilter;
 export interface Query {
     where: string;
     equal?: any;
-    exists?: true;
+    exists?: boolean;
     contains?: string;
     lt?: number;
     lte?: number;
