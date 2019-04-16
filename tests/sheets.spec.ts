@@ -114,7 +114,7 @@ describe('(SheetsService)', () => {
     expect(result).eql([]);
   });
 
-  it('#query', () => {
+  it('#query (simple query)', () => {
     queryStub.restore();
 
     refStub.returns({
@@ -122,6 +122,17 @@ describe('(SheetsService)', () => {
     });
 
     const result = Sheets.query('xxx', { abc: 123 });
+    expect(result).eql([]);
+  });
+
+  it('#query (advanced)', () => {
+    queryStub.restore();
+
+    refStub.returns({
+      query: () => [],
+    });
+
+    const result = Sheets.query('xxx', item => true);
     expect(result).eql([]);
   });
 
