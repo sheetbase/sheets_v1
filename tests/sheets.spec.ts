@@ -171,8 +171,6 @@ describe('(SheetsService)', () => {
     expect(result).equal(1);
   });
 
-  it('#content');
-
   it('#set', () => {
     refStub.returns({
       set: data => data,
@@ -211,6 +209,135 @@ describe('(SheetsService)', () => {
     });
     const result = Sheets.increase('xxx', 'abc', 'likeCount');
     expect(result).equal('likeCount');
+  });
+
+  it('#content (no cache, fetch failed)', () => {
+
+    global['DriveApp'] = {
+      getStorageUsed: () => true,
+    };
+    global['CacheService'] = {
+      getScriptCache: () => ({
+        get: (key: string) => {
+          return null; // no cache result
+        },
+        put: () => true,
+      }),
+    };
+    global['ScriptApp'] = {
+      getOAuthToken: () => 'xxx',
+    };
+    global['UrlFetchApp'] = {
+      fetch: () => ({
+        getResponseCode: () => 500,
+      }),
+    };
+
+    let error: Error;
+    try {
+      const result = Sheets.content('xxx');
+    } catch (err) {
+      error = err;
+    }
+    expect(error.message).equal('Fetch failed.');
+  });
+
+  it('#content (no cache, default styles)', () => {
+    let cacheGetKey: any;
+    let cachePutInput: any;
+    let fetchInput: any;
+
+    global['DriveApp'] = {
+      getStorageUsed: () => true,
+    };
+    global['CacheService'] = {
+      getScriptCache: () => ({
+        get: (key: string) => {
+          cacheGetKey = key;
+          return null; // no cache result
+        },
+        put: (...args) => cachePutInput = args,
+      }),
+    };
+    global['ScriptApp'] = {
+      getOAuthToken: () => 'xxx',
+    };
+    global['UrlFetchApp'] = {
+      fetch: (...args) => {
+        fetchInput = args;
+        return {
+          getResponseCode: () => 200,
+          getContentText: () => 'xxx ...',
+        };
+      },
+    };
+
+    const result = Sheets.content('xxx');
+    expect(cacheGetKey).equal('content_xxx_clean');
+    expect(cachePutInput).eql(['content_xxx_clean', 'xxx ...', 3600]);
+    expect(fetchInput).eql([
+      'https://www.googleapis.com/drive/v3/files/xxx/export?mimeType=text/html', // url
+      {
+        method: 'get',
+        headers: {
+          Authorization: 'Bearer xxx',
+        },
+        muteHttpExceptions:true,
+      }, // options
+    ]);
+    expect(result).equal('xxx ...');
+  });
+
+  it('#content (no cache, full)', () => {
+    let cacheGetKey: any;
+    let cachePutInput: any;
+    let fetchInput: any;
+
+    global['DriveApp'] = {
+      getStorageUsed: () => true,
+    };
+    global['CacheService'] = {
+      getScriptCache: () => ({
+        get: (key: string) => {
+          cacheGetKey = key;
+          return null; // no cache result
+        },
+        put: (...args) => cachePutInput = args,
+      }),
+    };
+    global['ScriptApp'] = {
+      getOAuthToken: () => 'xxx',
+    };
+    global['UrlFetchApp'] = {
+      fetch: (...args) => {
+        fetchInput = args;
+        return {
+          getResponseCode: () => 200,
+          getContentText: () => '<html><head></head><body>xxx ...</body></html>',
+        };
+      },
+    };
+
+    const result = Sheets.content('xxx', 'full');
+    expect(cacheGetKey).equal('content_xxx_full');
+    expect(cachePutInput).eql(['content_xxx_full', 'xxx ...', 3600]);
+    expect(result).equal('xxx ...');
+  });
+
+  it('#content (has cache)', () => {
+
+    global['DriveApp'] = {
+      getStorageUsed: () => true,
+    };
+    global['CacheService'] = {
+      getScriptCache: () => ({
+        get: () => `xxx ...`, // has cached value
+        put: () => true,
+      }),
+    };
+
+    const result = Sheets.content('xxx');
+    expect(result).equal('xxx ...');
   });
 
 });

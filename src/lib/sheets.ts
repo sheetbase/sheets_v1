@@ -146,12 +146,15 @@ export class SheetsService {
             if (!!response && response.getResponseCode() === 200) {
                 const html = response.getContentText();
                 // original
-                content = html;
+                content = html || '';
                 // full & clean
                 if (styles !== 'original') {
 
                     // extract content, between: </head></html>
-                    content = html.match(/\<\/head\>(.*)\<\/html\>/).pop();
+                    const contentMatch = html.match(/\<\/head\>(.*)\<\/html\>/);
+                    if (!!contentMatch) {
+                        content = contentMatch.pop();
+                    }
 
                     // clean up
                     content = content
@@ -186,12 +189,15 @@ export class SheetsService {
                         }
                     }
                 }
-            }
-            // save to cache
-            try {
-                cacheService.put(cacheKey, content, 3600); // 1 hour
-            } catch (error) {
-                // cache error (may be content larger 100K)
+
+                // save to cache
+                try {
+                    cacheService.put(cacheKey, content, 3600); // 1 hour
+                } catch (error) {
+                    // cache error (may be content larger 100K)
+                }
+            } else {
+                throw new Error('Fetch failed.');
             }
         }
 

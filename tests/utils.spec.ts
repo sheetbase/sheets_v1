@@ -34,7 +34,7 @@ describe('Utils', () => {
   });
 
   it('#translateRangeValues should work (with modifier)', () => {
-    const result = translateRangeValues([['id', 'title'], [1, 2]], false, (item) => {
+    const result = translateRangeValues<any>([['id', 'title'], [1, 2]], false, (item) => {
       if (item.title === 2) item.title = 'xxx';
       return item;
     });

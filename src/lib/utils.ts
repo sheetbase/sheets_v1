@@ -2,7 +2,7 @@
 export function translateRangeValues<Item>(
   values: any[][],
   noHeader = false,
-  modifier = item => item,
+  modifier = (item: Item) => item,
 ) {
   values = values || [];
   // get header
