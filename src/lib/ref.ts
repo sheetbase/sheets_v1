@@ -149,17 +149,29 @@ export class RefService {
     if (this.paths.length > 0) {
       const [ sheetName, _itemKey ] = this.paths;
 
-      // load data
-      const items = this.loadDataBySheet(sheetName);
+      // get sheet
       const sheet = this.Sheets.spreadsheet.getSheetByName(sheetName);
 
-      // prepare data
+      // get item
+      const items = this.loadDataBySheet(sheetName);
       const itemKey = _itemKey || this.key();
       let item = items[itemKey];
-      let _row: number;
+
+      // determine which action
+      let action: 'remove' | 'update' | 'new';
       if (!data && !!item) { // remove
-        _row = item._row;
+        action = 'remove';
       } else if (!!data && !!item) { // update
+        action = 'update';
+      } else if (!!data && !item) { // new
+        action = 'new';
+      }
+
+      // prepare data
+      let _row: number;
+      if (action === 'remove') { // remove
+        _row = item._row;
+      } else if (action === 'update') { // update
         _row = item._row;
         const newItem = {
           ... data,
@@ -175,7 +187,7 @@ export class RefService {
             ... newItem,
           };
         }
-      } else if (!!data && !item) { // new
+      } else if (action === 'new') { // new
         const lastRow = sheet.getLastRow();
         const lastItemId = sheet.getRange('A' + lastRow + ':' + lastRow).getValues()[0][0];
         _row = lastRow + 1;
@@ -190,29 +202,32 @@ export class RefService {
       // check permission
       this.Sheets.Security.checkpoint('write', this.paths, this, item, data);
 
-      // start actions
-      if (!data && !!item) { // remove
-        delete items[itemKey]; // remove from database
-        sheet.deleteRow(_row);
-      } else if (!!data) { // update / new
-        items[itemKey] = item; // add item to database
-        // turn data to array
-        const values = [];
-        const [ headers ] = sheet.getRange('A1:1').getValues();
-        for (let i = 0; i < headers.length; i++) {
-          const header = headers[i];
-          // value
-          let value = item[header];
+      // build range values
+      const rangeValues = [];
+      const [ headers ] = sheet.getRange('A1:1').getValues();
+      for (let i = 0; i < headers.length; i++) {
+        if (action === 'remove') {
+          rangeValues.push('');
+        } else {
+          let value = item[headers[i]];
+          // stringify
           if (value instanceof Object) {
             value = JSON.stringify(value);
           }
-          values.push(value || '');
+          rangeValues.push(value || '');
         }
-        // set values
-        sheet.getRange('A' + _row + ':' + _row).setValues([values]);
-        return item;
       }
 
+      // set snapshot database
+      if (action === 'remove') { // remove
+        delete items[itemKey];
+      } else { // update / new
+        items[itemKey] = item;
+      }
+
+      // set live database
+      sheet.getRange('A' + _row + ':' + _row).setValues([rangeValues]);
+      return action === 'remove' ? null : item;
     } else {
       throw new Error('Can only modify list ref (new) and item ref.');
     }
@@ -272,6 +287,7 @@ export class RefService {
       // finally
       // save changed data to database
       this.update(data);
+      return item;
     } else {
       throw new Error('Can only increasing item ref.');
     }

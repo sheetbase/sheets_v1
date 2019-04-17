@@ -333,7 +333,7 @@ describe('(RefService) ', () => {
         a: 1,
         _row: 3,
       },
-    }); // no item
+    }); // has item
     // @ts-ignore
     Ref.Sheets.spreadsheet = {
       getSheetByName: () => ({
@@ -372,7 +372,7 @@ describe('(RefService) ', () => {
     updateStub.restore();
 
     let checkpointResult: any;
-    let deleteRowResult: any;
+    let setValuesResult: any;
 
     // @ts-ignore
     Ref.Sheets.Security = { checkpoint: (...args) => checkpointResult = args };
@@ -384,11 +384,16 @@ describe('(RefService) ', () => {
         a: 1,
         _row: 3,
       },
-    }); // no item
+    }); // has item
     // @ts-ignore
     Ref.Sheets.spreadsheet = {
       getSheetByName: () => ({
-        deleteRow: row => deleteRowResult = row,
+        getRange: () => ({
+          getValues: () => {
+            return [['#', '$key', 'a']];
+          },
+          setValues: values => setValuesResult = values,
+        }),
       }),
     };
 
@@ -401,8 +406,10 @@ describe('(RefService) ', () => {
       a: 1,
       _row: 3,
     };
-    expect(result).eql(undefined);
-    expect(deleteRowResult).equal(3);
+    expect(result).eql(null);
+    expect(setValuesResult).eql([
+      ['', '', ''],
+    ]);
     const [ permisson, paths, ref, newData, inputData ] = checkpointResult;
     expect(permisson).equal('write');
     expect(paths).eql(['xxx', 'abc']);
