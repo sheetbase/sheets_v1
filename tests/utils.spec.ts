@@ -4,7 +4,6 @@ import { describe, it } from 'mocha';
 import {
   translateRangeValues,
   parseData,
-  stringifyData,
   o2a,
   uniqueId,
 } from '../src/lib/utils';
@@ -81,21 +80,6 @@ describe('Utils', () => {
       j4: 5.9,
       j5: {c:3},
       j6: [{c:3, d:4}],
-    });
-  });
-
-  it('#stringifyData should work', () => {
-    const result = stringifyData({
-      a: 1,
-      b: 'a string',
-      c: true,
-      d: { d1: 1, d2: 2 },
-    });
-    expect(result).to.eql({
-      a: 1,
-      b: 'a string',
-      c: true,
-      d: JSON.stringify({ d1: 1, d2: 2 }),
     });
   });
 

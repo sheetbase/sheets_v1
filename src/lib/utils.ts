@@ -59,17 +59,6 @@ export function parseData<Item>(item: Item): Item {
   return item;
 }
 
-// convert some types to string for saving to spreadsheet
-export function stringifyData(obj: {}) {
-  for (const key of Object.keys(obj)) {
-    // object
-    if (obj[key] instanceof Object) {
-      obj[key] = JSON.stringify(obj[key]);
-    }
-  }
-  return obj;
-}
-
 export function o2a<Obj, K extends keyof Obj, P extends Obj[K]>(
   object: Obj,
   keyName = '$key',
