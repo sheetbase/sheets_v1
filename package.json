@@ -1,6 +1,6 @@
 {
    "name": "@sheetbase/sheets",
-   "version": "1.0.0-rc.2",
+   "version": "1.0.0",
    "description": "Using Google Sheets as a database.",
    "author": "Sheetbase",
    "homepage": "https://sheetbase.net",
@@ -42,10 +42,10 @@
    },
    "dependencies": {},
    "peerDependencies": {
-      "@sheetbase/server": "1.0.0-rc.0"
+      "@sheetbase/server": "^1.0.0"
    },
    "devDependencies": {
-      "@sheetbase/app-scripts": "^1.0.0-rc.0",
+      "@sheetbase/app-scripts": "^1.0.0",
       "@types/chai": "^4.1.7",
       "@types/google-apps-script": "^0.0.44",
       "@types/mocha": "^5.2.6",
