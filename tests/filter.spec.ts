@@ -1,7 +1,7 @@
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
 
-import { buildQuery, buildAdvancedFilter } from '../src/lib/filter';
+import { buildQuery, buildAdvancedFilter, buildSegmentFilter } from '../src/lib/filter';
 
 describe('(Filter)', () => {
 
@@ -144,6 +144,56 @@ describe('(Filter)', () => {
     expect(result({ a: { xxx: null } })).equal(true, 'null');
     expect(result({ a: { xxx: undefined } })).equal(true, 'undefined');
     expect(result({ a: { xxx: 'abc' } })).equal(true, 'not equal');
+  });
+
+  it('#buildSegmentFilter (no segment)', () => {
+    const result = buildSegmentFilter(null);
+    expect(result({})).equal(true);
+  });
+
+  it('#buildSegmentFilter (empty segment)', () => {
+    const result = buildSegmentFilter({});
+    expect(result({})).equal(true);
+  });
+
+  it('#buildSegmentFilter (1, matched, no field)', () => {
+    const result = buildSegmentFilter({ xxx: 1 });
+    expect(result({})).equal(true);
+  });
+
+  it('#buildSegmentFilter (1, not matched)', () => {
+    const result = buildSegmentFilter({ xxx: 1 });
+    expect(result({ xxx: 2 })).equal(false);
+  });
+
+  it('#buildSegmentFilter (1, matched)', () => {
+    const result = buildSegmentFilter({ xxx: 1 });
+    expect(result({ xxx: 1 })).equal(true);
+  });
+
+  it('#buildSegmentFilter (>1 & <=3, not matched)', () => {
+    const result = buildSegmentFilter({ a: 1, b: 2 });
+    expect(result({ a: 1, b: 3 })).equal(false);
+  });
+
+  it('#buildSegmentFilter (>1 & <=3, matched)', () => {
+    const result = buildSegmentFilter({ a: 1, b: 2, c: 3 });
+    expect(result({ a: 1, b: 2, c: 3 })).equal(true);
+  });
+
+  it('#buildSegmentFilter (>3, matched, no field)', () => {
+    const result = buildSegmentFilter({ a: 1, b: 2, c: 3, d: 4 });
+    expect(result({ a: 1, b: 2, c: 3 })).equal(true);
+  });
+
+  it('#buildSegmentFilter (>3, not matched)', () => {
+    const result = buildSegmentFilter({ a: 1, b: 2, c: 3, d: 4 });
+    expect(result({ a: 1, b: 2, c: 3, d: 5 })).equal(false);
+  });
+
+  it('#buildSegmentFilter (>3, matched)', () => {
+    const result = buildSegmentFilter({ a: 1, b: 2, c: 3, d: 4 });
+    expect(result({ a: 1, b: 2, c: 3, d: 4 })).equal(true);
   });
 
 });

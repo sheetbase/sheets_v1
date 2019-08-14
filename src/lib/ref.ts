@@ -1,4 +1,6 @@
 import { SheetsService } from './sheets';
+import { DataSegment } from './types';
+import { buildSegmentFilter } from './filter';
 import { translateRangeValues, parseData, o2a, uniqueId } from './utils';
 
 export class RefService {
@@ -118,14 +120,22 @@ export class RefService {
     return o2a(this.toObject());
   }
 
-  query<Item>(filter: (item: Item) => boolean) {
+  query<Item>(
+    advancedFilter: (item: Item) => boolean,
+    segment: DataSegment = null,
+  ) {
     if (this.paths.length === 1) {
       const result: Item[] = [];
+      // build segment filter
+      const segmentFilter = buildSegmentFilter<Item>(segment);
       // go through items, filter and check for security
       const items = this.data();
       for (const key of Object.keys(items)) {
         const item = items[key];
-        if (filter(item)) {
+        if (
+          !!segmentFilter(item) &&
+          !!advancedFilter(item)
+        ) {
           const itemRef = this.child(key);
           this.Sheets.Security.checkpoint('read', itemRef.paths, itemRef);
           result.push(item);

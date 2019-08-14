@@ -15,7 +15,7 @@ let allStub: sinon.SinonStub;
 let updateStub: sinon.SinonStub;
 let setStub: sinon.SinonStub;
 let increaseStub: sinon.SinonStub;
-let contentStub: sinon.SinonStub;
+let docsContentStub: sinon.SinonStub;
 
 function before() {
   global['SpreadsheetApp'].openById = () => true;
@@ -32,7 +32,7 @@ function before() {
   updateStub = sinon.stub(Sheets, 'update');
   setStub = sinon.stub(Sheets, 'set');
   increaseStub = sinon.stub(Sheets, 'increase');
-  contentStub = sinon.stub(Sheets, 'content');
+  docsContentStub = sinon.stub(Sheets, 'docsContent');
 }
 
 function after() {
@@ -43,7 +43,7 @@ function after() {
   updateStub.restore();
   setStub.restore();
   increaseStub.restore();
-  contentStub.restore();
+  docsContentStub.restore();
 }
 
 describe('Sheets routes', () => {
@@ -83,7 +83,7 @@ describe('Sheets routes', () => {
   setStub.callsFake((...args) => setResult = ['set', ...args]);
   increaseStub.callsFake((...args) => increaseResult = ['increase', ...args]);
 
-  contentStub.returns('xxx ...');
+  docsContentStub.returns('xxx ...');
 
   // register routes
   Sheets.registerRoutes({
@@ -200,6 +200,7 @@ describe('Sheets routes', () => {
         sheet: 'xxx',
         where: 'a',
         equal: 1,
+        segment: {},
       },
     }, {
       success: data => data,
@@ -215,7 +216,7 @@ describe('Sheets routes', () => {
       gte: undefined,
       childExists: undefined,
       childEqual: undefined,
-    }]);
+    }, {}]);
   });
 
   it('POST /database (error)', () => {

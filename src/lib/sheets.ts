@@ -5,10 +5,10 @@ import {
     Extendable,
     Intergration,
     Filter,
-    Query,
     AdvancedFilter,
     Database,
     DocsContentStyles,
+    DataSegment,
 } from './types';
 import { SecurityService } from './security';
 import { RefService } from './ref';
@@ -66,7 +66,7 @@ export class SheetsService {
         return this.ref('/' + sheetName).toArray() as Item[];
     }
 
-    query<Item>(sheetName: string, filter: Filter) {
+    query<Item>(sheetName: string, filter: Filter, segment: DataSegment = null) {
         let advancedFilter: AdvancedFilter;
         if (filter instanceof Function) {
             advancedFilter = filter;
@@ -75,20 +75,20 @@ export class SheetsService {
                 buildQuery(filter),
             );
         }
-        return this.ref('/' + sheetName).query(advancedFilter) as Item[];
+        return this.ref('/' + sheetName).query(advancedFilter, segment) as Item[];
     }
 
-    items<Item>(sheetName: string, filter?: Filter) {
-        return !!filter ? this.query<Item>(sheetName, filter) : this.all<Item>(sheetName);
+    items<Item>(sheetName: string, filter?: Filter, segment: DataSegment = null) {
+        return !!filter ? this.query<Item>(sheetName, filter, segment) : this.all<Item>(sheetName);
     }
 
-    item<Item>(sheetName: string, finder: string | Filter) {
+    item<Item>(sheetName: string, finder: string | Filter, segment: DataSegment = null) {
         let item: Item = null;
         if (typeof finder === 'string') {
             const key = finder;
             item = this.ref('/' + sheetName + '/' + key).toObject() as Item;
         } else {
-            const items = this.query(sheetName, finder);
+            const items = this.query(sheetName, finder, segment);
             if (!!items && items.length === 1) {
                 item = items[0] as Item;
             }
@@ -120,12 +120,12 @@ export class SheetsService {
         return this.ref('/' + sheetName + (!!key ? ('/' + key) : '')).increase(increasing);
     }
 
-    content(docId: string, styles: DocsContentStyles = 'clean') {
+    docsContent(docId: string, style: DocsContentStyles = 'clean') {
         DriveApp.getStorageUsed(); // trigger authorization
 
         // cache
         const cacheService = CacheService.getScriptCache();
-        const cacheKey = 'content_' + docId + '_' + styles;
+        const cacheKey = 'content_' + docId + '_' + style;
 
         // get content
         let content = '';
@@ -148,7 +148,7 @@ export class SheetsService {
                 // original
                 content = html || '';
                 // full & clean
-                if (styles !== 'original') {
+                if (style !== 'original') {
 
                     // extract content, between: </head></html>
                     const contentMatch = html.match(/\<\/head\>(.*)\<\/html\>/);
@@ -178,7 +178,7 @@ export class SheetsService {
                     }
 
                     // clean
-                    if (styles === 'clean') {
+                    if (style === 'clean') {
                         // remove all attributes
                         const removeAttrs = ['style', 'id', 'class', 'width', 'height'];
                         for (let i = 0, l = removeAttrs.length; i < l; i++) {
@@ -245,6 +245,7 @@ export class SheetsService {
                 childEqual,
                 // type
                 type = 'list',
+                segment,
             } = req.query;
             const paths = path.split('/').filter(Boolean);
             const sheetName = table || sheet || paths[0];
@@ -268,7 +269,7 @@ export class SheetsService {
                         gt, gte,
                         childExists,
                         childEqual,
-                    });
+                    }, segment);
                 } else if (type === 'object') {
                     result = this.data(sheetName);
                 } else { // all
@@ -319,7 +320,7 @@ export class SheetsService {
         router.get('/' + endpoint + '/content', ... middlewares, (req, res) => {
             const {
                 docId,
-                styles,
+                style,
             } = req.query;
 
             if (!docId) {
@@ -328,7 +329,7 @@ export class SheetsService {
 
             let result: any;
             try {
-                const content = this.content(docId, styles);
+                const content = this.docsContent(docId, style);
                 result = { docId, content };
             } catch (error) {
                 return res.error(error);

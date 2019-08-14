@@ -1,4 +1,4 @@
-import { Filter, AdvancedFilter, Query } from './types';
+import { Filter, AdvancedFilter, Query, DataSegment } from './types';
 
 export function buildQuery(filter: Filter) {
   if (!filter['where']) { // shorthand query
@@ -103,4 +103,54 @@ export function buildAdvancedFilter(query: Query) {
     };
   }
   return advancedFilter;
+}
+
+export function buildSegmentFilter<Item>(segment: DataSegment) {
+  const segmentFilter = (item: Item): boolean => {
+    let result = false;
+    const segmentArr = Object.keys(segment || {});
+    if (!segmentArr.length) {
+      result = true;
+    }
+    // from 1-3
+    else if (segmentArr.length < 4) {
+      const [ first, second, third ] = segmentArr;
+      result = (
+        // 1st
+        (
+          !item[first] ||
+          item[first] === segment[first]
+        ) &&
+        // 2nd
+        (
+          !second ||
+          !item[second] ||
+          item[second] === segment[second]
+        ) &&
+        // 3rd
+        (
+          !third ||
+          !item[third] ||
+          item[third] === segment[third]
+        )
+      );
+    }
+    // over 3
+    else {
+      result = true; // assumpt
+      for (let i = 0; i < segmentArr.length; i++) {
+        const seg = segmentArr[i];
+        // any not matched
+        if (
+          !!item[seg] &&
+          item[seg] !== segment[seg]
+        ) {
+          result = false;
+          break;
+        }
+      }
+    }
+    return result;
+  };
+  return segmentFilter;
 }

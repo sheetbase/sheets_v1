@@ -235,14 +235,14 @@ describe('(SheetsService)', () => {
 
     let error: Error;
     try {
-      const result = Sheets.content('xxx');
+      const result = Sheets.docsContent('xxx');
     } catch (err) {
       error = err;
     }
     expect(error.message).equal('Fetch failed.');
   });
 
-  it('#content (no cache, default styles)', () => {
+  it('#docsContent (no cache, default styles)', () => {
     let cacheGetKey: any;
     let cachePutInput: any;
     let fetchInput: any;
@@ -272,7 +272,7 @@ describe('(SheetsService)', () => {
       },
     };
 
-    const result = Sheets.content('xxx');
+    const result = Sheets.docsContent('xxx');
     expect(cacheGetKey).equal('content_xxx_clean');
     expect(cachePutInput).eql(['content_xxx_clean', 'xxx ...', 3600]);
     expect(fetchInput).eql([
@@ -288,7 +288,7 @@ describe('(SheetsService)', () => {
     expect(result).equal('xxx ...');
   });
 
-  it('#content (no cache, full)', () => {
+  it('#docsContent (no cache, full)', () => {
     let cacheGetKey: any;
     let cachePutInput: any;
     let fetchInput: any;
@@ -318,13 +318,13 @@ describe('(SheetsService)', () => {
       },
     };
 
-    const result = Sheets.content('xxx', 'full');
+    const result = Sheets.docsContent('xxx', 'full');
     expect(cacheGetKey).equal('content_xxx_full');
     expect(cachePutInput).eql(['content_xxx_full', 'xxx ...', 3600]);
     expect(result).equal('xxx ...');
   });
 
-  it('#content (has cache)', () => {
+  it('#docsContent (has cache)', () => {
 
     global['DriveApp'] = {
       getStorageUsed: () => true,
@@ -336,7 +336,7 @@ describe('(SheetsService)', () => {
       }),
     };
 
-    const result = Sheets.content('xxx');
+    const result = Sheets.docsContent('xxx');
     expect(result).equal('xxx ...');
   });
 

@@ -43,3 +43,5 @@ export interface Database {
 }
 
 export type DocsContentStyles = 'clean' | 'full' | 'original';
+
+export type DataSegment = {[field: string]: any};
