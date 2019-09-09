@@ -4,9 +4,9 @@ import { SheetsService } from './sheets';
 export const DATABASE: Database = {};
 
 export function sheets(options: Options) {
-    return new SheetsService(options, DATABASE);
+  return new SheetsService(options, DATABASE);
 }
 
 export function sheetsAdmin(options: Options) {
-    return sheets(options).toAdmin();
+  return sheets(options).toAdmin();
 }

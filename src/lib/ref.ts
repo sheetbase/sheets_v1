@@ -24,7 +24,7 @@ export class RefService {
       const rawItems = translateRangeValues(
         this.Sheets.spreadsheet.getRange(sheetName + '!A1:ZZ').getValues());
       // process items
-      const items: {[$key: string]: Item} = {};
+      const items: { [$key: string]: Item } = {};
       for (let i = 0; i < rawItems.length; i++) {
         const item = parseData<Item>(rawItems[i] as Item);
         // get item key
@@ -62,7 +62,7 @@ export class RefService {
 
   // get data at this ref location
   private data() {
-    const [ sheetName, ...paths ] = this.paths;
+    const [sheetName, ...paths] = this.paths;
     let data = {};
     if (!sheetName) { // root data
       data = { ... this.loadRootData() };
@@ -88,7 +88,7 @@ export class RefService {
   }
 
   parent() {
-    const paths = [ ... this.paths ];
+    const paths = [... this.paths];
     if (paths.length > 0) {
       paths.pop();
       return new RefService(paths, this.Sheets);
@@ -99,7 +99,7 @@ export class RefService {
 
   child(path: string) {
     const childPaths = path.split('/').filter(Boolean);
-    const paths = [ ... this.paths, ... childPaths ];
+    const paths = [... this.paths, ...childPaths];
     return new RefService(paths, this.Sheets);
   }
 
@@ -157,7 +157,7 @@ export class RefService {
 
   update<Item, Data>(data: Data = null, clean = false): Item {
     if (this.paths.length > 0) {
-      const [ sheetName, _itemKey ] = this.paths;
+      const [sheetName, _itemKey] = this.paths;
 
       // get sheet
       const sheet = this.Sheets.spreadsheet.getSheetByName(sheetName);
@@ -184,7 +184,7 @@ export class RefService {
       } else if (action === 'update') { // update
         _row = item._row;
         const newItem = {
-          ... data,
+          ...data,
           '#': item['#'],
           [this.keyField(sheetName)]: itemKey,
           _row,
@@ -193,8 +193,8 @@ export class RefService {
           item = newItem;
         } else { // update
           item = {
-            ... item,
-            ... newItem,
+            ...item,
+            ...newItem,
           };
         }
       } else if (action === 'new') { // new
@@ -202,7 +202,7 @@ export class RefService {
         const lastItemId = sheet.getRange('A' + lastRow + ':' + lastRow).getValues()[0][0];
         _row = lastRow + 1;
         item = {
-          ... data,
+          ...data,
           '#': !isNaN(lastItemId) ? (lastItemId + 1) : 1,
           [this.keyField(sheetName)]: itemKey,
           _row,
@@ -214,7 +214,7 @@ export class RefService {
 
       // build range values
       const rangeValues = [];
-      const [ headers ] = sheet.getRange('A1:1').getValues();
+      const [headers] = sheet.getRange('A1:1').getValues();
       for (let i = 0; i < headers.length; i++) {
         if (action === 'remove') {
           rangeValues.push('');
@@ -243,7 +243,7 @@ export class RefService {
     }
   }
 
-  increase(increasing: string | string[] | {[path: string]: number}) {
+  increase(increasing: string | string[] | { [path: string]: number }) {
     if (this.paths.length === 2) {
       const item = this.data();
       const data: any = {}; // changed data
@@ -259,7 +259,7 @@ export class RefService {
       }
       // increase props
       for (const path of Object.keys(increasing)) {
-        const [ itemKey, childKey ] = path.split('/').filter(Boolean);
+        const [itemKey, childKey] = path.split('/').filter(Boolean);
         const increasedBy = increasing[path] || 1;
         if (!isNaN(increasedBy)) { // only number
           // set value
