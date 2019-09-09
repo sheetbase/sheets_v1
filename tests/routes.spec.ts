@@ -198,25 +198,28 @@ describe('Sheets routes', () => {
     const result = handler({
       query: {
         sheet: 'xxx',
-        where: 'a',
-        equal: 1,
-        segment: {},
+        query: '%7B%22a%22%3A1%7D',
+        segment: '%7B%22a%22%3A1%7D',
+        order: 'desc',
+        orderBy: 'a',
+        limit: 3,
+        offset: 3,
       },
     }, {
       success: data => data,
     });
-    expect(result).to.eql(['query', 'xxx', {
-      where: 'a',
-      equal: 1,
-      exists: undefined,
-      contains: undefined,
-      lt: undefined,
-      lte: undefined,
-      gt: undefined,
-      gte: undefined,
-      childExists: undefined,
-      childEqual: undefined,
-    }, {}]);
+    expect(result).to.eql([
+      'query',
+      'xxx',
+      { a: 1},
+      { a: 1},
+      {
+        order: 'desc',
+        orderBy: 'a',
+        limit: 3,
+        offset: 3,
+      },
+    ]);
   });
 
   it('POST /database (error)', () => {

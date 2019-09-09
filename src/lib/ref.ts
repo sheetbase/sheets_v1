@@ -1,16 +1,24 @@
 import { SheetsService } from './sheets';
-import { DataSegment } from './types';
-import { buildSegmentFilter } from './filter';
+import {
+  Filter,
+  AdvancedFilter,
+  ListingFilter,
+  DataSegment,
+} from './types';
+import { DataFilterService } from './filter';
 import { translateRangeValues, parseData, o2a, uniqueId } from './utils';
 
 export class RefService {
+
   private Sheets: SheetsService;
+  private Filter: DataFilterService;
 
   private paths: string[];
 
   constructor(paths: string[], Sheets: SheetsService) {
     this.paths = paths;
     this.Sheets = Sheets;
+    this.Filter = new DataFilterService();
   }
 
   private keyField(sheetName: string) {
@@ -121,27 +129,30 @@ export class RefService {
   }
 
   query<Item>(
-    advancedFilter: (item: Item) => boolean,
-    segment: DataSegment = null,
+    filter: Filter<Item>,
+    segment?: DataSegment,
+    listingFilter?: ListingFilter,
   ) {
     if (this.paths.length === 1) {
-      const result: Item[] = [];
-      // build segment filter
-      const segmentFilter = buildSegmentFilter<Item>(segment);
+      // filters
+      const advancedFilter = this.Filter.buildAdvancedFilter(filter);
+      const segmentFilter = this.Filter.buildSegmentFilter<Item>(segment);
+      // get items
+      const items: Item[] = [];
       // go through items, filter and check for security
-      const items = this.data();
-      for (const key of Object.keys(items)) {
-        const item = items[key];
+      const rawItems = this.data();
+      for (const key of Object.keys(rawItems)) {
+        const item = rawItems[key];
         if (
           !!segmentFilter(item) &&
           !!advancedFilter(item)
         ) {
           const itemRef = this.child(key);
           this.Sheets.Security.checkpoint('read', itemRef.paths, itemRef);
-          result.push(item);
+          items.push(item);
         }
       }
-      return result;
+      return this.Filter.applyListingFilter(items, listingFilter);
     } else {
       throw new Error('Can only query list ref.');
     }

@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>SecurityHelpers | @sheetbase/sheets</title>
+	<title>MultiQuery | @sheetbase/sheets</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -52,10 +52,10 @@
 					<a href="../index.html">Globals</a>
 				</li>
 				<li>
-					<a href="securityhelpers.html">SecurityHelpers</a>
+					<a href="multiquery.html">MultiQuery</a>
 				</li>
 			</ul>
-			<h1>Interface SecurityHelpers</h1>
+			<h1>Interface MultiQuery</h1>
 		</div>
 	</div>
 </header>
@@ -66,31 +66,46 @@
 				<h3>Hierarchy</h3>
 				<ul class="tsd-hierarchy">
 					<li>
-						<span class="target">SecurityHelpers</span>
+						<span class="target">MultiQuery</span>
 					</li>
 				</ul>
 			</section>
-			<section class="tsd-panel tsd-kind-interface">
-				<h3 class="tsd-before-signature">Indexable</h3>
-				<div class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">[</span>name: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">function</span></div>
-				<ul class="tsd-parameters">
-					<li class="tsd-parameter-siganture">
-						<ul class="tsd-signatures tsd-kind-type-literal tsd-is-not-exported">
-							<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>snapshot<span class="tsd-signature-symbol">: </span><a href="../classes/datasnapshot.html" class="tsd-signature-type">DataSnapshot</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span></li>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="multiquery.html#and" class="tsd-kind-icon">and</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="multiquery.html#or" class="tsd-kind-icon">or</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="and" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> and</h3>
+					<div class="tsd-signature tsd-kind-icon">and<span class="tsd-signature-symbol">:</span> <a href="singlequery.html" class="tsd-signature-type">SingleQuery</a><span class="tsd-signature-symbol">[]</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets/blob/5824cbf/src/lib/types.ts#L25">lib/types.ts:25</a></li>
 						</ul>
-						<ul class="tsd-descriptions">
-							<li class="tsd-description">
-								<h4 class="tsd-parameters-title">Parameters</h4>
-								<ul class="tsd-parameters">
-									<li>
-										<h5>snapshot: <a href="../classes/datasnapshot.html" class="tsd-signature-type">DataSnapshot</a></h5>
-									</li>
-								</ul>
-								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">any</span></h4>
-							</li>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="or" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> or</h3>
+					<div class="tsd-signature tsd-kind-icon">or<span class="tsd-signature-symbol">:</span> <a href="singlequery.html" class="tsd-signature-type">SingleQuery</a><span class="tsd-signature-symbol">[]</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/sheetbase/sheets/blob/5824cbf/src/lib/types.ts#L26">lib/types.ts:26</a></li>
 						</ul>
-					</li>
-				</ul>
+					</aside>
+				</section>
 			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -130,19 +145,27 @@
 					<li class=" tsd-kind-interface">
 						<a href="listingfilter.html" class="tsd-kind-icon">Listing<wbr>Filter</a>
 					</li>
-					<li class=" tsd-kind-interface">
-						<a href="multiquery.html" class="tsd-kind-icon">Multi<wbr>Query</a>
-					</li>
-					<li class=" tsd-kind-interface">
-						<a href="options.html" class="tsd-kind-icon">Options</a>
-					</li>
 				</ul>
 				<ul class="current">
 					<li class="current tsd-kind-interface">
-						<a href="securityhelpers.html" class="tsd-kind-icon">Security<wbr>Helpers</a>
+						<a href="multiquery.html" class="tsd-kind-icon">Multi<wbr>Query</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="multiquery.html#and" class="tsd-kind-icon">and</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="multiquery.html#or" class="tsd-kind-icon">or</a>
+							</li>
+						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
+					<li class=" tsd-kind-interface">
+						<a href="options.html" class="tsd-kind-icon">Options</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="securityhelpers.html" class="tsd-kind-icon">Security<wbr>Helpers</a>
+					</li>
 					<li class=" tsd-kind-interface">
 						<a href="singlequery.html" class="tsd-kind-icon">Single<wbr>Query</a>
 					</li>

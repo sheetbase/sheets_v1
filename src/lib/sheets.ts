@@ -4,15 +4,15 @@ import {
   Options,
   Extendable,
   Intergration,
+  Query,
   Filter,
-  AdvancedFilter,
+  ListingFilter,
   Database,
   DocsContentStyles,
   DataSegment,
 } from './types';
 import { SecurityService } from './security';
 import { RefService } from './ref';
-import { buildQuery, buildAdvancedFilter } from './filter';
 
 export class SheetsService {
   options: Options;
@@ -66,28 +66,41 @@ export class SheetsService {
     return this.ref('/' + sheetName).toArray() as Item[];
   }
 
-  query<Item>(sheetName: string, filter: Filter, segment: DataSegment = null) {
-    let advancedFilter: AdvancedFilter;
-    if (filter instanceof Function) {
-      advancedFilter = filter;
+  query<Item>(
+    sheetName: string,
+    filter: Filter<Item>,
+    segment?: DataSegment,
+    listingFilter?: ListingFilter,
+  ) {
+    return this.ref('/' + sheetName).query(filter, segment, listingFilter) as Item[];
+  }
+
+  items<Item>(
+    sheetName: string,
+    filter?: Filter<Item>,
+    segment?: DataSegment,
+    listingFilter?: ListingFilter,
+  ) {
+    if (!!filter) {
+      return this.query<Item>(sheetName, filter, segment, listingFilter);
     } else {
-      advancedFilter = buildAdvancedFilter(
-        buildQuery(filter),
-      );
+      return this.all<Item>(sheetName);
     }
-    return this.ref('/' + sheetName).query(advancedFilter, segment) as Item[];
   }
 
-  items<Item>(sheetName: string, filter?: Filter, segment: DataSegment = null) {
-    return !!filter ? this.query<Item>(sheetName, filter, segment) : this.all<Item>(sheetName);
-  }
-
-  item<Item>(sheetName: string, finder: string | Filter, segment: DataSegment = null) {
+  item<Item>(
+    sheetName: string,
+    finder: string | number | Filter<Item>,
+    segment?: DataSegment,
+  ) {
     let item: Item = null;
     if (typeof finder === 'string') {
       const key = finder;
       item = this.ref('/' + sheetName + '/' + key).toObject() as Item;
     } else {
+      if (typeof finder === 'number') {
+        finder = { where: '#', equal: finder };
+      }
       const items = this.query(sheetName, finder, segment);
       if (!!items && items.length === 1) {
         item = items[0] as Item;
@@ -234,18 +247,16 @@ export class SheetsService {
         path = '/', // sheet name and item key
         table, sheet, // sheet name
         id, key, // item key
-        // query
-        where,
-        equal,
-        exists,
-        contains,
-        lt, lte,
-        gt, gte,
-        childExists,
-        childEqual,
         // type
         type = 'list',
-        segment,
+        // query, segment
+        query: encodedQuery,
+        segment: encodedSegment,
+        // listing
+        order,
+        orderBy,
+        limit,
+        offset,
       } = req.query;
       const paths = path.split('/').filter(Boolean);
       const sheetName = table || sheet || paths[0];
@@ -259,17 +270,13 @@ export class SheetsService {
       try {
         if (!!itemKey) { // get item
           result = this.item(sheetName, itemKey);
-        } else if (!!where) { // query
-          result = this.query(sheetName, {
-            where,
-            equal,
-            exists,
-            contains,
-            lt, lte,
-            gt, gte,
-            childExists,
-            childEqual,
-          }, segment);
+        } else if (!!encodedQuery) { // query
+          // parse data
+          const query = JSON.parse(decodeURIComponent(encodedQuery)) as Query;
+          const segment = JSON.parse(decodeURIComponent(encodedSegment)) as DataSegment;
+          const listingFilter = { order, orderBy, limit, offset } as ListingFilter;
+          // run query
+          result = this.query(sheetName, query, segment, listingFilter);
         } else if (type === 'object') {
           result = this.data(sheetName);
         } else { // all

@@ -1,3 +1,5 @@
+export { orderBy } from '../lodash/orderby';
+
 // turn [[],[], ...] to [{},{}, ...]
 export function translateRangeValues<Item>(
   values: any[][],

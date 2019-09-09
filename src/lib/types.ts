@@ -1,9 +1,14 @@
 import { DataSnapshot } from './snapshot';
 
-export type AdvancedFilter = (item: any) => boolean;
-export type ShorthandEqual = { [field: string]: any };
-export type Filter = ShorthandEqual | Query | AdvancedFilter;
-export interface Query {
+export type Filter<Item> = Query | AdvancedFilter<Item>;
+
+export type AdvancedFilter<Item> = (item: Item) => boolean;
+
+export type Query = ShorthandQuery | SingleQuery | MultiQuery;
+
+export type ShorthandQuery = {[field: string]: any};
+
+export interface SingleQuery {
   where: string;
   equal?: any;
   exists?: boolean;
@@ -14,6 +19,20 @@ export interface Query {
   gte?: number;
   childExists?: any;
   childEqual?: string;
+}
+
+export interface MultiQuery {
+  and?: SingleQuery[];
+  or?: SingleQuery[];
+}
+
+export type ListingOrder = 'asc' | 'desc';
+
+export interface ListingFilter {
+  order?: ListingOrder | ListingOrder[];
+  orderBy?: string | string[];
+  limit?: number; // +/- limit to first/last
+  offset?: number;
 }
 
 export interface SecurityHelpers {

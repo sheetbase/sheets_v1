@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
 import {
+  orderBy,
   translateRangeValues,
   parseData,
   o2a,
@@ -111,6 +112,22 @@ describe('Utils', () => {
   it('#uniqueId should create id (12 chars, start with 1)', () => {
     const id = uniqueId(null, '1');
     expect(id.substr(0, 1)).to.equal('1');
+  });
+
+  it('#orderBy', () => {
+    const items = [
+      { user: 'fred',   age: 48 },
+      { user: 'barney', age: 34 },
+      { user: 'fred',   age: 40 },
+      { user: 'barney', age: 36 },
+    ];
+    const result = orderBy(items, ['user', 'age'], ['asc', 'desc']);
+    expect(result).eql([
+      { user: 'barney', age: 36 },
+      { user: 'barney', age: 34 },
+      { user: 'fred',   age: 48 },
+      { user: 'fred',   age: 40 },
+    ]);
   });
 
 });
